@@ -1,5 +1,5 @@
 ---
-title: 安装PostgreSQL
+title: PostgreSQL
 tag: 安装
 ---
 

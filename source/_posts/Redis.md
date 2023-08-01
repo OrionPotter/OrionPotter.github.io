@@ -1,17 +1,66 @@
 ---
-title: 简单动态字符串
+title: redis-学习
 tag: redis
 ---
 
-# 简单动态字符串
+## redis安装
 
-------
+**官方snapd商店安装**
 
->​		Redis没有使用C语言的字符串，而是自己构建了一种名为简单动态字符串SDS（simple dynamic string）的抽象类型，并把sds用作默认redis的默认字符串表示。
->
->​		Redis数据库里面的键值对最底层都是由SDS实现的
+```shell
+sudo yum install epel-release -y
+sudo yum install snapd -y 
+sudo systemctl enable --now snapd.socket 
+sudo ln -s /var/lib/snapd/snap /snap
+sudo snap install redis
+```
 
-## 1.SDS定义
+**官方源码安装[推荐]**
+
+1.安装阿里源
+
+```shell
+# CentOS 7
+wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo
+```
+
+2.安装编译器
+
+```shell
+yum install gcc-c++ -y
+```
+
+3.下载源码
+
+```shell
+wget https://download.redis.io/redis-stable.tar.gz
+```
+
+4.编译redis
+
+```shell
+tar -xzvf redis-stable.tar.gz
+cd redis-stable
+make
+```
+
+5.安装生成的可执行文件
+
+```shell
+make install
+```
+
+6.启动redis
+
+```shell
+redis-server
+```
+
+## 简单动态字符串
+
+>Redis没有使用C语言的字符串，而是自己构建了一种名为简单动态字符串SDS（simple dynamic string）的抽象类型，并把sds用作默认redis的默认字符串表示。Redis数据库里面的键值对最底层都是由SDS实现的
+
+#### 1.SDS定义
 
 C语言表示
 
@@ -29,7 +78,7 @@ struct sdshdr{
 
 >buf字节数组和c语言的字符串保持一致，都以空字符结尾
 
-## 2.SDS与C字符串的区别
+#### 2.SDS与C字符串的区别
 
 >C语言使用长度为N+1的字节数组表示长度为N的字符串，字节数组最后都是以空字符（'\0'）结尾
 
@@ -64,5 +113,7 @@ struct sdshdr{
 
 >sds保留了空字符结尾的特性，可以重用部分c语言的函数，从而避免重复代码编写。
 
+## 链表
 
+>链表提供了高效的节点重排能力，以及顺序性节点访问方式，并且可以通过增删节点来调整链表的长度
 
