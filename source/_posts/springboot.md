@@ -194,4 +194,70 @@ Spring Boot的自动装配机制会试图根据你所添加的依赖来自动配
 public class MyApplication {}
 ```
 
-##  5. Spring Bean 和 依赖注入
+####  5. Spring Bean 和 依赖注入
+
+推荐使用构造函数注入，并使用 `@ComponentScan` 注解来扫描Bean。可以在启动类添加 `@ComponentScan` 注解，也不需要定义它任何参数， 你的所有应用组件（`@Component`、`@Service`、`@Repository`、`@Controller` 和其他）都会自动注册为Spring Bean。
+
+```java
+@Service
+public class MyAccountService implements AccountService {
+
+    private final RiskAssessor riskAssessor;
+
+    public MyAccountService(RiskAssessor riskAssessor) {
+        this.riskAssessor = riskAssessor;
+    }
+}
+//如果一个Bean有多个构造函数，你需要用 @Autowired 注解来告诉Spring该用哪个构造函数进行注入。
+@Service
+public class MyAccountService implements AccountService {
+
+    private final RiskAssessor riskAssessor;
+
+    private final PrintStream out;
+
+    @Autowired
+    public MyAccountService(RiskAssessor riskAssessor) {
+        this.riskAssessor = riskAssessor;
+        this.out = System.out;
+    }
+
+    public MyAccountService(RiskAssessor riskAssessor, PrintStream out) {
+        this.riskAssessor = riskAssessor;
+        this.out = out;
+    }
+}
+```
+
+#### 6.使用@SpringBootApplication 注解
+
+应用程序能够使用自动配置、组件扫描，并且能够在他们的 "application class "上定义额外的配置。 一个 `@SpringBootApplication` 注解就可以用来启用这三个功能，如下。
+
+- `@EnableAutoConfiguration`：启用Spring Boot的自动配置机制。
+- `@ComponentScan`：对应用程序所在的包启用 `@Component` 扫描
+- `@SpringBootConfiguration`：允许在Context中注册额外的Bean或导入额外的配置类
+
+```java
+// Same as @SpringBootConfiguration @EnableAutoConfiguration @ComponentScan
+@SpringBootApplication
+public class MyApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(MyApplication.class, args);
+    }
+
+}
+```
+
+#### 7.运行你的应用
+
+### **运行打包后的应用**
+
+```shell
+$ java -jar target/myapplication-0.0.1-SNAPSHOT.jar
+
+$ java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8000,suspend=n \
+       -jar target/myapplication-0.0.1-SNAPSHOT.jar
+
+```
+
