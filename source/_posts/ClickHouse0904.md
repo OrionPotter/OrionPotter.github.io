@@ -674,3 +674,585 @@ INSERT INTO tutorial.hits_all SELECT * FROM tutorial.hits_v1;
 | :----------------------------- | :----------------------------------------------------------- | :----------------------------------------------------- |
 | 单机表（Non-Replicated Table） | 数据只会存储在当前服务器上，不会被复制到其他服务器，即只有一个副本。 | 单机表在异常情况下无法保证服务高可用。                 |
 | 复制表（Replicated Table）     | 数据会被自动复制到多台服务器上，形成多个副本。               | 复制表在至少有一个正常副本的情况下，能够对外提供服务。 |
+
+## 六、接口
+
+### 1.命令行客户端
+
+ClickHouse提供了一个原生命令行客户端`clickhouse-client`客户端支持命令行
+
+#### 1.1 使用方式
+
+客户端可以在交互和非交互(批处理)模式下使用。要使用批处理模式，请指定`query`参数，或将数据发送到`stdin`(它会验证`stdin`是否是终端)，或两者同时进行。
+
+```shell
+#插入数据
+cat file.csv | clickhouse-client --database=test --query="INSERT INTO test FORMAT CSV";
+```
+
+在批量模式中，默认的数据格式是`TabSeparated`分隔的。您可以根据查询来灵活设置FORMAT格式。
+
+默认情况下，在批量模式中只能执行单个查询。为了从一个Script中执行多个查询，可以使用`--multiquery`参数。
+
+#### 1.2 查询参数
+
+您可以创建带有参数的查询，并将值从客户端传递给服务器。这允许避免在客户端使用特定的动态值格式化查询。
+
+```shell
+$ clickhouse-client --param_parName="[1, 2]"  -q "SELECT * FROM table WHERE a = {parName:Array(UInt16)}"
+```
+
+**1.2.1 查询语法**
+
+像平常一样格式化一个查询，然后把你想要从app参数传递到查询的值用大括号格式化，格式如下:
+
+```sql
+{<name>:<data type>}
+```
+
+- `name` — 占位符标识符。在控制台客户端，使用`--param_<name> = value`来指定
+- `data type` — 数据类型参数值。例如，一个数据结构`(integer, ('string', integer))`拥有`Tuple(UInt8, Tuple(String, UInt8))`数据类型(你也可以用另一个integer类型)。
+
+**1.2.2 示例**
+
+```bash
+$ clickhouse-client --param_tuple_in_tuple="(10, ('dt', 10))" -q "SELECT * FROM table WHERE val = {tuple_in_tuple:Tuple(UInt8, Tuple(String, UInt8))}"
+```
+
+#### 1.3 配置
+
+#### 1.3.1 通过命令行
+
+命令行参数会覆盖默认值和配置文件的配置。
+
+- `--host, -h` -– 服务端的host名称, 默认是`localhost`。您可以选择使用host名称或者IPv4或IPv6地址。
+- `--port` – 连接的端口，默认值：9000。注意HTTP接口以及TCP原生接口使用的是不同端口。
+- `--user, -u` – 用户名。 默认值：`default`。
+- `--password` – 密码。 默认值：空字符串。
+- `--query, -q` – 使用非交互模式查询。
+- `--database, -d` – 默认当前操作的数据库. 默认值：服务端默认的配置（默认是`default`）。
+- `--multiline, -m` – 如果指定，允许多行语句查询（Enter仅代表换行，不代表查询语句完结）。
+- `--multiquery, -n` – 如果指定, 允许处理用`;`号分隔的多个查询，只在非交互模式下生效。
+- `--format, -f` – 使用指定的默认格式输出结果。
+- `--vertical, -E` – 如果指定，默认情况下使用垂直格式输出结果。这与`–format=Vertical`相同。在这种格式中，每个值都在单独的行上打印，这种方式对显示宽表很有帮助。
+- `--time, -t` – 如果指定，非交互模式下会打印查询执行的时间到`stderr`中。
+- `--stacktrace` – 如果指定，如果出现异常，会打印堆栈跟踪信息。
+- `--config-file` – 配置文件的名称。
+- `--secure` – 如果指定，将通过安全连接连接到服务器。
+- `--history_file` — 存放命令历史的文件的路径。
+- `--param_<name>` — 查询参数配置查询参数
+
+#### 1.3.2 配置文件
+
+配置文件的配置会覆盖默认值
+
+`clickhouse-client`使用以下第一个配置文件：
+
+- 通过`--config-file`参数指定。
+- `./clickhouse-client.xml`
+- `~/.clickhouse-client/config.xml`
+- `/etc/clickhouse-client/config.xml`
+
+**配置文件示例**:
+
+```xml
+<config>
+    <user>username</user>
+    <password>password</password>
+    <secure>False</secure>
+</config>
+```
+
+### 2.JDBC驱动
+
+#### 2.1官方驱动
+
+```xml
+<dependency>
+    <groupId>ru.yandex.clickhouse</groupId>
+    <artifactId>clickhouse-jdbc</artifactId>
+    <version>{version}</version>
+</dependency>
+```
+
+#### 2.2第三方驱动
+
+```xml
+<dependency>
+    <groupId>com.github.housepower</groupId>
+    <artifactId>clickhouse-native-jdbc</artifactId>
+    <version>{version}</version>
+</dependency>
+```
+
+两者间的主要区别如下：
+
+a.驱动类加载路径不同，分别为 ru.yandex.clickhouse.ClickHouseDriver和 com.github.housepower.jdbc.ClickHouseDriver
+b.默认连接端口不同，分别为 8123 和 9000
+C.连接协议不同，官方驱动使用 HTTP 协议，而三方驱动使用 TCP 协议
+
+#### 2.3 mybatis-plus整合ClickHouse
+
+**建表示例：**
+
+```sql
+-- 建表
+CREATE TABLE IF NOT EXISTS tb_stat ( id String, region String, group String, yesterday INT, today INT, stat_date DateTime ) ENGINE = SummingMergeTree PARTITION BY ( toYYYYMM ( stat_date ), region )  ORDER BY ( toStartOfHour ( stat_date ), region, group );
+
+-- 数据
+INSERT INTO tb_stat VALUES( '1','1232364', '111', 32, 2, '2021-07-09 12:56:00' );
+INSERT INTO tb_stat VALUES( '2','1232364', '111', 34, 44, '2021-07-09 12:21:00' );
+INSERT INTO tb_stat VALUES( '3','1232364', '111', 54, 12, '2021-07-09 12:20:00' );
+INSERT INTO tb_stat VALUES( '4','1232364', '222', 45, 11, '2021-07-09 12:13:00' );
+INSERT INTO tb_stat VALUES( '5','1232364', '222', 32, 33, '2021-07-09 12:44:00' );
+INSERT INTO tb_stat VALUES( '6','1232364', '222', 12, 23, '2021-07-09 12:22:00' );
+INSERT INTO tb_stat VALUES( '7','1232364', '333', 54, 54, '2021-07-09 12:11:00' );
+INSERT INTO tb_stat VALUES( '8','1232364', '333', 22, 74, '2021-07-09 12:55:00' );
+INSERT INTO tb_stat VALUES( '9','1232364', '333', 12, 15, '2021-07-09 12:34:00' );
+```
+
+**依赖相关：**
+
+```xml
+ <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.yandex.clickhouse</groupId>
+            <artifactId>clickhouse-jdbc</artifactId>
+            <version>0.3.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.alibaba/druid -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.1.21</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.baomidou/mybatis-plus-boot-starter -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.3.2</version>
+        </dependency>
+
+        
+        <!--Spring Boot 测试-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+    </dependencies>
+```
+
+##### 2.3.1 配置SpringBoot配置文件
+
+```xml
+server:
+  port: 8080
+spring:
+#clickhouse配置
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: ru.yandex.clickhouse.ClickHouseDirver
+    click:
+      url: jdbc:clickhouse://192.168.67.111:8123/tutorial
+      username: default
+      password:
+      initialSize: 10
+      maxActive: 100
+      minIdle: 10
+      maxWait: 6000
+```
+
+##### 2.3.2 配置DruidConfig
+
+```java
+@Configuration
+public class DruidConfig {
+    @Bean
+    @ConfigurationProperties(prefix = "spring.datasource.click")
+    public DataSource druidDataSource() {
+        return new DruidDataSource();
+    }
+}
+```
+
+##### 2.3.3 Mapper配置
+
+```java
+public interface StatMapper extends BaseMapper<Stat> {
+}
+```
+
+##### 2.3.4 Entity配置
+
+```java
+@Data
+@EqualsAndHashCode(callSuper = false)
+@Accessors(chain = true)
+@TableName(value = "tb_stat")
+public class Stat implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private String id;
+    private String region;
+    private String group;
+    private Integer yesterday;
+    private Integer today;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    private Date statDate;
+}
+```
+
+##### 2.3.5 测试类
+
+```java
+@SpringBootTest
+public class AppArgTest {
+    @Autowired
+    private StatMapper statMapper;
+    @Test
+    public void testClickHouse(){
+        Integer integer = statMapper.selectCount(null);
+        System.out.println(integer);
+    }
+}
+```
+
+#### 2.4 注意事项
+
+>clickhouse 数据库的语法有一些不同,删除和修改的SQL要自己在xml文件内写。
+
+```sql
+-- clickHouse语法
+-- 删除语法
+alter table tb_stat delete WHERE id='10';
+-- 修改语法
+alter table tb_stat update today=222 WHERE id='4';
+```
+
+### 3.输入输出格式
+
+ClickHouse可以接受输入和输出各种格式的数据，如TSV(TabSeparated)、CSV、CSVWhithNames、JSON、XML等。
+
+#### 3.1 TabSeparated
+
+在TabSeparated分隔格式中，数据按行写入。每行包含由制表符分隔的值，每个值后跟一个制表符，除了行中最后一个值，最后的值后面是一个换行符。在任何地方都采用严格的Unix换行(\n)。最后一行结束后必须再插入一个换行符。值以文本格式编写，不包含引号，并使用转义的特殊字符，这种格式也被称为`TSV`。
+
+`TabSeparated`格式便于其他的程序和脚本处理数据。默认情况下，HTTP接口和命令行客户端的批处理模式中会使用这个格式。这种格式还允许在不同dbms之间传输数据。例如，您可以从MySQL获取转储并将其上传到ClickHouse，反之亦然。
+
+#### 3.2 数据格式化
+
+整数是用十进制形式写的。数字可以在开头包含一个额外的`+`字符(解析时忽略该符号，格式化时不记录该符号)。非负数不能包含负号。在读取时，允许将空字符串解析为零，或者(对于有符号类型)将'-'(仅有减号的字符串)解析为零。不符合相应数据类型的数字可能被解析为数值，而不会出现错误消息。
+
+浮点数以十进制形式书写。用`.`作为小数点的符号。支持指数符号，如`inf`、`+inf`、`-inf`和`nan`。小数点前或后可以不出现数字(如123.或.123)。 在格式化期间，浮点数精度可能会丢失。 在解析期间，并不严格要求读取与机器可以表示的最接近的数值。
+
+日期以`YYYY-MM-DD`格式编写，并以相同的格式解析，但允许使用任何字符作为分隔符。 日期和时间以`YYYY-MM-DD hh:mm:ss`的格式书写，并以相同的格式解析，但允许使用任何字符作为分隔符。 时区采用客户端或服务器端时区(取决于谁对数据进行格式化)。对于带有时间的日期，没有是哦用夏时制时间。因此，如果导出的数据采用了夏时制，则实际入库的时间不一定与预期的时间对应，解析将根据解析动作发起方选择时间。 在读取操作期间，不正确的日期和具有时间的日期可以自然溢出(如2021-01-32)或设置成空日期和时间，而不会出现错误消息。
+
+有个例外情况，时间解析也支持Unix时间戳(如果它恰好由10个十进制数字组成)。其结果与时区无关。格式`YYYY-MM-DD hh:mm:ss`和`NNNNNNNNNN`这两种格式会自动转换。
+
+字符串输出时，特殊字符会自动转义。以下转义序列用于输出:`\b`, `\f`, `\r`, `\n`, `\t`, `\0`, `\'`, `\\`。解析还支持`\a`、`\v`和`\xHH`(HH代表十六进制编码)和`\c`，其中`c`是任何字符(这些序列被转换为`c`)。因此，读取数据时，换行符可以写成`\n`或`\`。
+
+NULL将输出为`\N`。
+
+Nested结构的每个元素都表示为数组。
+
+## 七、引擎
+
+### 1.数据库引擎
+
+数据库引擎允许您处理数据表。默认情况下，ClickHouse使用Atomic数据库引擎。它提供了可配置的table engines和SQL dialect。
+
+ClickHouse以下数据库引擎：
+
+- MySQL
+- Lazy
+- Atomic
+- PostgreSQL
+- MaterializedPostgreSQL
+- Replicated
+- SQLite
+
+#### 1.1 mysql引擎
+
+MySQL引擎用于将远程的MySQL服务器中的表映射到ClickHouse中，并允许您对表进行`INSERT`和`SELECT`查询，以方便您在ClickHouse与MySQL之间进行数据交`MySQL`数据库引擎会将对其的查询转换为MySQL语法并发送到MySQL服务器中，因此您可以执行诸如`SHOW TABLES`或`SHOW CREATE TABLE`之类的操作。但不支持以下操作：
+
+- `RENAME`
+- `CREATE TABLE`
+- `ALTER`
+
+##### 1.1.1 创建mysql引擎的数据库
+
+```sql
+CREATE DATABASE [IF NOT EXISTS] db_name [ON CLUSTER cluster]
+ENGINE = MySQL('host:port', ['database' | database], 'user', 'password')
+```
+
+**引擎参数**
+
+- `host:port` — MySQL服务地址
+- `database` — MySQL数据库名称
+- `user` — MySQL用户名
+- `password` — MySQL用户密码
+
+##### 1.1.2 mysql数据库示例
+
+**1.创建数据库为test库，创建数据库表为mysql_table**
+
+```sql
+mysql> USE test;
+Database changed
+
+mysql> CREATE TABLE `mysql_table` (
+    ->   `int_id` INT NOT NULL AUTO_INCREMENT,
+    ->   `float` FLOAT NOT NULL,
+    ->   PRIMARY KEY (`int_id`));
+Query OK, 0 rows affected (0,09 sec)
+
+mysql> insert into mysql_table (`int_id`, `float`) VALUES (1,2);
+Query OK, 1 row affected (0,00 sec)
+
+mysql> select * from mysql_table;
++------+-----+
+| int_id | value |
++------+-----+
+|      1 |     2 |
++------+-----+
+1 row in set (0,00 sec)
+```
+
+**2.clickhouse中按照mysql引擎创建数据库**
+
+>与MySQL服务器交换数据,在clockhouse创建数据库mysql_db
+
+```sql
+CREATE DATABASE mysql_db ENGINE = MySQL('localhost:3306', 'test', 'my_user', 'user_password')
+```
+
+**3.在clickhouse里面查看数据库**
+
+```sql
+SHOW DATABASES
+```
+
+```sql
+┌─name─────┐
+│ default  │
+│ mysql_db │
+│ system   │
+└──────────┘
+```
+
+**4.在clickhouse查看数据库表**
+
+```sql
+SHOW TABLES FROM mysql_db
+```
+
+```sql
+┌─name─────────┐
+│  mysql_table │
+└──────────────┘
+```
+
+**5.在clickhouse执行插入语句**
+
+```sql
+INSERT INTO mysql_db.mysql_table VALUES (3,4)
+```
+
+**6.在clickhouse执行查询**
+
+```sql
+┌─int_id─┬─value─┐
+│      1 │     2 │
+│      3 │     4 │
+└────────┴───────┘
+```
+
+### 2.索引
+
+- 联合主键
+- 联合排序键 
+
+>- 如果我们只指定了排序键，那么主键将隐式定义为排序键。
+>- 为了提高内存效率，我们显式地指定了一个主键，只包含查询过滤的列。基于主键的主索引被完全加载到主内存中。
+>- 为了上下文的一致性和最大的压缩比例，我们单独定义了排序键，排序键包含当前表所有的列（和压缩算法有关，一般排序之后又更好的压缩率）。
+>- 如果同时指定了主键和排序键，则主键必须是排序键的前缀。
+
+### 3.表引擎
+
+表引擎（即表的类型）决定了：
+
+- 数据的存储方式和位置，写到哪里以及从哪里读取数据
+- 支持哪些查询以及如何支持。
+- 并发数据访问。
+- 索引的使用（如果存在）。
+- 是否可以执行多线程请求。
+- 数据复制参数。
+
+#### 3.1 引擎分类
+
++ MergeTree:适用于高负载任务的最通用和功能最强大的表引擎
++ 日志:具有最小功能的轻量级引擎。当您需要快速写入许多小表（最多约100万行）并在以后整体读取它们时，该类型的引擎是最有效的。
++ 集成的表引擎:用于与其他的数据存储与处理系统集成的引擎。
++ special:用于其他特定功能的引擎
+
+#### 3.2 MergeTree引擎
+
+>MergeTree引擎的共同特点是可以快速插入数据并进行后续的后台数据处理。MergeTree系列引擎支持**数据复制**（使用Replicated* 的引擎版本），分区和一些其他引擎不支持的其他功能。
+
+##### 3.2.1 VersionedCollapsingMergeTree
+
+特点：
+
+- 允许快速写入不断变化的对象状态。
+- 删除后台中的旧对象状态。 这显著降低了存储体积。
+
+>引擎继承自 MergeTree并将折叠行的逻辑添加到合并数据部分的算法中。 `VersionedCollapsingMergeTree` 用于相同的目的,折叠树但使用不同的折叠算法，允许以多个线程的任何顺序插入数据。 特别是`Version` 列有助于正确折叠行，即使它们以错误的顺序插入。 相比之下, `CollapsingMergeTree` 只允许严格连续插入。
+
+引擎参数
+
+```sql
+VersionedCollapsingMergeTree(sign, version)
+```
+
+- `sign` — 指定行类型的列名: `1` 是一个 “state” 行, `-1` 是一个 “cancel” 行
+
+  列数据类型应为 `Int8`.
+
+- `version` — 指定对象状态版本的列名。
+
+  列数据类型应为 `UInt*`.
+
+#### 3.2.2 GraphiteMergeTree
+
+>该引擎用来对 [Graphite](http://graphite.readthedocs.io/en/latest/index.html)数据进行瘦身及汇总。对于想使用CH来存储Graphite数据的开发者来说可能有用。
+
+#### 3.2.3 AggregatingMergeTree
+
+>该引擎继承自MergeTree，并改变了数据片段的合并逻辑。 ClickHouse 会将一个数据片段内所有具有相同主键（准确的说是 [排序键](https://clickhouse.com/docs/zh/engines/table-engines/mergetree-family/mergetree)）的行替换成一行，这一行会存储一系列聚合函数的状态。可以使用 `AggregatingMergeTree` 表来做增量数据的聚合统计，包括物化视图的数据聚合。
+
+#### 3.2.4 CollapsingMergeTree
+
+>该引擎继承于 [MergeTree](https://clickhouse.com/docs/zh/engines/table-engines/mergetree-family/mergetree)，并在数据块合并算法中添加了折叠行的逻辑。`CollapsingMergeTree` 会异步的删除（折叠）这些除了特定列 `Sign` 有 `1` 和 `-1` 的值以外，其余所有字段的值都相等的成对的行。没有成对的行会被保留。因此，该引擎可以显著的降低存储量并提高 `SELECT` 查询效率。
+
+引擎参数
+
+```sql
+CollapsingMergeTree(sign)
+```
+
+#### 3.2.5 自定义分区键
+
+>MergeTree 系列的表（包括可复制表）可以使用分区。基于 MergeTree 表的物化视图也支持分区。
+>
+>分区是在一个表中通过指定的规则划分而成的逻辑数据集。可以按任意标准进行分区，如按月，按日或按事件类型。为了减少需要操作的数据，每个分区都是分开存储的。访问数据时，ClickHouse 尽量使用这些分区的最小子集。
+>
+>分区是在建表时通过 `PARTITION BY expr` 子句指定的。分区键可以是表中列的任意表达式。例如，指定按月分区，表达式为 `toYYYYMM(date_column)`：
+
+#### 3.2.6 MergeTree
+
+>clickhouse 中最强大的表引擎当属 `MergeTree` （合并树）引擎及该系列（`*MergeTree`）中的其他引擎。
+>
+>`MergeTree` 系列的引擎被设计用于插入极大量的数据到一张表当中。数据可以以数据片段的形式一个接着一个的快速写入，数据片段在后台按照一定的规则进行合并。相比在插入时不断修改（重写）已存储的数据，这种策略会高效很多。
+>
+>主要特点:
+>
+>- 存储的数据按主键排序。能够创建一个小型的稀疏索引来加快数据检索。
+>- 如果指定了分区键的话，可以使用分区。在相同数据集和相同结果集的情况下 ClickHouse 中某些带分区的操作会比普通操作更快。查询中指定了分区键时 ClickHouse 会自动截取分区数据。这也有效增加了查询性能。
+>- 支持数据副本。`ReplicatedMergeTree` 系列的表提供了数据副本功能。
+>- 支持数据采样。可以给表设置一个采样方法。
+
+**建表**
+
+```sql
+CREATE TABLE [IF NOT EXISTS] [db.]table_name [ON CLUSTER cluster]
+(
+    name1 [type1] [DEFAULT|MATERIALIZED|ALIAS expr1] [TTL expr1],
+    name2 [type2] [DEFAULT|MATERIALIZED|ALIAS expr2] [TTL expr2],
+    ...
+    INDEX index_name1 expr1 TYPE type1(...) GRANULARITY value1,
+    INDEX index_name2 expr2 TYPE type2(...) GRANULARITY value2
+) ENGINE = MergeTree()
+ORDER BY expr
+[PARTITION BY expr]
+[PRIMARY KEY expr]
+[SAMPLE BY expr]
+[TTL expr [DELETE|TO DISK 'xxx'|TO VOLUME 'xxx'], ...]
+[SETTINGS name=value, ...]
+```
+
+- `ENGINE` - 引擎名和参数。`ENGINE = MergeTree()`. `MergeTree` 引擎没有参数。
+
+- `ORDER BY` — 排序键。可以是一组列的元组或任意的表达式。 例如: `ORDER BY (CounterID, EventDate)`,如果没有使用 `PRIMARY KEY` 显式指定的主键，ClickHouse 会使用排序键作为主键。如果不需要排序，可以使用 `ORDER BY tuple()`. 参考 [选择主键](https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree/#selecting-the-primary-key)
+
+- `PARTITION BY` — [分区键](https://clickhouse.com/docs/zh/engines/table-engines/mergetree-family/custom-partitioning-key) ，可选项。大多数情况下，不需要分使用区键。即使需要使用，也不需要使用比月更细粒度的分区键。分区不会加快查询（这与 ORDER BY 表达式不同）。永远也别使用过细粒度的分区键。不要使用客户端指定分区标识符或分区字段名称来对数据进行分区（而是将分区字段标识或名称作为 ORDER BY 表达式的第一列来指定分区）。要按月分区，可以使用表达式 `toYYYYMM(date_column)`，这里的 `date_column`是一个Date类型的列。分区名的格式会是`"YYYYMM"`。
+
+- `PRIMARY KEY` - 如果要 [选择与排序键不同的主键](https://clickhouse.com/docs/zh/engines/table-engines/mergetree-family/mergetree#choosing-a-primary-key-that-differs-from-the-sorting-key)，在这里指定，可选项。默认情况下主键跟排序键（由 `ORDER BY` 子句指定）相同。大部分情况下不需要再专门指定一个 `PRIMARY KEY` 子句。
+
+- `SAMPLE BY` - 用于抽样的表达式，可选项。如果要用抽样表达式，主键中必须包含这个表达式。例如： `SAMPLE BY intHash32(UserID) ORDER BY (CounterID, EventDate, intHash32(UserID))` 。
+
+- `TTL` - 指定行存储的持续时间并定义数据片段在硬盘和卷上的移动逻辑的规则列表，可选项。表达式中必须存在至少一个 `Date` 或 `DateTime` 类型的列，比如：
+
+  `TTL date + INTERVAl 1 DAY`
+
+TTL测试建表
+
+```sql
+//创建5分钟后删除行的表
+CREATE TABLE table_with_where
+(
+    d DateTime,
+    a Int
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMM(d)
+ORDER BY d
+TTL d + INTERVAL 5 MINUTE;
+//插入多条数据
+insert into table_with_where values (now(),1);
+//查询
+select * from table_with_where;
+┌───────────────────d─┬─a─┐
+│ 2023-09-07 16:20:42 │ 1 │
+│ 2023-09-07 16:21:04 │ 2 │
+│ 2023-09-07 16:21:07 │ 3 │
+│ 2023-09-07 16:21:09 │ 4 │
+│ 2023-09-07 16:21:14 │ 5 │
+└─────────────────────┴───┘
+//5分钟后数据自动删除
+//设置一个过期时间
+SECOND
+MINUTE
+HOUR
+DAY
+WEEK
+YEAR
+```
+
+
+
+
+
+
+
+1.删除-表数据生命周期
+
+2.物化视图
+
