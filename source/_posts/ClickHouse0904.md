@@ -1140,15 +1140,15 @@ VersionedCollapsingMergeTree(sign, version)
 
   列数据类型应为 `UInt*`.
 
-#### 3.2.2 GraphiteMergeTree
+##### 3.2.2 GraphiteMergeTree
 
 >该引擎用来对 [Graphite](http://graphite.readthedocs.io/en/latest/index.html)数据进行瘦身及汇总。对于想使用CH来存储Graphite数据的开发者来说可能有用。
 
-#### 3.2.3 AggregatingMergeTree
+##### 3.2.3 AggregatingMergeTree
 
 >该引擎继承自MergeTree，并改变了数据片段的合并逻辑。 ClickHouse 会将一个数据片段内所有具有相同主键（准确的说是 [排序键](https://clickhouse.com/docs/zh/engines/table-engines/mergetree-family/mergetree)）的行替换成一行，这一行会存储一系列聚合函数的状态。可以使用 `AggregatingMergeTree` 表来做增量数据的聚合统计，包括物化视图的数据聚合。
 
-#### 3.2.4 CollapsingMergeTree
+##### 3.2.4 CollapsingMergeTree
 
 >该引擎继承于 [MergeTree](https://clickhouse.com/docs/zh/engines/table-engines/mergetree-family/mergetree)，并在数据块合并算法中添加了折叠行的逻辑。`CollapsingMergeTree` 会异步的删除（折叠）这些除了特定列 `Sign` 有 `1` 和 `-1` 的值以外，其余所有字段的值都相等的成对的行。没有成对的行会被保留。因此，该引擎可以显著的降低存储量并提高 `SELECT` 查询效率。
 
@@ -1158,7 +1158,7 @@ VersionedCollapsingMergeTree(sign, version)
 CollapsingMergeTree(sign)
 ```
 
-#### 3.2.5 自定义分区键
+##### 3.2.5 自定义分区键
 
 >MergeTree 系列的表（包括可复制表）可以使用分区。基于 MergeTree 表的物化视图也支持分区。
 >
@@ -1166,7 +1166,7 @@ CollapsingMergeTree(sign)
 >
 >分区是在建表时通过 `PARTITION BY expr` 子句指定的。分区键可以是表中列的任意表达式。例如，指定按月分区，表达式为 `toYYYYMM(date_column)`：
 
-#### 3.2.6 MergeTree
+##### 3.2.6 MergeTree
 
 >clickhouse 中最强大的表引擎当属 `MergeTree` （合并树）引擎及该系列（`*MergeTree`）中的其他引擎。
 >
@@ -1246,13 +1246,404 @@ WEEK
 YEAR
 ```
 
+##### 3.2.7 ReplacingMergeTree
+
+>该引擎和MergeTree的不同之处在于它会删除排序键值相同的重复项。数据的去重只会在数据合并期间进行。合并会在后台一个不确定的时间进行，因此你无法预先作出计划。有一些数据可能仍未被处理。尽管你可以调用 `OPTIMIZE` 语句发起计划外的合并，但请不要依靠它，因为 `OPTIMIZE` 语句会引发对数据的大量读写。`ReplacingMergeTree` 适用于在后台清除重复的数据以节省空间，但是它不保证没有重复的数据出现。
+
+**建表**
+
+```sql
+ENGINE = ReplacingMergeTree([ver])
+```
+
+- `ver` — 版本列。类型为 `UInt*`, `Date` 或 `DateTime`。可选参数。
+
+  在数据合并的时候，`ReplacingMergeTree` 从所有具有相同排序键的行中选择一行留下：
+
+  - 如果 `ver` 列未指定，保留最后一条。
+  - 如果 `ver` 列已指定，保留 `ver` 值最大的版本。
+
+##### 3.2.8 数据副本
+
+>只有MergeTree系列里的表可支持副本：
+>
+>- ReplicatedMergeTree
+>- ReplicatedSummingMergeTree
+>- ReplicatedReplacingMergeTree
+>- ReplicatedAggregatingMergeTree
+>- ReplicatedCollapsingMergeTree
+>- ReplicatedVersionedCollapsingMergeTree
+>- ReplicatedGraphiteMergeTree
+>
+>副本是表级别的，不是整个服务器级的。所以，服务器里可以同时有复制表和非复制表。副本不依赖分片。每个分片有它自己的独立副本。
+>
+>对于 `INSERT` 和 `ALTER` 语句操作数据的会在压缩的情况下被复制,而 `CREATE`，`DROP`，`ATTACH`，`DETACH` 和 `RENAME` 语句只会在单个服务器上执行，不会被复制。
+>
+>- `CREATE TABLE` 在运行此语句的服务器上创建一个新的可复制表。如果此表已存在其他服务器上，则给该表添加新副本。
+>- `DROP TABLE` 删除运行此查询的服务器上的副本。
+>- `RENAME` 重命名一个副本。换句话说，可复制表不同的副本可以有不同的名称
+>
+>**如果配置文件中没有设置 ZooKeeper ，则无法创建复制表，并且任何现有的复制表都将变为只读。**
+>
+>**`SELECT` 查询并不需要借助 ZooKeeper ，副本并不影响 `SELECT` 的性能，查询复制表与非复制表速度是一样的。**
+
+**建表**
+
+```sql
+CREATE TABLE table_name (
+    x UInt32
+) ENGINE = ReplicatedMergeTree
+ORDER BY x;
+等价于
+CREATE TABLE table_name (
+    x UInt32
+) ENGINE = ReplicatedMergeTree('/clickhouse/tables/{shard}/{database}/table_name', '{replica}')
+ORDER BY x;
+```
+
+- `zoo_path` — ZooKeeper 中该表的路径。
+- `replica_name` — ZooKeeper 中的该表的副本名称。
+- `other_parameters` — 关于引擎的一系列参数，这个引擎即是用来创建复制的引擎，例如，`ReplacingMergeTree` 。
+
+##### 3.2.9 SharedMergeTree
+
+>仅在ClickHouse Cloud（以及第一方合作伙伴云服务）中提供,SharedMergeTree表引擎系列是ReplicatedMergeTree引擎的云原生替代方案，经过优化，适用于共享对象存储（例如Amazon S3、Google Cloud Storage、MinIO、Azure Blob Storage）。每个特定的MergeTree引擎类型都有对应的SharedMergeTree引擎，例如ReplacingSharedMergeTree替代ReplacingReplicatedMergeTree。
+
+##### 3.2.10 SummingMergeTree
+
+>该引擎继承自 [MergeTree](https://clickhouse.com/docs/zh/engines/table-engines/mergetree-family/mergetree)。区别在于，当合并 `SummingMergeTree` 表的数据片段时，ClickHouse 会把所有具有相同主键的行合并为一行，该行包含了被合并的行中具有数值数据类型的列的汇总值。如果主键的组合方式使得单个键值对应于大量的行，则可以显著的减少存储空间并加快数据查询的速度。
+
+#### 3.3 日志引擎系列
+
+>目的：为了需要写入许多小数据量（少于一百万行）的表的场景而开发的。
+>
+>分类：
+>
+>- StripeLog
+>- Log
+>- TinyLog
+>
+>共性：
+>
+>- 数据存储在磁盘上。
+>- 写入时将数据追加在文件末尾。
+>- 不支持[突变](https://clickhouse.com/docs/zh/engines/table-engines/log-family#alter-mutations)操作。
+>- 不支持索引。
+>- 非原子地写入数据。
+>
+>区别：
+>
+>+ 并发访问数据的锁。
+>
+>+ 并行读取数据。
+
+##### 3.3.1 Log
+
+>`Log` 与 `TinyLog` 的不同之处在于，«标记» 的小文件与列文件存在一起。这些标记写在每个数据块上，并且包含偏移量，这些偏移量指示从哪里开始读取文件以便跳过指定的行数。这使得可以在多个线程中读取表数据。对于并发数据访问，可以同时执行读取操作，而写入操作则阻塞读取和其它写入。`Log`引擎不支持索引。同样，如果写入表失败，则该表将被破坏，并且从该表读取将返回错误。`Log`引擎适用于临时数据，write-once 表以及测试或演示目的。Log
+>
+>`Log` 与 `TinyLog` 的不同之处在于，«标记» 的小文件与列文件存在一起。这些标记写在每个数据块上，并且包含偏移量，这些偏移量指示从哪里开始读取文件以便跳过指定的行数。这使得可以在多个线程中读取表数据。对于并发数据访问，可以同时执行读取操作，而写入操作则阻塞读取和其它写入。`Log`引擎不支持索引。同样，如果写入表失败，则该表将被破坏，并且从该表读取将返回错误。`Log`引擎适用于临时数据，write-once 表以及测试或演示目的。
+
+##### 3.3.2 StripeLog
+
+>在你需要写入许多小数据量（小于一百万行）的表的场景下使用这个引擎。
+
+**建表**
+
+```sql
+CREATE TABLE [IF NOT EXISTS] [db.]table_name [ON CLUSTER cluster]
+(
+    column1_name [type1] [DEFAULT|MATERIALIZED|ALIAS expr1],
+    column2_name [type2] [DEFAULT|MATERIALIZED|ALIAS expr2],
+    ...
+) ENGINE = StripeLog
+```
+
+**写数据**
+
+`StripeLog` 引擎将所有列存储在一个文件中。对每一次 `Insert` 请求，ClickHouse 将数据块追加在表文件的末尾，逐列写入。
+
+ClickHouse 为每张表写入以下文件：
+
+- `data.bin` — 数据文件。
+- `index.mrk` — 带标记的文件。标记包含了已插入的每个数据块中每列的偏移量。
+
+`StripeLog` 引擎不支持 `ALTER UPDATE` 和 `ALTER DELETE` 操作。
+
+**读数据**
+
+> 带标记的文件使得 ClickHouse 可以并行的读取数据。这意味着 `SELECT` 请求返回行的顺序是不可预测的。使用 `ORDER BY` 子句对行进行排序。
+
+##### 3.3.3 TinyLog
+
+>最简单的表引擎，用于将数据存储在磁盘上。每列都存储在单独的压缩文件中。写入时，数据将附加到文件末尾。
+>并发数据访问不受任何限制：
+>如果同时从表中读取并在不同的查询中写入，则读取操作将抛出异常
+>如果同时写入多个查询中的表，则数据将被破坏。
+>这种表引擎的典型用法是 write-once：首先只写入一次数据，然后根据需要多次读取。查询在单个流中执行。换句话说，此引擎适用于相对较小的表（建议最多1,000,000行）。如果您有许多小表，则使用此表引擎是适合的，因为它比Log引擎更简单（需要打开的文件更少）。当您拥有大量小表时，可能会导致性能低下，但在可能已经在其它 DBMS 时使用过，则您可能会发现切换使用 TinyLog 类型的表更容易。不支持索引。在 Yandex.Metrica 中，TinyLog 表用于小批量处理的中间数据。
+
+#### 3.4 集成的表引擎
+
+>ClickHouse 提供了多种方式来与外部系统集成，包括表引擎。像所有其他的表引擎一样，使用`CREATE TABLE`或`ALTER TABLE`查询语句来完成配置。然后从用户的角度来看，配置的集成看起来像查询一个正常的表，但对它的查询是代理给外部系统的。这种透明的查询是这种方法相对于其他集成方法的主要优势之一，比如外部字典或表函数，它们需要在每次使用时使用自定义查询方法。
+
+支持集成的方式：
+
++ JDBC
++ MYSQL
++ HDFS
++ KAFKA
++ RABBITMQ
++ HIVE
++ ……
+
+##### 3.4.1 Mysql引擎
+
+MySQL 引擎可以对存储在远程 MySQL 服务器上的数据执行 `SELECT` 查询。
+
+调用格式：
+
+```sql
+MySQL('host:port', 'database', 'table', 'user', 'password'[, replace_query, 'on_duplicate_clause']);
+```
+
+**调用参数**
+
+- `host:port` — MySQL 服务器地址。
+- `database` — 数据库的名称。
+- `table` — 表名称。
+- `user` — 数据库用户。
+- `password` — 用户密码。
+- `replace_query` — 将 `INSERT INTO` 查询是否替换为 `REPLACE INTO` 的标志。如果 `replace_query=1`，则替换查询
+- `'on_duplicate_clause'` — 将 `ON DUPLICATE KEY UPDATE 'on_duplicate_clause'` 表达式添加到 `INSERT` 查询语句中。例如：`impression = VALUES(impression) + impression`。如果需要指定 `'on_duplicate_clause'`，则需要设置 `replace_query=0`。如果同时设置 `replace_query = 1` 和 `'on_duplicate_clause'`，则会抛出异常。
+
+此时，简单的 `WHERE` 子句（例如 `=, !=, >, >=, <, <=`）是在 MySQL 服务器上执行。
+
+其余条件以及 `LIMIT` 采样约束语句仅在对MySQL的查询完成后才在ClickHouse中执行。
+
+`MySQL` 引擎不支持可为空数据类型，因此，当从MySQL表中读取数据时，`NULL` 将转换为指定列类型的默认值（通常为0或空字符串）。
+
+##### 3.4.2 JDBC
+
+允许CH通过 [JDBC](https://en.wikipedia.org/wiki/Java_Database_Connectivity) 连接到外部数据库。
+
+要实现JDBC连接，CH需要使用以后台进程运行的程序 [clickhouse-jdbc-bridge](https://github.com/ClickHouse/clickhouse-jdbc-bridge)。
+
+该引擎支持 [Nullable](https://clickhouse.com/docs/zh/sql-reference/data-types/nullable) 数据类型。
+
+**建表**
+
+```sql
+CREATE TABLE [IF NOT EXISTS] [db.]table_name
+(
+    columns list...
+)
+ENGINE = JDBC(datasource_uri, external_database, external_table)
+```
+
+
+
+**引擎参数**
+
+- `datasource_uri` — 外部DBMS的URI或名字.
+
+  URI格式: `jdbc:<driver_name>://<host_name>:<port>/?user=<username>&password=<password>`. MySQL示例: `jdbc:mysql://localhost:3306/?user=root&password=root`.
+
+- `external_database` — 外部DBMS的数据库名.
+
+- `external_table` — `external_database`中的外部表名或类似`select * from table1 where column1=1`的查询语句.
+
+**用法示例**
+
+通过mysql控制台客户端来创建表
+
+```text
+mysql> CREATE TABLE `test`.`test` (
+    ->   `int_id` INT NOT NULL AUTO_INCREMENT,
+    ->   `int_nullable` INT NULL DEFAULT NULL,
+    ->   `float` FLOAT NOT NULL,
+    ->   `float_nullable` FLOAT NULL DEFAULT NULL,
+    ->   PRIMARY KEY (`int_id`));
+Query OK, 0 rows affected (0,09 sec)
+
+mysql> insert into test (`int_id`, `float`) VALUES (1,2);
+Query OK, 1 row affected (0,00 sec)
+
+mysql> select * from test;
++------+----------+-----+----------+
+| int_id | int_nullable | float | float_nullable |
++------+----------+-----+----------+
+|      1 |         NULL |     2 |           NULL |
++------+----------+-----+----------+
+1 row in set (0,00 sec)
+```
+
+在CH服务端创建表，并从中查询数据：
+
+```sql
+CREATE TABLE jdbc_table
+(
+    `int_id` Int32,
+    `int_nullable` Nullable(Int32),
+    `float` Float32,
+    `float_nullable` Nullable(Float32)
+)
+ENGINE JDBC('jdbc:mysql://localhost:3306/?user=root&password=root', 'test', 'test')
+```
+
+#### 3.5 Special引擎
+
+#### 3.5.1 物化视图MaterializedView
+
+>创建一个视图。它存在两种可选择的类型：普通视图与物化视图。
+>
+>普通视图不存储任何数据，只是执行从另一个表中的读取。换句话说，普通视图只是保存了视图的查询，当从视图中查询时，此查询被作为子查询用于替换FROM子句。
+>
+>SELECT a, b, c FROM view 等价于 SELECT a, b, c FROM (SELECT ...)
+>
+>物化视图存储的数据是由相应的SELECT查询转换得来的。在创建物化视图时，你还必须指定表的引擎 - 将会使用这个表引擎存储数据。目前物化视图的工作原理：当将数据写入到物化视图中SELECT子句所指定的表时，插入的数据会通过SELECT子句查询进行转换并将最终结果插入到视图中。
+>
+>如果创建物化视图时指定了**POPULATE子句**，则在创建时将该表的数据插入到物化视图中。就像使用`CREATE TABLE ... AS SELECT ...`一样。否则，物化视图只会包含在物化视图创建后的新写入的数据。我们不推荐使用POPULATE，因为在视图创建期间写入的数据将不会写入其中。
+>
+>当一个`SELECT`子句包含`DISTINCT`, `GROUP BY`, `ORDER BY`, `LIMIT`时，请注意，这些仅会在插入数据时在每个单独的数据块上执行。例如，如果你在其中包含了`GROUP BY`，则只会在查询期间进行聚合，但聚合范围仅限于单个批的写入数据。数据不会进一步被聚合。但是当你使用一些其他数据聚合引擎时这是例外的，如：`SummingMergeTree`。因此常用的引擎是`SummingMergeTree`
+>
+>目前对物化视图执行`ALTER`是不支持的，因此这可能是不方便的。如果物化视图是使用的`TO [db.]name`的方式进行构建的，你可以使用`DETACH`语句先将视图剥离，然后使用`ALTER`运行在目标表上，然后使用`ATTACH`将之前剥离的表重新加载进来。视图看起来和普通的表相同。例如，你可以通过`SHOW TABLES`查看到它们。没有单独的删除视图的语法。如果要删除视图，请使用`DROP TABLE`。
+
+简单来说：
+
+视图保存的是一个select语句的查询结果
+
+物化视图保存的是一个select语句的查询结果+数据
+
+**物化视图注意事项**
+
+1.创建物化视图的时候必须指定物化视图的engine 用于数据存储
+
+2.POPULATE可以在创建视图的时候就开始导入数据，如果不加，只能在创建视图后添加数据。但是官方不推荐使用。
+
+3.TO [db].[table]语法的时候，不得使用POPULATE。to一个目标表，可以将视图表原表信息根据视图规则将数据发送到目标表。
+3.查询语句(select）可以包含下面的子句： DISTINCT, GROUP BY, ORDER BY, LIMIT…
+4.物化视图的alter操作有些限制，操作起来不大方便。
+5.物化视图是种特殊的数据表，可以用show tables 查看
+
+**物化视图查询如此之快？**
+空间换时间,因为物化视图这些规则已经全部写好并且条件所过滤后的数据已经存储在了本地表中，所以它比原数据查询快了很多，总的行数少了，因为都预计算好了。
+缺点：它的本质是一个流式数据的使用场景，是累加式的技术，所以要用历史数据做去重、去核这样的分析，在物化视图里面是不太好用的。在某些场景的使用也是有限的。而且如果一张表加了好多物化视图，在写这张表的时候，就会消耗很多机器的资源，比如数据带宽占满、存储一下子增加了很多。
+
+**示例：**
+
+1.创建一个数据表
+
+```sql
+create table order_detail 
+(
+   id String,
+   sku_id  String,
+   pay_number Int32,
+   pay_amount Int32, 
+   order_date Date 
+)
+ENGINE = MergeTree()
+partition by toYYYYMMDD(order_date)
+order by (id,sku_id);
+```
+
+2.插入数据
+
+```sql
+insert into order_detail values
+('001','a',2,20,'2021-08-13'),
+('002','a',3,30,'2021-08-16'),
+('002','b',2,40,'2021-08-16');
+```
+
+3.创建物化视图
+
+>选用SummingMergeTree引擎，支持以主键分组，对数值型指标做自动累加。每当表的parts做后台merge的时候，主键相同记录合并成一行记录，节省空间。
+>
+>**不指定POPULATE**
+
+```sql
+CREATE MATERIALIZED VIEW order_mv1
+ENGINE=SummingMergeTree
+PARTITION BY toYYYYMMDD(order_date) ORDER BY (id,order_date)
+[是否指定 populate] AS SELECT
+id,
+order_date,
+sum(pay_number) as number,
+sum(pay_amount) as amount
+FROM order_detail
+WHERE order_date > '2021-08-14'
+GROUP BY id,order_date;
+```
+
+4.查看表信息与视图信息
+
+>查看当前表
+>
+>show tables;
+>
+>#视图表
+>
+>order_mv1
+>
+>#源表
+>
+>order_detail
+>
+>#持久化表
+>
+>.join开头的表
+>
+>我们查看视图并无表信息，这是因为我们并为只用populate导致，未指定populate时，只有当原表进行了数据的插入操作，视图才能监听到后续插入进表的数据，如果之前有数据，则无法监听到。
+
+5.再次插入数据
+
+```sql
+insert into order_detail values
+('003','b',2,40,'2021-08-12'),
+('003','a',2,20,'2021-08-16'),
+('003','c',1,30,'2021-08-16'),
+('004','a',2,20,'2021-08-16'),
+('004','d',5,200,'2021-08-16'),
+('005','a',5,50,'2021-08-17'),
+('006','d',3,120,'2021-08-18');
+```
+
+>此时查看视图发现数据已经存在
+
+6.创建目标表
+
+```sql
+create table order_des
+(
+   id String,
+   sku_id  String,
+   pay_number Int32,
+   pay_amount Int32, 
+   order_date Date 
+)
+ENGINE = MergeTree()
+partition by toYYYYMMDD(order_date)
+order by (id,sku_id);
+```
+
+7.创建将数据传输到表中物化视图
+
+```sql
+CREATE MATERIALIZED VIEW order_mv3
+to order_des
+AS SELECT
+id,
+order_date,
+sum(pay_number) as number,
+sum(pay_amount) as amount
+FROM order_detail
+WHERE order_date > '2021-08-14'
+GROUP BY id,order_date;
+```
 
 
 
 
-
-
-1.删除-表数据生命周期
 
 2.物化视图
 
