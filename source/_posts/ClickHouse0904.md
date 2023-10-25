@@ -371,8 +371,8 @@ echo "192.168.67.113  slave3" >>/etc/hosts
 
 ```xml
 <yandex>
-    <!--集群配置-->
-    <remote_servers>
+
+<remote_servers>
     <perftest_3shards_1replicas>
         <shard>
             <replica>
@@ -393,9 +393,9 @@ echo "192.168.67.113  slave3" >>/etc/hosts
             </replica>
         </shard>
     </perftest_3shards_1replicas>
-	</remote_servers>
-    <!--keeper配置-->
-    <keeper_server>
+</remote_servers>
+<!--zookeeper集群的连接信息-->
+<keeper_server>
     <tcp_port>9181</tcp_port>
     <server_id>1</server_id>
     <log_storage_path>/var/lib/clickhouse/coordination/log</log_storage_path>
@@ -423,7 +423,8 @@ echo "192.168.67.113  slave3" >>/etc/hosts
             <port>9444</port>
         </server>
     </raft_configuration>
-	</keeper_server>
+</keeper_server>
+
 <!--定义宏变量，后面需要用-->
 <macros>
     <replica>slave1</replica>
@@ -437,11 +438,12 @@ echo "192.168.67.113  slave3" >>/etc/hosts
 <clickhouse_compression>
 <case>
   <min_part_size>10000000000</min_part_size>
-  <min_part_size_ratio>0.01</min_part_size_ratio>                                                                             
+                                             
+  <min_part_size_ratio>0.01</min_part_size_ratio>                                                                                                                                       
   <method>lz4</method>
 </case>
 </clickhouse_compression>
-</yandex>             
+</yandex>
 ```
 
 ### 7.启动并查看
@@ -495,7 +497,7 @@ clickhouse-client --port 8000 --query "CREATE DATABASE IF NOT EXISTS tutorial"
 #### 9.4 创建数据表
 
 ```sql
-CREATE TABLE tutorial.hits_v1
+CREATE TABLE tutorial.hits_v1_local on cluster perftest_3shards_1replicas
 (
     `WatchID` UInt64,
     `JavaEnable` UInt8,
@@ -654,8 +656,8 @@ CREATE TABLE tutorial.hits_local (...) on cluster perftest_3shards_1replicas ENG
 #### 9.7 创建分布式表
 
 ```sql
-CREATE TABLE tutorial.hits_all on cluster perftest_3shards_1replicas AS tutorial.hits_local
-ENGINE = Distributed(perftest_3shards_1replicas, tutorial, hits_local, rand());
+CREATE TABLE tutorial.hits_all on cluster perftest_3shards_1replicas AS tutorial.hits_v1_local
+ENGINE = Distributed(perftest_3shards_1replicas, tutorial, hits_v1_local, rand());
 ```
 
 #### 9.8 分布式表插入数据
@@ -1643,7 +1645,25 @@ GROUP BY id,order_date;
 
 
 
+## 性能测试
+
+1.下载1亿数据
+
+> curl https://datasets.clickhouse.com/hits/tsv/hits_100m_obfuscated_v1.tsv.xz | unxz --threads=`nproc` > hits_v1.tsv
+>
+> 
+
+2.Validate the checksum
+
+> md5sum hits_v1.tsv
+>
+> Checksum should be equal to: f3631b6295bf06989c1437491f7592cb
+
+3.创建数据表
+
+```shell
+clickhouse-client --query="CREATE TABLE tutorial.hits_100m_obfuscated (WatchID UInt64, JavaEnable UInt8, Title String, GoodEvent Int16, EventTime DateTime, EventDate Date, CounterID UInt32, ClientIP UInt32, RegionID UInt32, UserID UInt64, CounterClass Int8, OS UInt8, UserAgent UInt8, URL String, Referer String, Refresh UInt8, RefererCategoryID UInt16, RefererRegionID UInt32, URLCategoryID UInt16, URLRegionID UInt32, ResolutionWidth UInt16, ResolutionHeight UInt16, ResolutionDepth UInt8, FlashMajor UInt8, FlashMinor UInt8, FlashMinor2 String, NetMajor UInt8, NetMinor UInt8, UserAgentMajor UInt16, UserAgentMinor FixedString(2), CookieEnable UInt8, JavascriptEnable UInt8, IsMobile UInt8, MobilePhone UInt8, MobilePhoneModel String, Params String, IPNetworkID UInt32, TraficSourceID Int8, SearchEngineID UInt16, SearchPhrase String, AdvEngineID UInt8, IsArtifical UInt8, WindowClientWidth UInt16, WindowClientHeight UInt16, ClientTimeZone Int16, ClientEventTime DateTime, SilverlightVersion1 UInt8, SilverlightVersion2 UInt8, SilverlightVersion3 UInt32, SilverlightVersion4 UInt16, PageCharset String, CodeVersion UInt32, IsLink UInt8, IsDownload UInt8, IsNotBounce UInt8, FUniqID UInt64, OriginalURL String, HID UInt32, IsOldCounter UInt8, IsEvent UInt8, IsParameter UInt8, DontCountHits UInt8, WithHash UInt8, HitColor FixedString(1), LocalEventTime DateTime, Age UInt8, Sex UInt8, Income UInt8, Interests UInt16, Robotness UInt8, RemoteIP UInt32, WindowName Int32, OpenerName Int32, HistoryLength Int16, BrowserLanguage FixedString(2), BrowserCountry FixedString(2), SocialNetwork String, SocialAction String, HTTPError UInt16, SendTiming UInt32, DNSTiming UInt32, ConnectTiming UInt32, ResponseStartTiming UInt32, ResponseEndTiming UInt32, FetchTiming UInt32, SocialSourceNetworkID UInt8, SocialSourcePage String, ParamPrice Int64, ParamOrderID String, ParamCurrency FixedString(3), ParamCurrencyID UInt16, OpenstatServiceName String, OpenstatCampaignID String, OpenstatAdID String, OpenstatSourceID String, UTMSource String, UTMMedium String, UTMCampaign String, UTMContent String, UTMTerm String, FromTag String, HasGCLID UInt8, RefererHash UInt64, URLHash UInt64, CLID UInt32) ENGINE = MergeTree() PARTITION BY toYYYYMM(EventDate) ORDER  BY (CounterID, EventDate, intHash32(UserID)) SAMPLE BY intHash32(UserID) SETTINGS index_granularity = 8192"
+```
 
 
-2.物化视图
 
