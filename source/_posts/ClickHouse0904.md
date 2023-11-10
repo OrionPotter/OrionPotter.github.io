@@ -456,6 +456,7 @@ clickhouse-client --port 8000
 #execute sql
 select * from system.clusters;
 #如果显示cluster信息则集群搭建成功
+<internal_replication>true</internal_replication>
 ```
 
 ### 8.验证Keeper是否搭建成功
@@ -643,7 +644,7 @@ SAMPLE BY intHash32(UserID)
 #### 9.5 导入数据
 
 ```shell
-clickhouse-client --query "INSERT INTO tutorial.hits_v1 FORMAT TSV" --max_insert_block_size=100000 < hits_v1.tsv
+clickhouse-client --port 8000 --query "INSERT INTO tutorial.hits_v1 FORMAT TSV" --max_insert_block_size=100000 < hits_v1.tsv
 ```
 
 #### 9.6 创建本地表
