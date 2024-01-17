@@ -8,7 +8,7 @@ subtitle: ''
 description: ''
 keywords:
 author: potter
-language: cn
+language: zh-CN
 timezone: ''
 
 # URL
@@ -103,5 +103,5 @@ theme: next
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy: 
   type: git
-  repository: git@github.com:BJPotter/BJPotter.github.io.git
+  repository: https://github.com/BJPotter/BJPotter.github.io.git
   branch: master

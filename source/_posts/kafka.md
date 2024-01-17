@@ -1,4 +1,6 @@
-# kafka
+---
+title: kafka
+---
 
 ## 一、Kafka基本概念
 
