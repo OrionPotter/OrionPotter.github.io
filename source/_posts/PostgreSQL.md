@@ -1,18 +1,20 @@
 ---
-title: PostgreSQL
-tag: 安装
+title: PostgreSQL 学习
+tag: 教程
 ---
 
-## 安装PostgreSQL
 
-#### 1. 依赖
+
+# 安装PostgreSQL
+
+## 安装依赖
 
 + make >= 3.8.0
 + 推荐gcc最新版
 + bzip、bzip2、tar、readline、readline-devel、zlib-devel
 + Perl
 
-#### 2. 下载源代码
+## 下载源代码
 
 ```url
 https ://www.postgresql.org/download/
@@ -21,19 +23,19 @@ gunzip postgresql-10.21.tar.gz
 tar xf postgresql-10.21.tar
 ```
 
-#### 3.编译
+## 编译
 
 ```shell
 ./configure --prefix=/usr/local/postgresql
 ```
 
-#### 4.安装
+## 安装
 
 ```shell
 make && make install
 ```
 
-#### 5.创建data、log目录
+## 创建data、log目录
 
 ```shell
 cd /usr/local/postgresql
@@ -41,7 +43,7 @@ mkdir /usr/local/postgresql/data
 mkdir /usr/local/postgresql/log
 ```
 
-#### 6.设置环境变量
+## 设置环境变量
 
 ```shell
 vim /etc/profile
@@ -52,21 +54,21 @@ export PGDATA=/usr/local/postgresql/data
 source /etc/profile
 ```
 
-#### 7.增加用户 postgres 并赋权
+## 增加用户 postgres 并赋权
 
 ```shell
 useradd postgres
 chown -R postgres:root /usr/local/postgresql
 ```
 
-#### 8.初始化数据库
+## 初始化数据库
 
 ```shell
 su postgres
 /usr/local/postgresql/bin/initdb -D /usr/local/postgresql/data/
 ```
 
-#### 9.修改配置文件
+## 修改配置文件
 
 ```shell
 vim /usr/local/postgresql/data/postgresql.conf
@@ -79,19 +81,19 @@ vim /usr/local/postgresql/data/pg_hba.conf
 host    all             all             0.0.0.0/0               trust
 ```
 
-#### 10.启动服务
+## 启动服务
 
 ```shell
 pg_ctl start -l /usr/local/postgresql/log/pg_server.log
 ```
 
-#### 11.登录默认数据库
+## 登录默认数据库
 
 ```shell
  /usr/local/postgresql/bin/psql postgres
 ```
 
-#### 12.为默认用户设置密码
+## 为默认用户设置密码
 
 ```shell
 postgres=# sudo -u postgres psql postgres
@@ -99,4 +101,52 @@ postgres-#  \password postgres
 Enter new password: 
 Enter it again: 
 ```
+
+# 基础教程
+
+## Querying Data
+
+## Filtering Data
+
+## Joining Multiple Tables
+
+## Grouping Data
+
+## Set Operations
+
+## Grouping sets, Cube, and Rollup
+
+## Subquery
+
+## Common Table Expressions
+
+## Modifying Data
+
+## Transactions
+
+## Import & Export Data
+
+## Managing Tables
+
+## Understanding PostgreSQL Constraints
+
+## PostgreSQL Data Types in Depth
+
+## Conditional Expressions & Operators
+
+## PostgreSQL Utilities
+
+## PostgreSQL Recipes
+
+# 高级教程
+
+## PL/pgSQL
+
+## Triggers
+
+## Views
+
+## Indexes
+
+## Administration
 
