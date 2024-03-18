@@ -302,3 +302,14 @@ git commit -m "版本还原"
 git push
 ```
 
+## 远程强制覆盖本地
+
+```shell
+# 拉取所有更新，不同步
+git fetch --all
+# 本地代码同步线上最新版本(会覆盖本地所有与远程仓库上同名的文件)；
+git reset --hard origin/master
+# 再更新一次（其实也可以不用，第二步命令做过了其实）
+git pull
+```
+
