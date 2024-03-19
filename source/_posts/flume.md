@@ -1,21 +1,22 @@
 ---
-title: flume
+title: Flume
+
 ---
 
->Apache Flume 是一个分布式、高可靠、高可用的用来收集、聚合、转移不同来源的大量日志数据到中央数据仓库的工具
+# 系统要求
 
-## 一、系统要求
+>Apache Flume 是一个分布式、高可靠、高可用的用来收集、聚合、转移不同来源的大量日志数据到中央数据仓库的工具
 
 1. Jre - Java 1.8或更高版本
 2. 内存 - 足够的内存 用来配置Sources、Channels和Sinks
 3. 硬盘空间 - 足够的硬盘用来配置Channels 和 Sinks
 4. 目录权限 - Agent用来读写目录的权限
 
-## 二、数据流模型
+# 数据流模型
 
 **Event是Flume定义的一个数据流传输的最小单元**。Agent就是一个Flume的实例，本质是一个JVM进程，该JVM进程控制Event数据流从外部日志生产者那里传输到目的地（或者是下一个Agent）。
 
-## 三、基础概念
+# 基础概念
 
 ![](https://flume.liyifeng.org/_images/UserGuide_image00.png)
 
@@ -32,7 +33,7 @@ Agent就是Flume的一个部署实例，一个完整的Agent中包含了必须�
 >
 >Agent中的source和sink与channel存取Event是异步的。
 
-#### 可靠性
+可靠性
 
 >Event会在每个Agent的Channel上进行缓存，随后Event将会传递到流中的下一个Agent或目的地（比如HDFS）。只有成功地发送到下一个Agent或目的地后Event才会从Channel中删除。这一步保证了Event数据流在Flume Agent中传输时端到端的可靠性。
 >
@@ -40,11 +41,11 @@ Agent就是Flume的一个部署实例，一个完整的Agent中包含了必须�
 >
 >Flume使用事务来保证Event的 **可靠传输**。Source和Sink对Channel提供的每个Event数据分别封装一个事务用于存储和恢复，这样就保证了数据流的集合在点对点之间的可靠传输。在多层架构的情况下，来自前一层的sink和来自下一层的Source 都会有事务在运行以确保数据安全地传输到下一层的Channel中。
 
-#### 可恢复性
+可恢复性
 
 >Event数据会缓存在Channel中用来在失败的时候恢复出来。Flume支持保存在本地文件系统中的『文件channel』，也支持保存在内存中的『内存Channel』，『内存Channel』显然速度会更快，缺点是万一Agent挂掉『内存Channel』中缓存的数据也就丢失了。
 
-## 四、安装
+# 安装
 
 >下载地址：https://www.apache.org/dyn/closer.lua/flume/1.11.0/apache-flume-1.11.0-bin.tar.gz
 
@@ -74,7 +75,7 @@ a1.sources.r1.channels = c1       #与source r1绑定的channel有一个，叫�
 a1.sinks.k1.channel = c1          #与sink k1绑定的channel有一个，叫做c1
 ```
 
-## 五、数据获取方式
+# 数据获取方式
 
 >Flume支持多种从外部获取数据的方式。
 
@@ -86,7 +87,7 @@ a1.sinks.k1.channel = c1          #与sink k1绑定的channel有一个，叫做c
 
 4.Spooling Directory Source（将监视这个目录中产生的新文件，并在新文件出现时从新文件中解析数据出来）
 
-#### Spooling Directory Source
+## Spooling Directory Source
 
 这个Source允许你把要收集的文件放入磁盘上的某个指定目录。它会将监视这个目录中产生的新文件，并在新文件出现时从新文件中解析数据出来。数据解析逻辑是可配置的。 在新文件被完全读入Channel之后默认会重命名该文件以示完成（也可以配置成读完后立即删除、也可以配置trackerDir来跟踪已经收集过的文件）。
 
@@ -142,7 +143,7 @@ a1.sources.src-1.spoolDir = /var/log/apache/flumeSpool
 a1.sources.src-1.fileHeader = true
 ```
 
-#### Kafka Sink
+## Kafka Sink
 
 这个 Sink 可以把数据发送到 [Kafka](http://kafka.apache.org/) topic上。目的就是将 Flume 与 Kafka 集成，以便基于拉的处理系统可以处理来自各种 Flume Source 的数据。
 
@@ -190,11 +191,11 @@ a1.sinks.k1.kafka.producer.linger.ms = 1
 a1.sinks.k1.kafka.producer.compression.type = snappy
 ```
 
-### Flume Channels
+## Flume Channels
 
 channel 是在 Agent 上暂存 Event 的缓冲池。 Event由source添加，由sink消费后删除。
 
-#### Memory Channel
+## Memory Channel
 
 内存 channel 是把 Event 队列存储到内存上，队列的最大数量就是 *capacity* 的设定值。它非常适合对吞吐量有较高要求的场景，但也是有代价的，当发生故障的时候会丢失当时内存中的所有 Event。 必需的参数已用 **粗体** 标明。
 
@@ -208,8 +209,6 @@ channel 是在 Agent 上暂存 Event 的缓冲池。 Event由source添加，由s
 | byteCapacity                 |        | Channel 中最大允许存储所有 Event 的总字节数（bytes）。默认情况下会使用JVM可用内存的80%作为最大可用内存（就是JVM启动参数里面配置的-Xmx的值）。 计算总字节时只计算 Event 的主体，这也是提供 *byteCapacityBufferPercentage* 配置参数的原因。注意，当你在一个 Agent 里面有多个内存 channel 的时候， 而且碰巧这些 channel 存储相同的物理 Event（例如：这些 channel 通过复制机制（ [复制选择器](https://flume.liyifeng.org/#id43) ）接收同一个 source 中的 Event）， 这时候这些 Event 占用的空间是累加的，并不会只计算一次。如果这个值设置为0（不限制），就会达到200G左右的内部硬件限制。 |
 
 提示
-
- 
 
 举2个例子来帮助理解最后两个参数吧：
 
