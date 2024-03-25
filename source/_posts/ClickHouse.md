@@ -655,7 +655,7 @@ clickhouse-client --port 8000 --query "INSERT INTO tutorial.hits_v1 FORMAT TSV" 
 --format_csv_delimiter
 
 
-clickhouse-client --port 8000 --query "INSERT INTO tutorial.ods_sa FORMAT CSV"  --max_insert_block_size=100000 < 
+clickhouse-client --port 8000 --query "INSERT INTO tutorial.ods_sa FORMAT CSV" --format_csv_delimiter='|'  --max_insert_block_size=100000 < 
 ```
 
 #### 创建本地表
