@@ -702,8 +702,598 @@ WHERE EXISTS (
 );
 ```
 
+# 高级 SQL 函数
 
+## 数学函数
 
+**ABS() 函数：**该函数返回数字的绝对（正）值。
 
+```sql
+SELECT ABS(-243);
+-- output: 243
+```
 
+**Avg() 函数：**该函数返回列的平均值。
 
+```sql
+SELECT AVG(price) FROM products;
+```
+
+**COUNT() 函数：**该函数返回符合指定条件的行数。
+
+```sql
+SELECT COUNT(productID) FROM products;
+```
+
+**SUM() 函数：**该函数返回数字列的总和。
+
+```sql
+SELECT SUM(price) FROM products;
+```
+
+**MIN() & MAX() 函数：** MIN() 函数返回所选列的最小值，MAX() 函数返回所选列的最大值。
+
+```sql
+SELECT MIN(price) FROM products;
+SELECT MAX(price) FROM products;
+```
+
+**ROUND() 函数：**此函数用于将数字字段舍入为最接近的整数，但是您可以指定要返回的小数位数。
+
+```sql
+SELECT ROUND(price, 2) FROM products;
+```
+
+**CEILING() 功能：**该函数返回大于或等于指定数值表达式的最小整数。
+
+```
+SELECT CEILING(price) FROM products;
+```
+
+**FLOOR() 函数：**该函数返回小于或等于指定数值表达式的最大整数。
+
+```sql
+SELECT FLOOR(price) FROM products;
+```
+
+**SQRT() 函数：**该函数返回数字的平方根。
+
+```sql
+SELECT SQRT(price) FROM products;
+```
+
+**PI() 函数：**该函数返回常量Pi。
+
+```sql
+SELECT PI();
+```
+
+## 字符串函数
+
+`CONCAT` 函数将两个或多个字符串组合成一个字符串。
+
+```sql
+CONCAT(string1, string2, ...., string_n) 例如：
+SELECT CONCAT('Hello ', 'World');
+//上述 SQL 语句的输出将是“Hello World”。
+```
+
+`SUBSTRING` 函数从给定字符串中提取字符串。
+
+```sql
+SUBSTRING(string, start, length) 例如：
+SELECT SUBSTRING('SQL Tutorial', 1, 3);
+//上述查询的输出将是“SQL”
+```
+
+`LENGTH` 函数返回字符串的长度。
+
+```
+LENGTH(string) 例如：
+SELECT LENGTH('Hello World');
+//上述 SQL 语句的输出将为 11。
+```
+
+`UPPER` 函数将字符串中的所有字母转换为大写，而 `LOWER` 函数则将字符串中的所有字母转换为小写。
+
+```sql
+UPPER(string)
+LOWER(string) 例如：
+SELECT UPPER('Hello World');
+SELECT LOWER('Hello World');
+//上述 SQL 语句的输出将分别是“HELLO WORLD”和“hello world”。
+```
+
+`TRIM` 函数删除字符串的前导和尾随空格,还可以删除其他指定的字符
+
+```sql
+TRIM([LEADING|TRAILING|BOTH] [removal_string] FROM original_string) 例如：
+SELECT TRIM('   Hello World   ');
+SELECT TRIM('h' FROM 'hello');
+-- output: 第一个查询的输出将是“Hello World”，第二个查询的输出将是“ello”。
+```
+
+`replace`函数替换指定的字符
+
+```sql
+REPLACE(input_string, string_to_replace, replacement_string) 例如：
+SELECT REPLACE('Potter','o','e')
+-- output: petter
+```
+
+## 条件函数
+
+**CASE表达式**
+
+>相当于其他编程语言的IF-THEN-ELSE 逻辑
+
+```sql
+-- 语法：
+SELECT column1, column2, 
+(CASE 
+    WHEN condition1 THEN result1
+    WHEN condition2 THEN result2
+    ...
+    ELSE result 
+END) 
+FROM table_name;
+-- 例子：
+SELECT OrderID, Quantity,
+ (CASE
+     WHEN Quantity > 30 THEN 'Over 30'
+     WHEN Quantity = 30 THEN 'Equals 30'
+     ELSE 'Under 30'
+ END) AS QuantityText
+FROM OrderDetails;
+-- output: 查询逻辑为：查询OrderID、Quantity、QuantityText三个字段，其中QuantityText字段的值根据Quantity值判断，如果大于30则为Over 30，等于30则为Equals 30，否则为Under 30
+```
+
+**COALESCE表达式**
+
+>SQL中的函数`COALESCE`用于管理数据中的NULL值。它从左到右扫描参数并返回第一个不是 的参数`NULL`。
+
+```sql
+COALESCE(value1,value2,..., valueN)
+-- 示例1：
+SELECT product_name, COALESCE(price, 0) AS Price  FROM products;
+-- output: 如果产品条目的“价格”列为NULL，则它将返回“0”
+-- 示例2	：
+SELECT COALESCE(NULL, NULL, 'third value', 'fourth value');
+-- output: 它将返回“第三个值”，因为这是列表中的第一个非 NULL 值。
+```
+
+**NULLIF表达式**
+
+>`NULLIF`相比`expression1`于`expression2`.如果`expression1`和`expression2`相等，则函数返回 NULL。否则，它返回`expression1`。两个表达式必须具有相同的数据类型。
+
+```sql
+NULLIF(expression1, expression2);
+示例1：
+SELECT 
+    first_name, 
+    last_name,
+    NULLIF(email, 'NA') AS email
+FROM 
+    users;
+-- output:  如果字段 email 为“NA”，则将返回 NULL。否则email返回实际的字段值。
+```
+
+**IF表达式**
+
+>`IF`如果条件为 TRUE，则函数返回 value_true；如果条件为 FALSE，则返回 value_false。
+
+```sql
+IF(condition,value_true,value_false)
+SELECT IF (1>0, 'One is greater than zero', 'One is not greater than zero');
+```
+
+## 时间函数
+
+### DATE
+
+创建Date类型的表
+
+```sql
+CREATE TABLE Orders (
+    OrderId int,
+    ProductName varchar(255),
+    OrderDate date
+);
+```
+
+插入日期数据
+
+```sql
+INSERT INTO Orders (OrderId, ProductName, OrderDate) VALUES (1, 'Product 1', '2022-01-01');
+```
+
+查询指定日期
+
+```sql
+SELECT * FROM Orders  WHERE OrderDate = '2022-01-01';
+```
+
+更新日期
+
+```sql
+UPDATE Orders  SET OrderDate = '2022-01-02'  WHERE OrderId = 1;
+```
+
+返回当前日期
+
+```sql
+SELECT CURRENT_DATE;
+```
+
+日期差异
+
+```sql
+SELECT DATEDIFF(day, '2022-01-01', '2022-01-15') AS DiffInDays;
+-- output: 14
+```
+
+日期添加
+
+```sql
+SELECT DATEADD(year, 1, '2022-01-01') AS NewDate;
+-- output:  Sun Jan 01 2023 08:00:00 GMT+0800 (台北标准时间)
+```
+
+### TIME
+
+>在 SQL 中，TIME 数据类型用于在数据库中存储时间值。它允许您存储小时、分钟和秒。 TIME 的格式为“HH:MI:SS”。
+
+创建Time字段语法
+
+```sql
+CREATE TABLE table_name (
+    column_name TIME
+);
+```
+
+插入时间字段
+
+```sql
+INSERT INTO table_name (column_name) values ('17:34:20');
+```
+
+范围
+
+>SQL 中的时间范围是'00:00:00'到'23:59:59'。
+
+获取当前时间
+
+```sql
+SELECT CURTIME();
+```
+
+添加时间
+
+```sql
+SELECT ADDTIME('2007-12-31 23:59:59','1 1:1:1');
+```
+
+时间差
+
+```sql
+-- 减去时间差
+SELECT TIMEDIFF('2000:01:01 00:00:00', '2000:01:01 00:01:01');
+```
+
+转换
+
+```sql
+-- 函数在MySQL中用于将时间值转换为秒
+SELECT TIME_TO_SEC('22:23:00');
+-- output: 80580
+```
+
+### DATEPART
+
+>`DATEPART`是 SQL 中的一个有用函数，可以使用它从任何日期或时间表达式获取年、季度、月、年中的某一天、日、周、工作日、小时、分钟、秒或毫秒。
+
+```sql
+-- 在日期中提取年、月、日
+SELECT DATEPART(year, '2021-07-14') AS 'Year';
+SELECT DATEPART(month, '2021-07-14') AS 'Month';
+SELECT DATEPART(day, '2021-07-14') AS 'Day';
+-- 日期时间中提取小时、分钟或秒
+SELECT DATEPART(hour, '2021-07-14T13:30:15') AS 'Hour',
+SELECT DATEPART(minute, '2021-07-14T13:30:15') AS 'Minute',
+SELECT DATEPART(second, '2021-07-14T13:30:15') AS 'Second';
+```
+
+### DATEADD
+
+>语法：
+>`DATEADD(interval, number, date)`
+>
+>- 间隔类型（例如日、月、年、小时、分钟、秒）
+>- 一个数字（对于未来日期可以是正数，对于过去日期可以是负数）
+>- 计算所依据的日期。
+
+```sql
+SELECT DATEADD(day, 3, '2022-01-01') as NewDate
+-- output: 2022-01-04
+-- 查找未来7天的数据
+SELECT * FROM Orders WHERE OrderDate <= DATEADD(day, 7, GETDATE())
+```
+
+### TIMESTAMP
+
+>SQL`TIMESTAMP`是一种允许您存储日期和时间的数据类型。它通常用于跟踪对记录所做的更新和更改，提供发生的时间顺序。
+>
+>根据 SQL 平台的不同，格式和存储大小可能略有不同。例如，`MySQL` 使用`YYYY-MM-DD HH:MI:SS`格式，而在 `PostgreSQL` 中，它存储为`YYYY-MM-DD HH:MI:SS`格式，但它还可以存储微秒
+
+`TIMESTAMP`以下是如何在 SQL 表中定义具有类型的列：
+
+```sql
+CREATE TABLE table_name (
+   column1 TIMESTAMP,
+   column2 VARCHAR(100),
+   ...
+);
+```
+
+一个常见的用例`TIMESTAMP`是每次更新行时自动更新时间戳。这可以通过将`DEFAULT`约束设置为来实现`CURRENT_TIMESTAMP`：
+
+```sql
+CREATE TABLE table_name (
+   column1 TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   column2 VARCHAR(100),
+   ...
+);
+```
+
+在 MySQL 中，每当行的其他字段发生任何更改时，`ON UPDATE CURRENT_TIMESTAMP`可用于自动将字段更新为当前日期和时间。`TIMESTAMP`
+
+```sql
+CREATE TABLE table_name (
+   column1 TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   column2 VARCHAR(100),
+   ...
+);
+```
+
+您还可以插入或更新具有特定时间戳的记录：
+
+```sql
+INSERT INTO table_name (column1, column2) VALUES ('2019-06-10 10:20:30', 'example data');
+
+UPDATE table_name SET column1 = '2020-07-20 15:30:45' WHERE column2 = 'example data';
+```
+
+# 视图
+
+>视图是一个虚拟的表，不直接存储数据，存的是SQL的查询，因此视图根据原表的数据变化而变化
+
+创建视图
+
+```sql
+CREATE VIEW CustomerView AS SELECT CustomerID, Name, Address FROM Customers;
+```
+
+查询视图
+
+```sql
+SELECT * FROM CustomerView;
+```
+
+更新视图
+
+```sql
+CREATE OR REPLACE VIEW CustomerView AS SELECT CustomerID, Name, Address, Phone FROM Customers;
+```
+
+删除视图
+
+```sql
+DROP VIEW IF EXISTS CustomerView;
+```
+
+# 索引
+
+>SQL中的索引是一个数据库对象，用于提高数据库表上数据检索操作的速度。与书中的索引如何帮助您快速查找信息而无需阅读整本书类似，数据库中的索引可以帮助数据库软件快速查找数据而无需扫描整个表。
+
+## 索引的分类
+
+1. 根据存储结构分类:
+   - B-Tree索引：这是最常见的索引类型，支持随机访问、顺序访问、范围访问和部分键匹配查询。
+   - Hash索引：基于哈希表实现，适合等值查询，但不支持范围查询。
+   - R-Tree索引：适用于空间数据，如地图坐标。
+   - Bitmap索引：适用于有限离散取值的列，如性别、国家等。
+
+2. 根据物理实现分类:
+   - 聚簇索引（Clustered Index）：数据行的物理顺序与键值的逻辑（索引）顺序相同。一个表只能有一个聚簇索引。
+   - 非聚簇索引（Non-Clustered Index）：索引顺序与数据行的物理存储顺序不同。
+
+3. 按照列的数目分类:
+   - 单列索引：索引只包含一个列。
+   - 复合索引/组合索引：也称多列索引，索引包含两个以上的列。
+
+4. 按照唯一性分类:
+   - 唯一索引（Unique Index）：确保索引键列的每行数据都是唯一的。
+   - 非唯一索引：允许索引键列中有重复的值。
+
+5. 根据是否为表的一部分分类:
+   - 主键索引：通常是表的主键的唯一索引。
+   - 辅助索引/二级索引：表中除了主键索引之外的索引。
+   
+6. 功能性分类:
+   - 全文索引（Full-text Indexes）：为了在文本数据列中支持复杂的查询，如匹配某些搜索词或短语等。
+   - 部分索引（Partial Indexes）：也称为过滤索引，只为表中符合特定条件的部分数据建立索引。
+
+7. 其他特殊类型的索引:
+   - 空间索引（Spatial Index）：用于地理空间数据的查询。
+   - XML索引：用于XML数据类型的字段，加快XML数据的查询效率。
+
+索引的选择和使用应该基于数据的使用模式、查询类型、数据分布和数据库管理系统的特性。合适的索引能够大幅提高查询性能，但是也会消耗额外的存储空间，且在数据变更时需要维护，可能影响写入性能。因此，设计索引时需要权衡查询优化与资源消耗。
+
+## 管理索引
+
+创建索引
+
+```sql
+CREATE INDEX index_name ON table_name(column_name);
+```
+
+删除索引
+
+```sql
+DROP INDEX index_name;
+```
+
+修改索引
+
+```sql
+REINDEX INDEX index_name;
+```
+
+查询索引
+
+```sql
+SHOW INDEXES IN table_name;
+```
+
+## 查询优化
+
+1. 使用索引：
+   - 为经常作为查询条件的列添加索引。
+   - 使用复合索引针对包含多个条件的查询进行优化。
+   - 确保索引字段的选择性好，以允许数据库快速缩小搜索结果范围。
+
+2. 优化查询语句：
+   - 避免使用SELECT *，只选择所需的列。
+   - 尽量使用表的别名和前缀，尤其是在连接多个表的查询中。
+   - 确保WHERE子句中的条件尽可能使查询能利用索引。
+
+3. 调整数据模型：
+   - 正规化数据结构以避免冗余，并减少数据的管理工作。
+   - 在需要频繁读取的场景下考虑反正规化，以减少JOIN操作的需要。
+
+4. 使用查询缓存：
+   - 利用数据库提供的查询缓存，对于那些不经常改变的数据，利用缓存可以大大加快查询速度。
+
+5. 查询计划分析：
+   - 使用EXPLAIN或其他分析工具查看查询的执行计划。
+   - 根据执行计划调整查询方式，比如改变JOIN的类型或顺序。
+
+6. 使用批处理：
+   - 对于数据插入和更新操作，使用批处理可以减少I/O次数，提高性能。
+
+7. 避免复杂的子查询：
+   - 能用JOIN解决的问题就不要用子查询。
+   - 尝试把复杂的子查询改写为临时表。
+
+8. 减少事务大小：
+   - 长事务会锁定资源较长时间，减小事务的处理数据量可以提高并发性能。
+
+9. 硬件和系统优化：
+   - 确保有足够的内存和高效的CPU。
+   - 磁盘I/O性能常常是瓶颈，选择适合的存储解决方案。
+   - 良好的网络基础设施，尤其是在分布式数据库环境中。
+
+10. 监控和分析：
+    - 监控数据库的性能，分析瓶颈点。
+    - 定期进行数据库维护，比如索引重建和统计信息的更新。
+
+# 事务
+
+>SQL中事务是针对数据库执行的工作单元，事务是以逻辑顺序完成的工作单元或序列，无论是由用户手动方式还是由某种数据库程序自动完成。
+
+### 事务使用
+
+开启事务
+
+```sql
+BEGIN TRANSACTION; 
+```
+
+提交事务
+
+```sql
+COMMIT;
+```
+
+回滚
+
+```sql
+ROLLBACK;
+```
+
+保存点
+
+```sql
+SAVEPOINT savepoint_name;
+```
+
+示例：
+
+```sql
+BEGIN TRANSACTION;
+
+UPDATE Accounts SET Balance = Balance - 100 WHERE id = 1;
+UPDATE Accounts SET Balance = Balance + 100 WHERE id = 2;
+
+IF @@ERROR = 0
+   COMMIT;
+ELSE
+   ROLLBACK;
+-- 事务要么成功，要么失败
+```
+
+### ACID原则
+
+原子性（Atomicity）：
+   原子性是指事务中的操作要么全部完成，要么全部不完成。事务中的所有操作就像一个原子单元一样，组合在一起作为一个不可分割的整体。若事务在执行过程中发生错误或其他问题，所有已经执行的操作都会被回滚，数据库状态回到事务开始之前的状态。
+
+2. 一致性（Consistency）：
+   一致性确保事务从一个一致的状态转换到另一个一致的状态。一致性意味着数据库在事务开始前和结束后，都必须处于一致性状态，满足所有预定的规则和约束，包括数据的完整性约束、级联关系、数据范围等。
+
+3. 隔离性（Isolation）：
+   隔离性是指当多个事务同时对数据库进行操作时，一个事务的操作不能被其他事务看到，直到该事务完成。隔离性可以防止事务之间互相干扰，特别是防止“脏读”（读到其他未提交事务的数据）、“不可重复读”、“幻读”等问题。在SQL标准中，隔离性有几个级别，包括读未提交、读提交、重复读和串行化。
+
+4. 持久性（Durability）：
+   持久性指一个事务一旦被提交，它对数据库的修改应该是永久性的。即使发生系统崩溃或其他故障，事务的结果也不应丢失。这通常是通过将事务日志持久化到非易失的存储介质来实现的。
+
+这些原则为数据库事务提供了一个可靠的工作基础，确保了数据的准确性和完整性，并允许多个用户和应用程序能并发地安全地操作数据库。虽然ACID对于关系型数据库系统至关重要，但在分布式系统和NoSQL数据库领域，有时会为了获得更好的性能和可伸缩性，而放宽对这些严格原则的需求。
+
+### 事务隔离级别
+
+1. **READ UNCOMMITTED** 这是最低级别的隔离。一个事务可能会读取其他事务所做的尚未提交的更改，也称为“脏读”。以下是如何设置此级别的示例：
+
+   ```sql
+   SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+   BEGIN TRANSACTION;
+   -- Execute your SQL commands here
+   COMMIT;
+   ```
+
+2. **READ COMMITTED** 事务只能看到在其开始之前提交的数据更改，从而避免“脏读”。然而，它可能会遇到“不可重复读取”，即如果一个事务多次读取同一行，则每次可能会得到不同的结果。设置此级别的方法如下：
+
+   ```sql
+   SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+   BEGIN TRANSACTION;
+   -- Execute your SQL commands here
+   COMMIT;
+   ```
+
+3. **可重复读** 这里，一旦一个事务读取一行，任何其他事务对这些行的写入（更改）都会被阻止，直到第一个事务完成，从而防止“不可重复读取”。然而，“幻读”仍然可能发生。设置此级别的方法如下：
+
+   ```sql
+   SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+   BEGIN TRANSACTION;
+   -- Execute your SQL commands here
+   COMMIT;
+   ```
+
+4. **SERIALIZABLE** 这是最高级别的隔离。它避免了“脏读”、“不可重复读”和“幻读”。这是通过将一个事务与其他事务完全隔离来完成的：对查询中使用的数据获取读锁和写锁，以防止其他事务访问相应的数据。设置此级别的方法如下：
+
+   ```sql
+   SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+   BEGIN TRANSACTION;
+   -- Execute your SQL commands here
+   COMMIT;
+   ```
+
+> 更高级别的隔离通常会提供更高的一致性，但可能会由于锁等待时间的增加而降低性能。
