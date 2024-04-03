@@ -1318,3 +1318,159 @@ ELSE
    ```
 
 > **更高级别的隔离通常会提供更高的一致性，但可能会由于锁等待时间的增加而降低性能。**
+
+# 存储过程和函数
+
+## 存储过程
+
+>SQL存储过程是保存了一组经过预编译的可重用的SQL代码
+
+### 存储过程的优点
+
+1. 预编译：存储过程在创建时会被编译并存储在数据库中。之后的调用不需要重新编译，只是执行已编译的代码，这可以提高执行效率。
+
+2. 减少网络流量：可以将多个SQL语句封装在一个存储过程中，用户只需一次调用，而非将多个语句分别从客户端发送到服务器，这样可以减少网络通信量。
+
+3. 重用和封装：存储过程可以被多个程序或应用重用。同时也可以将复杂的业务逻辑封装在存储过程内部，简化应用开发。
+
+4. 安全性：可以通过数据库的权限机制对存储过程进行权限控制，只允许特定用户执行特定的存储过程，从而增强了数据库操作的安全性。
+
+5. 事务管理：存储过程可以使用事务来确保数据的一致性。在存储过程中可以根据需要开始事务、提交事务或者在遇到错误时回滚事务。
+
+### 存储过程如何使用
+
+```sql
+-- 创建一个存储过程
+CREATE PROCEDURE getEmployeesBySalary
+  @minSalary int
+AS
+BEGIN
+  SELECT firstName, lastName
+  FROM Employees
+  WHERE salary > @minSalary
+END
+GO
+-- 执行存储过程
+EXEC getEmployeesBySalary 50000
+```
+
+## 函数
+
+>SQL 函数是执行特定任务的一组 SQL 语句,函数必须返回一个值或结果。
+
+**1. 标量函数（Scalar functions）**返回单个值，可以在使用单个表达式的地方使用。例如：
+
+```sql
+CREATE FUNCTION addNumbers(@a int, @b int)
+RETURNS int 
+AS 
+BEGIN
+   RETURN @a + @b
+END
+```
+
+**2. 表值函数（Table-valued functions）**返回一个表。它们可以像普通表一样在 JOIN 子句中使用
+
+```sql
+CREATE FUNCTION getBooks (@authorID INT)
+RETURNS TABLE
+AS 
+RETURN (
+   SELECT books.title, books.publicationYear 
+   FROM books 
+   WHERE books.authorID = @authorID
+)
+-- 调用getBooks函数
+SELECT title, publicationYear FROM getBooks(3)
+```
+
+## 存储过程和表值函数的区别
+
+1. 返回类型：
+   - 存储过程可以返回零个、一个或多个结果集，也可以返回输出参数，或者根本不返回任何东西。
+   - 表值函数返回一个表对象，可以像使用普通表一样查询这个对象。
+
+2. 使用上下文：
+   - 存储过程不能在 SQL 语句（如 SELECT、UPDATE、INSERT、DELETE）中直接调用，通常需要使用特定的调用语句（如 CALL 或 EXECUTE）。
+   - 表值函数可以直接在 SQL 查询中作为数据源使用，就像一个表一样。
+
+3. 副作用：
+   - 存储过程可以包含产生副作用的 SQL 语句，如插入、更新、删除记录等。
+   - 表值函数通常不允许包括有副作用的操作，它们设计来用作只读操作，并且期望是确定性的。
+
+4. 执行方式：
+   - 存储过程需要显式执行，并且可以接受输入和输出参数。
+   - 表值函数可以像其他任何列或表一样参与查询，并且通常只接受输入参数。
+
+5. 事务管理：
+   - 存储过程中可以包含事务逻辑（如开始事务、提交事务、回滚事务）。
+   - 表值函数不能使用事务逻辑。
+
+6. 调用方式：
+   - 存储过程可以独立调用。
+   - 表值函数需要在 SELECT 语句中被调用，可以像表一样被 JOIN。
+
+# 性能优化
+
+> SQL性能优化对于加速SQL查询和提高数据库整体性能至关重要。最重要的是，它可以确保 SQL 语句的顺利高效执行，从而带来更好的应用程序性能和用户体验。
+
+## 索引
+
+创建索引是优化 SQL 性能的重要方法之一。它们加速从数据库中查找和检索数据。
+
+```
+CREATE INDEX index_name
+ON table_name (column1, column2, ...);
+```
+
+请记住，虽然索引可以加快数据检索速度，但它们可能会减慢数据修改速度，例如`INSERT`、`UPDATE`、 和`DELETE`。
+
+## 避免选择*
+
+仅获取所需的列，而不是使用 获取所有列`SELECT *`。它减少了需要从磁盘读取的数据量。
+
+```
+SELECT required_column FROM table_name;
+```
+
+## 使用Join代替多个查询
+
+使用联接子句可以根据两个或多个表之间的相关列将两个或多个表中的行组合到单个查询中。这减少了访问数据库的查询数量，从而提高了性能。
+
+```
+SELECT Orders.OrderID, Customers.CustomerName
+FROM Orders
+INNER JOIN Customers
+ON Orders.CustomerID=Customers.CustomerID;
+```
+
+## 使用限制
+
+如果只需要一定数量的行，请使用 LIMIT 关键字来限制查询返回的行数。
+
+```
+SELECT column FROM table LIMIT 10;
+```
+
+## 避免在开头使用带通配符的 LIKE 运算符
+
+在查询开头使用通配符 ( `LIKE '%search_term'`) 可能会导致全表扫描。
+
+```
+SELECT column FROM table WHERE column LIKE 'search_term%';
+```
+
+## 优化数据库架构
+
+数据库模式涉及数据的组织方式以及如何优化以获得更好的性能。
+
+## 使用解释
+
+许多数据库具有“解释计划”功能，可以显示数据库引擎执行查询的计划。
+
+```
+EXPLAIN SELECT * FROM table_name WHERE column = 'value';
+```
+
+这可以深入了解性能瓶颈，例如全表扫描、缺失索引等。
+
