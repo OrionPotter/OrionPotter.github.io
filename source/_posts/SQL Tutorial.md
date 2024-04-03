@@ -1,5 +1,6 @@
 ---
 title: Sql Tutourial
+tag: 数据库
 ---
 
 # Sql介绍
