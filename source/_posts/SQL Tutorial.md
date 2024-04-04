@@ -1,6 +1,9 @@
 ---
 title: Sql Tutourial
-tag: 数据库
+date: 2022-06-18
+description: 重新学习如何使用SQL
+tag:
+- SQL
 ---
 
 # Sql介绍

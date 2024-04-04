@@ -1,6 +1,8 @@
 ---
 title: git
-tag: git使用
+description: 学习如何使用Git
+tag:
+- git
 date: 2024-01-24
 typora-root-url: ./..
 ---

@@ -1,10 +1,12 @@
 ---
 title: kafka
+date: 2022-05-04
+description: 学习如何使用kafka
 ---
 
-## 一、Kafka基本概念
+# Kafka基本概念
 
-### 什么是kafka
+## 什么是kafka
 
 Kafka 是由 `Linkedin` 公司开发的，它是一个分布式的，支持多分区、多副本，基于 Zookeeper 的分布式消息流平台，它同时也是一款开源的**基于发布订阅模式的消息引擎系统**。
 
@@ -40,21 +42,21 @@ broker 集群：broker 是`集群` 的组成部分，broker 集群由一个或�
 
 重平衡：Rebalance。消费者组内某个消费者实例挂掉后，其他消费者实例自动重新分配订阅主题分区的过程。Rebalance 是 Kafka 消费者端实现高可用的重要手段。
 
-## 二、安装和配置 Kafka
+# 安装和配置 Kafka
 
 照官方文档提供的指引进行安装和配置
 
-## 三、实践使用 Kafka
+# 实践使用 Kafka
 
 Kafka 提供的命令行工具或编程语言的客户端库来创建主题、发送消息、消费消息等。尝试使用不同的配置选项和功能，深入理解 Kafka 的各种用法。
 
-## 四、Kafka生态系统
+# Kafka生态系统
 
 Kafka 生态系统包括许多与 Kafka 相关的工具和技术，如Kafka Connect、Kafka Streams 和 Schema Registry 等。了解这些组件的作用和用法，可以帮助您更好地使用 Kafka 构建实际的数据流处理应用。
 
-## 五、官方文档
+# 官方文档
 
-## 六、实践项目
+# 实践项目
 
 加入 Kafka 的社区可以与其他 Kafka 用户和开发者交流经验和知识
 
