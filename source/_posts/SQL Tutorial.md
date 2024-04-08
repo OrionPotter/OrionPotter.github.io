@@ -1095,6 +1095,10 @@ CREATE OR REPLACE VIEW CustomerView AS SELECT CustomerID, Name, Address, Phone F
 DROP VIEW IF EXISTS CustomerView;
 ```
 
+# 触发器
+
+>触发器是一个 SQL 过程，它在事件（INSERT、DELETE、UPDATE）发生时启动操作。触发器对于维护数据库的完整性很有用。触发器还可以用于记录历史数据。
+
 # 索引
 
 >SQL中的索引是一个数据库对象，用于提高数据库表上数据检索操作的速度。与书中的索引如何帮助您快速查找信息而无需阅读整本书类似，数据库中的索引可以帮助数据库软件快速查找数据而无需扫描整个表。
@@ -1200,6 +1204,12 @@ SHOW INDEXES IN table_name;
 10. 监控和分析：
     - 监控数据库的性能，分析瓶颈点。
     - 定期进行数据库维护，比如索引重建和统计信息的更新。
+
+## 索引的缺点
+
+1. 占用空间：每个索引会在数据库中创建一个单独的数据结构（如B+树），这会占用磁盘空间。
+
+2. 写操作性能下降：每次数据变更时如插入、更新、删除操作时，数据发生变更索引同步更新，这会增加额外的处理时间。
 
 # 事务
 
@@ -1415,65 +1425,111 @@ SELECT title, publicationYear FROM getBooks(3)
 
 # 性能优化
 
-> SQL性能优化对于加速SQL查询和提高数据库整体性能至关重要。最重要的是，它可以确保 SQL 语句的顺利高效执行，从而带来更好的应用程序性能和用户体验。
+> SQL性能优化是指提高SQL的查询速度，更快的响应用户
 
-## 索引
+## 查询优化技术
 
-创建索引是优化 SQL 性能的重要方法之一。它们加速从数据库中查找和检索数据。
+### 索引
 
+>创建索引可以提高查询性能，工作原理是将表的部分数据存储在可以快速访问的位置，索引保存列值以及记录本身的位置，这类似于书中目录页的内容和对应的页码。
+
+单列索引
+
+```sql
+-- 指定某个列作为索引
+CREATE INDEX index_name ON table_name (column1);
 ```
-CREATE INDEX index_name
-ON table_name (column1, column2, ...);
+
+复合索引
+
+```sql
+-- 指定多个列作为索引
+CREATE INDEX index_name ON table_name (column1, column2);
 ```
 
-请记住，虽然索引可以加快数据检索速度，但它们可能会减慢数据修改速度，例如`INSERT`、`UPDATE`、 和`DELETE`。
+唯一索引
 
-## 避免选择*
-
-仅获取所需的列，而不是使用 获取所有列`SELECT *`。它减少了需要从磁盘读取的数据量。
-
+```sql
+-- 保证一列或多列的组合是唯一值
+CREATE UNIQUE INDEX index_name ON table_name (column1, column2...);
 ```
+
+隐式索引
+
+```sql
+-- 隐式索引由数据库服务器自动创建的索引。例如，当定义主键时。
+```
+
+### 避免选择*
+
+>指获取所需要的列，不要使用 `SELECT *` 它减少了需要从磁盘读取的数据量
+
+```sql
 SELECT required_column FROM table_name;
 ```
 
-## 使用Join代替多个查询
+### 连接查询优化
 
-使用联接子句可以根据两个或多个表之间的相关列将两个或多个表中的行组合到单个查询中。这减少了访问数据库的查询数量，从而提高了性能。
+>遵循前两个的优化的基础上，在进行多表连接查询的时候，小表在前，大表在后
 
-```
+```sql
 SELECT Orders.OrderID, Customers.CustomerName
 FROM Orders
 INNER JOIN Customers
 ON Orders.CustomerID=Customers.CustomerID;
 ```
 
-## 使用限制
+### 使用Limit
 
-如果只需要一定数量的行，请使用 LIMIT 关键字来限制查询返回的行数。
+如果只需要一定数量的行，使用 LIMIT 关键字来限制查询返回的行数。
 
-```
+```sql
 SELECT column FROM table LIMIT 10;
 ```
 
-## 避免在开头使用带通配符的 LIKE 运算符
+### 避免在开头使用带通配符的 LIKE 运算符
 
 在查询开头使用通配符 ( `LIKE '%search_term'`) 可能会导致全表扫描。
 
-```
+```sql
 SELECT column FROM table WHERE column LIKE 'search_term%';
 ```
 
-## 优化数据库架构
+## 查询分析技术
 
-数据库模式涉及数据的组织方式以及如何优化以获得更好的性能。
+### 解释计划
 
-## 使用解释
+> 数据库具有"解释计划"功能，可以显示数据库引擎执行查询的计划,这可以深入了解性能瓶颈，例如全表扫描、缺失索引等。
 
-许多数据库具有“解释计划”功能，可以显示数据库引擎执行查询的计划。
-
-```
-EXPLAIN SELECT * FROM table_name WHERE column = 'value';
+```sql
+EXPLAIN PLAN FOR SELECT * FROM table_name;
 ```
 
-这可以深入了解性能瓶颈，例如全表扫描、缺失索引等。
+### 合理使用索引
+
+>使用适当的索引对于查询性能至关重要。如果存在正确的索引，则可以避免不必要的全表扫描。尽管 SQL 会自动确定要使用的适当索引，但手动指定用于复杂查询的索引会很有帮助。
+
+```sql
+-- 假设我们有一个用户表 users，它包含如下字段和索引：
+CREATE TABLE users (
+    id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    email VARCHAR(100)
+);
+-- 创建索引
+CREATE INDEX idx_last_name ON users(last_name);
+-- 走索引查询
+SELECT * FROM users WHERE last_name = 'Smith';  
+-- 不走索引查询
+SELECT * FROM users WHERE LOWER(last_name) = 'smith';
+SELECT * FROM users WHERE id > 1234;
+SELECT * FROM users WHERE ABS(id - 2000) < 1234;
+```
+
+**为了避免这种情况，避免表达式用于索引列。**
+
+# 高级SQL
+
+
 
