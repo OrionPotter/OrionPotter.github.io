@@ -1,5 +1,5 @@
 ---
-title: Java基础常用类
+title: Java基础-常用类
 tag:
 - java
 ---

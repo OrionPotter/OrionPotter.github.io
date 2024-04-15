@@ -1,5 +1,5 @@
 ---
-title: java基础知识
+title: java基础-常识
 tag:
 - java
 ---
