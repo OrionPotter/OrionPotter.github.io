@@ -180,9 +180,7 @@ public static void main(String[] args) {
 }
 ```
 
-
-
->**总结：所有整型包装类对象之间值的比较，全部使用 equals 方法比较,内存地址比较用==**。
+**总结：包装类的equals()重写过，比较值全部使用 equals 方法比较,比较内存地址用==**。
 
 ## 自动拆箱和装箱
 
@@ -202,6 +200,8 @@ int n = i;   //拆箱 等价于 int n = i.intValue();
 
 ## 超过long整型的数据应该如何表示
 
+**注意：超过long以后会从导致溢出，会从最小值开始算**
+
 ```java
 // 超过范围会变成最小值开始计算
  public static void main(String[] args) {
@@ -213,17 +213,21 @@ int n = i;   //拆箱 等价于 int n = i.intValue();
         System.out.println(l + 10000); //-9223372036854765809
         System.out.println(l + 10000 == Long.MIN_VALUE); // false
     }
-解决方案：使用BigInteger存储
-// 从字符串创建一个BigInteger对象
-BigInteger bigInt1 = new BigInteger("9999999999999999999999999999999");
-// 或者使用长整型和其他类型转换为BigInteger
-long longValue = Long.MAX_VALUE;
-BigInteger bigInt2 = BigInteger.valueOf(longValue).add(BigInteger.ONE); // 超过long的最大值
-// 使用BigInteger进行计算
-BigInteger result = bigInt1.add(bigInt2);
 ```
 
+**解决方案：**
 
+1. 从字符串创建一个BigInteger对象：
+
+   `BigInteger bigInt1 = new BigInteger("9999999999999999999999999999999");`
+
+2. 使用长整型或者其他类型转换为BigInteger:
+
+   `long longValue = Long.MAX_VALUE;`
+
+   `BigInteger bigInt2 = BigInteger.valueOf(longValue).add(BigInteger.ONE);`
+
+   `BigInteger result = bigInt1.add(bigInt2);`
 
 # 变量
 
