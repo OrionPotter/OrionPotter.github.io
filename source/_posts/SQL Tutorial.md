@@ -176,7 +176,7 @@ CREATE TABLE Orders (
 + Division
 + Modulus
 
-### 比较运算符
+### 比较(关系)运算符
 
 + Equal
 + Not equal
@@ -1097,7 +1097,7 @@ DROP VIEW IF EXISTS CustomerView;
 
 # 触发器
 
->触发器是一个 SQL 过程，它在事件（INSERT、DELETE、UPDATE）发生时启动操作。触发器对于维护数据库的完整性很有用。触发器还可以用于记录历史数据。
+>触发器是一个特殊SQL存储过程，它在事件（INSERT、DELETE、UPDATE）发生时触发触发器，运行指定函数，触发器对于维护数据库的完整性很有用，触发器还可以用于记录历史数据。
 
 # 索引
 
@@ -1531,5 +1531,109 @@ SELECT * FROM users WHERE ABS(id - 2000) < 1234;
 
 # 高级SQL
 
+## 递归查询
+
+>递归查询是用于数据分析的高级 SQL 查询，尤其是在处理分层或树结构数据时。
+>
+>递归 CTE 是引用自身的 CTE。递归 CTE 至少有两个查询：一个锚成员（仅运行一次）和一个递归成员（重复运行）
+
+```sql
+-- 递归语法
+WITH RECURSIVE cte_name (column_list) AS (
+  
+  -- Anchor member
+  SELECT column_list
+  FROM table_name
+  WHERE condition
+  
+  UNION ALL
+  
+  -- Recursive member
+  SELECT column_list
+  FROM table_name
+  INNER JOIN cte_name ON condition
+)
+SELECT * FROM cte_name;
+-- 例如：我们想要查询每个员工及其所有上级经理的信息,包括经理所在的部门名称。
+WITH RECURSIVE ManagerCTE AS
+(
+    -- 非递归查询
+    SELECT 
+        e.EmployeeID,
+        e.Name AS EmployeeName,
+        d.DepartmentName,
+        e.ManagerID,
+        CAST(e.Name AS VARCHAR(1000)) AS ManagerNames,
+        0 AS Level
+    FROM Employee e
+    LEFT JOIN Department d ON e.DepartmentID = d.DepartmentID
+    WHERE e.ManagerID IS NULL
+    
+    UNION ALL
+    
+    -- 递归查询
+    SELECT
+        e.EmployeeID,
+        e.Name AS EmployeeName, 
+        d.DepartmentName,
+        e.ManagerID,
+        CAST(m.ManagerNames + ' > ' + e.Name AS VARCHAR(1000)),
+        m.Level + 1
+    FROM Employee e
+    INNER JOIN ManagerCTE m ON e.ManagerID = m.EmployeeID
+    LEFT JOIN Department d ON e.DepartmentID = d.DepartmentID
+)
+SELECT * FROM ManagerCTE;
+-- 结果
+EmployeeID | EmployeeName | DepartmentName | ManagerID | ManagerNames     | Level
+-----------+---------------+----------------+-----------+------------------+-------
+         1 | Mike         | Sales          |      NULL | M                |     0
+         2 | Jen          | Sales          |         1 | M > Jen          |     1
+         3 | Rob          | Marketing      |         1 | M > Rob          |     1  
+         4 | Angie        | Marketing      |         3 | M > Rob > Angie  |     2
+         5 | Dina         | Marketing      |         3 | M > Rob > Dina   |     2
+         6 | Jack         | IT             |      NULL | J                |     0
+```
 
 
+
+## 转置操作
+
+>SQL的转置操作通常指的是PIVOT和UNPIVOT操作,用于在行和列之间转换数据。
+
+## 窗口函数
+
+>窗口函数，也叫OLAP函数（Online Anallytical Processing，联机分析处理），可以对数据库数据进行实时分析处理。
+
+**窗口函数的分类**
+
++ **聚合函数**: `count()、sum()、AVG()、MAX()、MIN（）`
++ **排名函数**:`RANK() OVER (PARTITION BY 分区内容 ORDER BY 排序内容 DESC) as rank`
+
++ **值函数**：`FIRST()、LAST_VALUE、NTH_VALUE()用于从窗口分区中获取第一个、最后一个或第N个值 `
++ **偏移函数**：`LAG():获取当前行的前n行的值,即往前偏移,LEAD():取当前行的后n行的值,即往后偏移`
+
+## CTE（通用表表达式）
+
+>CTE 或公用表表达式是一种临时结果集，在单个 SQL 语句的执行范围内定义。它们的作用就像单个查询的临时视图，通常用于简化子查询并提高可读性。
+
+```sql
+WITH CTE_Name AS
+(
+    SQL Query
+)
+SELECT * FROM CTE_Name
+-- 举例：
+WITH cte_authors AS (
+  SELECT id, name 
+  FROM authors
+)
+SELECT a.name, COUNT(b.id) AS book_count
+FROM cte_authors a
+LEFT JOIN books b ON a.id = b.author_id
+GROUP BY a.name;
+```
+
+## 动态SQL
+
+>允许在运行时动态构建SQL语句字符串并执行它们
