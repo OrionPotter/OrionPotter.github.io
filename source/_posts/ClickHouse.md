@@ -1,5 +1,7 @@
 ---
 title: Clickhouse
+tag:
+- Clickhouse
 date: 2024-01-24
 ---
 

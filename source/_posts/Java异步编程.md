@@ -1,12 +1,14 @@
 ---
 title: java异步编程
+tag:
+- java
 ---
 
 
 
-## 第一章 认识异步编程
+# 认识异步编程
 
-#### 1.1 异步编程概念与作用
+## 异步编程概念与作用
 
 同步编程：每个线程同时只能发送一个请求，并同步等待返还，为提高性能，引入多个线程来实现并行处理。
 
@@ -17,16 +19,16 @@ title: java异步编程
 1. 提高程序的性能和响应能力。
 2. 提高线程的利用率。
 
-#### 1.2 异步编程场景
+## 异步编程场景
 
 1. 日志的异步打印
 2. Spring框架中@Async注解
 3. 异步RPC调用（Netty、Dubbo）
 4. Servlet、Webflux
 
-## 第二章 显式使用线程和线程池实现异步编程
+# 显式使用线程和线程池实现异步编程
 
-#### 2.1 显式使用线程实现异步编程
+## 显式使用线程实现异步编程
 
 >实现异步编程方式：
 >
@@ -77,9 +79,9 @@ public static void main(String[] args) throws InterruptedException {
 2. 没有限制线程的个数，使用不当会导致系统进程用尽--》线程池
 3. 异步任务执行完后没有返回值--》Future
 
-#### 2.2 显式使用线程池实现异步编程
+## 显式使用线程池实现异步编程
 
-#### 2.2.1 如何显式使用线程池实现异步编程
+### 如何显式使用线程池实现异步编程
 
 >使用线程池实现线程复用，当需要执行异步任务的时候，直接把任务投递到线程池进行异步进行
 
@@ -124,7 +126,7 @@ public static void main(String[] args) throws InterruptedException {
     }
 ```
 
-#### 2.2.2 线程池ThreadpoolExecutor原理剖析
+###  线程池ThreadpoolExecutor原理剖析
 
 1. 概述
 
@@ -201,7 +203,7 @@ keepAliveTime: 存活时间，当前线程数量>核心线程数量，且处于�
 | DiscardOldestPolicy（） | 抛弃队列里面最老的任务，并把新任务添加到队列里面 |
 | DiscardPolicy()         | 抛弃新增任务                                     |
 
-## 第三章 基于JDK中的Future实现异步编程
+# 基于JDK中的Future实现异步编程
 
 3.1 jdk中的future
 

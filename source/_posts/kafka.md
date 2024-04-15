@@ -1,5 +1,7 @@
 ---
 title: kafka
+tag:
+- Kafka
 date: 2022-05-04
 description: 学习如何使用kafka
 ---

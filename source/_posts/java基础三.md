@@ -1,5 +1,7 @@
 ---
 title: Java基础常用类
+tag:
+- java
 ---
 
 # 异常

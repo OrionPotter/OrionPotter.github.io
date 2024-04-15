@@ -1,5 +1,7 @@
 ---
 title: redis面试题
+tag:
+- redis
 ---
 
 

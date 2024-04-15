@@ -1,5 +1,7 @@
 ---
 title: java基础知识
+tag:
+- java
 ---
 
 # java语言的特点

@@ -1,6 +1,7 @@
 ---
-title: 离线安装GeoServer
-tag: 安装
+title: 安装GeoServer
+tag: 
+- GeoServer
 ---
 
 ## 离线安装GeoServer

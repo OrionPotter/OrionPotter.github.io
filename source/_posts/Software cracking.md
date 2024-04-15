@@ -1,6 +1,7 @@
 ---
-title: Software cracking
-tag: Software
+title: typro hacking
+tag: 
+- hack
 ---
 
 # Typro破解

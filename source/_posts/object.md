@@ -1,5 +1,7 @@
 ---
 title: Object类介绍
+tag:
+- java
 ---
 
 # Object类的常见方法

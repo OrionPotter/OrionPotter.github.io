@@ -1,5 +1,7 @@
 ---
 title: Redis核心知识点
+tag:
+- redis
 ---
 
 

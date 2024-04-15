@@ -1,5 +1,7 @@
 ---
 title: SFTP实践
+tag:
+- FTP
 ---
 
 # SFTP

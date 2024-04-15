@@ -1,6 +1,7 @@
 ---
-title: Github Learn
-tag: github skill
+title: Github
+tag: 
+- Github
 typora-root-url: ./..
 ---
 
