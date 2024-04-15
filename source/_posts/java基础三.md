@@ -4,6 +4,244 @@ tag:
 - java
 ---
 
+# Object类
+
+## Object类的方法
+
+```java
+/**
+ * native 方法，用于返回当前运行时对象的 Class 对象，使用了 final 关键字修饰，故不允许子类重写。
+ */
+public final native Class<?> getClass()
+/**
+ * native 方法，用于返回对象的哈希码，主要使用在哈希表中，比如 JDK 中的HashMap。
+ */
+public native int hashCode()
+/**
+ * 用于比较 2 个对象的内存地址是否相等，String 类对该方法进行了重写以用于比较字符串的值是否相等。
+ */
+public boolean equals(Object obj)
+/**
+ * native 方法，用于创建并返回当前对象的一份拷贝。
+ */
+protected native Object clone() throws CloneNotSupportedException
+/**
+ * 返回类的名字实例的哈希码的 16 进制的字符串。建议 Object 所有的子类都重写这个方法。
+ */
+public String toString()
+/**
+ * native 方法，并且不能重写。唤醒一个在此对象监视器上等待的线程(监视器相当于就是锁的概念)。如果有多个线程在等待只会任意唤醒一个。
+ */
+public final native void notify()
+/**
+ * native 方法，并且不能重写。跟 notify 一样，唯一的区别就是会唤醒在此对象监视器上等待的所有线程，而不是一个线程。
+ */
+public final native void notifyAll()
+/**
+ * native方法，并且不能重写。暂停线程的执行。注意：sleep 方法没有释放锁，而 wait 方法释放了锁 ，timeout 是等待时间。
+ */
+public final native void wait(long timeout) throws InterruptedException
+/**
+ * 多了 nanos 参数，这个参数表示额外时间（以纳秒为单位，范围是 0-999999）。 所以超时的时间还需要加上 nanos 纳秒。。
+ */
+public final void wait(long timeout, int nanos) throws InterruptedException
+/**
+ * 跟之前的2个wait方法一样，只不过该方法一直等待，没有超时时间这个概念
+ */
+public final void wait() throws InterruptedException
+/**
+ * 实例被垃圾回收器回收的时候触发的操作
+ */
+protected void finalize() throws Throwable { }
+```
+
+
+
+## == 和 equals的区别
+
+1. `==`对于基本类型和引用类型是不同的
+   + 基本数据类型：`==`比较的是值
+   + 引用数据类型：`==`比较的是内存地址
+
+>java只有值传递，没有引用传递，基本数据类型传递的是值，引用数据类型传递的是对象的内存地址
+
+2. equals是object类的一个方法，所有类都有equals方法，默认调用的是`==`进行比较两个对象是否相等。
+
+>`equals()`方法有两种用法，一种是没有重写equals方法，默认比较两个对象内存地址是否相等，一种是重写了equals方法，比较的是对象的值是否相等。
+>
+>如：Object类的equals()方法和String的equals()方法
+
+```java
+//Object类的equals()方法
+public boolean equals(Object obj) {
+        return (this == obj);
+    }
+//String的equals()方法
+public boolean equals(Object anObject) {
+    if (this == anObject) {
+        return true;
+    }
+    if (anObject instanceof String) {
+        String anotherString = (String)anObject;
+        int n = value.length;
+        if (n == anotherString.value.length) {
+            char v1[] = value;
+            char v2[] = anotherString.value;
+            int i = 0;
+            while (n-- != 0) {
+                if (v1[i] != v2[i])
+                    return false;
+                i++;
+            }
+            return true;
+        }
+    }
+    return false;
+}
+```
+
+## hashcode的作用
+
+>`hashcode（）`的作用是获取hash码（int 整数）也称散列码，这个hash码的作用是确定对象在hash表的位置,所有类都有这个函数
+>
+>`public native int hashCode();`
+
+
+
+## 为什么要有hashcode，hashset是如何检查重复的
+
+>提高执行效率，以hashset如何检查重复说明，怎么提高效率的，当把对象加入到hashset的时候，hashset会首先根据对象的hashcode值来判断加入的位置下标，如果下标位置没值就直接插入了，有值的话再调用equals方法判断两个对象是否相等，如果相等就不会让其加入，如果不相等就会重新散列到新的位置，这样做的好处是减少了equals执行次数，提高了执行效率。
+
+总结：
+
+如果两个对象的`hashCode` 值相等，那这两个对象不一定相等（哈希碰撞）。
+
+如果两个对象的`hashCode` 值相等并且`equals()`方法也返回 `true`，我们才认为这两个对象相等。
+
+如果两个对象的`hashCode` 值不相等，我们就可以直接认为这两个对象不相等。
+
+## 为什么重写equals必须重写hashcode
+
+>Java API规范要求：
+>
+>Object类中hashCode()方法的文档明确规定，如果两个对象通过equals()方法认为是相等的，那么它们必须产生相同的哈希码。这意味着当你自定义了对象的相等性规则（通过重写equals()方法），也应该相应地重写hashCode()方法以保持一致性。
+>
+>每个对象都有hashcode方法，可能会产生hash冲突，导致两个不同的对象，返回相同的hash码。
+>
+>如果equals（）方法判断两个对象相等，那么两个对象的hashcode肯定是相等的，如果重写equals（）方法，没有重写hashcode可能会导致，两个对象equals相等，hashcode不相同，不符合Java API规范。
+
+总结：
+
+- `equals` 方法判断两个对象是相等的，那这两个对象的 `hashCode` 值也要相等。
+- 两个对象有相同的 `hashCode` 值，他们也不一定是相等的（哈希碰撞）。
+
+# String类
+
+## String属于基本数据类型吗？
+
+>String是一个字符串对象，属于引用数据类型，不属于基本数据类型
+
+## String常用的方法
+
+### 获取类
+
+`int length() 获取字符串长度`
+
+`char charAt(int) 获取指定索引的字符` 
+
+`int indexOf(String) 获取指定字符串的索引`
+
+`int lastIndexOf(String) 获取指定字符串的最后一次的索引`
+
+`String substring(int) 获取从指定坐标到最后的字符串` 
+
+`String substring(int,int) 获取[int,int)的指定字符串`
+
+`String concat(String) 获取拼接后的字符串`
+
+### 判断类
+
+`boolean equals(String) 判断两个字符串内容是否相同 ` 
+
+`boolean equalsIgnoreCase(String) 忽略大小写，判断两个字符串内容是否相同`
+
+`boolean contains(String) 判断字符串是否包含指定字符串`
+
+`boolean startsWith(String) 判断字符串是否以指定字符串开始`
+
+`boolean endsWith(String) 判断字符串是否以指定字符串结尾`
+
+`boolean isEmpty() 判断字符串是否为空`
+
+### 数组类
+
+`byte[] getBytes() 字符串转为字节数组`
+
+`char[] toCharArray() 字符串转为字符数组`
+
+`String[] split(String) 将字符串按照指定字符串切割成字符串数组`
+
+### 转换类
+
+`String toUpperCase() 字符串转大写`
+
+`String toLowerCase() 字符串转小写`
+
+`String replace(String,String) 字符串替换，匹配方式：非正则表达式匹配。它会按照字面意义去查找和替换目标字符串，不解析任何特殊字符作为正则表达式元字符。`
+
+`String replaceAll(String,String) 字符串全部替换，支持正则，匹配方式：正则表达式匹配。它可以识别并使用正则表达式的各种特殊字符和模式来匹配复杂的情况。`
+
+`String repalceFirst(String,String) 字符串指替换第一次`
+
+`String trim() 字符串将开头和结尾的空格剔除` 
+
+## String、StringBuffer、StringBuilder的区别
+
+```java
+public final class String implements java.io.Serializable, Comparable<String>, CharSequence { private final char value[]; }
+public final class StringBuffer extends AbstractStringBuilder implements Serializable, CharSequence {}
+public final class StringBuilder extends AbstractStringBuilder implements Serializable, CharSequence {}
+```
+
+### 可变性
+
+String是不可变的，StringBuffer和StringBuilder是可变，这个可变指的是否对原对象内容是否变更
+
+>String类中使用final修饰的字符数组存储字符串，是不可变的，StringBuffer和StringBuilder都继承了AbstractStringBuilder，内部通过char[] value;存储，所以说它们是可变的。
+>
+>final关键字修饰的类不能被继承，修饰的方法不能被重写，修饰的变量是基本数据类型则值不能改变，修饰的变量是引用类型则不能再指向其他对象。
+
+### 线程安全
+
+`String` 中的对象是不可变的，也就可以理解为常量，线程安全。`AbstractStringBuilder` 是 `StringBuilder` 与 `StringBuffer` 的公共父类，定义了一些字符串的基本操作，如 `expandCapacity`、`append`、`insert`、`indexOf` 等公共方法。`StringBuffer` 对方法加了同步锁或者对调用的方法加了同步锁，所以是线程安全的。`StringBuilder` 并没有对方法进行加同步锁，所以是非线程安全的。
+
+### 性能
+
+每次对 `String` 类型进行改变的时候，都会生成一个新的 `String` 对象，然后将指针指向新的 `String` 对象。`StringBuffer` 每次都会对 `StringBuffer` 对象本身进行操作，而不是生成新的对象并改变对象引用。相同情况下使用 `StringBuilder` 相比使用 `StringBuffer` 没有使用synchronized锁，性能有所提升，但多线程环境下存在安全风险。
+
+### 总结
+
+1. 操作少量的数据: 适用 `String`
+2. 单线程操作字符串缓冲区下操作大量数据: 适用 `StringBuilder`
+3. 多线程操作字符串缓冲区下操作大量数据: 适用 `StringBuffer`
+
+## 字符串拼接用+还是StringBuilder
+
+>字符串的+或者+=运算符，实质是生成一个StringBuilder对象，拼接后调用toString()方法后再生成一个字符串对象。如果频繁操作还是建议使用`StringBuilder` 对象进行字符串拼接。
+
+## 字符串常量池
+
+>在Java中，字符串常量池是一个特殊的内存区域（位于方法区），用于存储字符串字面量（也称为字符串常量）。当创建一个字符串对象时，如果它的值来源于字面量或者已经存在于字符串常量池中的字符串对象，则不会创建新的对象，而是直接引用池中的已存在对象，这样可以减少内存消耗并提升性能。
+
+### 关于创建对象的个数，考虑以下几种场景：
+
+1. 使用字面量创建字符串：String s1 = "abc"; String s2 = "abc";
+   java在这种情况下，尽管有两个引用s1和s2，但在内存中只会有一个字符串对象"abc"存储在字符串常量池中。因为编译器会确保相同内容的字符串字面量只创建一次对象。
+2. 使用new关键字创建字符串：String s3 = new String("abc");
+   java使用new关键字创建字符串时，会在堆内存中创建一个新的字符串对象，即使"abc"已经存在于字符串常量池中也是如此。因此，这里会有两个对象，一个是常量池中的"abc"，另一个是在堆上新建的"abc"对象。
+3. 使用intern()方法：String s4 = new String("abc").intern();
+   java的intern()方法会尝试将当前字符串对象添加到字符串常量池中，如果常量池已有该字符串，则返回池中该字符串的引用。所以，如果上述代码运行时，常量池没有"abc"，则会将新建的"abc"对象的引用复制到常量池，并使s4指向常量池中的"abc"；如果有，则直接返回池中已有的"abc"引用，此时堆上的新对象可能会被垃圾回收。
+
 # 异常
 
 > 异常是在程序执行过程中遇到的一种意外情况或错误，它会干扰正常的程序执行流程。
