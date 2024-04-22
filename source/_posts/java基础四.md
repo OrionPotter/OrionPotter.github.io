@@ -1,7 +1,7 @@
 ---
 title: Java基础-集合
 tag:
-- Java
+- java
 ---
 
 什么是集合
