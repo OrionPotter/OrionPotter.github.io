@@ -1,5 +1,5 @@
 ---
-title: Java基础-集合
+title: java基础-集合
 tag:
 - java
 ---
