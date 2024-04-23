@@ -97,3 +97,86 @@ RandomAccess是一个标记接口，用来表明实现该接口的类支持随�
 + 数据结构：ArrayList是基于动态数组实现的，是顺序存储，支持随机访问，LinkedList是基于双向链表实现的（JDK 1.6之前为循环双向链表，JDK 1.7取消了循环）不支持顺序存储和随机访问
 + 效率：ArrayList如果涉及数组重组的插入和删除的操作效率较低，查询比较快，LinkedList查询效率比较低，插入删除效率比较高。
 
+# Set
+
+## Comparable 和 Comparator 的区别
+
+**Comparable 可以看作是“对内”进行排序接口，而 Comparator 是“对外”进行排序的接口。**
+
++ 含义区别：comparable是比较，comparator是比较器的意思。
++ 重写方法：comparable要重写compareTo方法,comparator要重写compare方法。
++ 应用方式：comparable一般是在类中重写，comparator一般在集合工具类中传入匿名内部类。
+
+### 基于comparator实现
+
+```java
+@Data
+@AllArgsConstructor
+public class Subject {
+    Integer subject_id;
+    String subject_name;
+}
+```
+
+```java
+public class BasicOfComparator {
+    public static void main(String[] args) {
+        Subject s1 = new Subject(10,"java");
+        Subject s2 = new Subject(8,"mysql");
+        Subject s3 = new Subject(14,"redis");
+        List<Subject> list = new ArrayList<Subject>(){
+            {
+                add(s1);
+                add(s2);
+                add(s3);
+            }
+        };
+        Collections.sort(list, new Comparator<Subject>() {
+            @Override
+            public int compare(Subject o1, Subject o2) {
+                return o2.getSubject_id().compareTo(o1.getSubject_id());
+            }
+        });
+        for (Subject subject : list) {
+            System.out.println(subject.toString());
+        }
+    }
+```
+
+### 基于comparbale实现
+
+```java
+@Data
+@AllArgsConstructor
+public class Subject implements Comparable<Subject>{
+    Integer subject_id;
+    String subject_name;
+
+    @Override
+    public int compareTo(Subject o) {
+        return o.getSubject_id().compareTo(this.getSubject_id());
+    }
+}
+```
+
+```java
+public class BasicOfComparable {
+    public static void main(String[] args) {
+        Subject s1 = new Subject(10,"java");
+        Subject s2 = new Subject(8,"mysql");
+        Subject s3 = new Subject(14,"redis");
+        List<Subject> list = new ArrayList<Subject>(){
+            {
+                add(s1);
+                add(s2);
+                add(s3);
+            }
+        };
+        Collections.sort(list);
+        for (Subject subject : list) {
+            System.out.println(subject.toString());
+        }
+    }
+}
+```
+
