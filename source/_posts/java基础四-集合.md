@@ -180,3 +180,16 @@ public class BasicOfComparable {
 }
 ```
 
+## 如何理解SET集合无序性和不可重复性
+
+Set是一个基于Hash算法的数组，它的无序性体现在元素经过hash算法以后，存储在数组中的位置是无序的，不可重复性是指元素经过hash算法之后，计算出来的数组下标，如果存在数据元素，根据equals方法判断是否是同一个，如果是则新的覆盖旧的，所以set里面没有重复的元素。
+
+## HashSet、LinkedHashSet、TreeSet的区别
+
+**相同点**：都是Set集合的实现类，元素唯一不重复，都不是现成安全
+
+**区别：**
+
+数据结构：HashSet是底层是哈希表，基于hashmap实现的，LinkedHashSet底层是链表和哈希表，满足FIFO，TreeSet底层是红黑树，元素是有序的。
+
+应用场景：HashSet应用不保证插入和取出元素顺序的场景，LinkedHashSet应用于FIFO场景，TreeSet应用于排序场景
