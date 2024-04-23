@@ -193,3 +193,93 @@ Set是一个基于Hash算法的数组，它的无序性体现在元素经过hash
 数据结构：HashSet是底层是哈希表，基于hashmap实现的，LinkedHashSet底层是链表和哈希表，满足FIFO，TreeSet底层是红黑树，元素是有序的。
 
 应用场景：HashSet应用不保证插入和取出元素顺序的场景，LinkedHashSet应用于FIFO场景，TreeSet应用于排序场景
+
+# Queue
+
+## Queue和Deque的区别
+
+Queue是单端队列，只能从一端插入元素，另一端删除元素。Queue扩展了collection的接口分为两类方法，一类是操作失败后抛出异常，另一种是返回特殊值
+
+| `Queue` 接口 | 抛出异常  | 返回特殊值 |
+| ------------ | --------- | ---------- |
+| 插入队尾     | add(E e)  | offer(E e) |
+| 删除队首     | remove()  | poll()     |
+| 查询队首元素 | element() | peek()     |
+
+Deque是双端队列，可以在队尾和队首进行插入元素和删除元素。Deque扩展了Queue的接口，增加了队尾和队首的进行删除和插入的方法，根据失败后处理方式的不同分为两类。
+
+| `Deque` 接口 | 抛出异常      | 返回特殊值      |
+| ------------ | ------------- | --------------- |
+| 插入队首     | addFirst(E e) | offerFirst(E e) |
+| 插入队尾     | addLast(E e)  | offerLast(E e)  |
+| 删除队首     | removeFirst() | pollFirst()     |
+| 删除队尾     | removeLast()  | pollLast()      |
+| 查询队首元素 | getFirst()    | peekFirst()     |
+| 查询队尾元素 | getLast()     | peekLast()      |
+
+## ArrayDeque与LinkedList的区别
+
+相同点：ArrayDeque和LinkedList都实现了Deque接口，两个都有队列的功能。
+
+区别：
+
++ ArrayDeque是基于可变长数组和双指针实现的，而LinkedList是基于链表实现的
++ ArrayDeque不能存储Null数据，LinkedList可以存储
++ ArrayDeque当容量满了以后涉及扩容会复制整个数组，丢弃旧数组，涉及了内存复制性能较低，当数据量大的时候LinkedList处理效率比较低，整体而言优先使用ArrayDeque实现队列
+
+## 为什么有Stack还要用Deque实现栈
+
+Stack继承了vector属于线程安全的，当处理大量数据的时候效率比较低。
+
+## 什么是优先级队列
+
+优先级队列（Priority Queue）跟普通的队列有相似的行为，都是遵循队列的基本原则—先进先出（FIFO）, 但它有一个额外的特性：每个元素都有各自的“优先级”。
+
+在优先级队列中，元素被赋予优先级。当访问元素时，具有最高优先级的元素最先被访问。优先级队列有两个常见的应用场景：
+
+1. 数据压缩：优先级队列常常被用于数据压缩，特别是霍夫曼编码。
+
+2. Dijkstra算法：优先级队列也是实现Dijkstra算法的关键工具。
+
+优先级队列是通过二叉堆实现的，它提供了O(log n)的添加和删除时间复杂度，以及O(1)的查询最大 / 最小元素时间复杂度。
+
+**特点：**
+
+`PriorityQueue` 利用了二叉堆的数据结构来实现的，底层使用可变长的数组来存储数据
+
+`PriorityQueue` 通过堆元素的上浮和下沉，实现了在 O(logn) 的时间复杂度内插入元素和删除堆顶元素。
+
+`PriorityQueue` 是非线程安全的，且不支持存储 `NULL` 和 `non-comparable` 的对象。
+
+`PriorityQueue` 默认是小顶堆，但可以接收一个 `Comparator` 作为构造参数，从而来自定义元素优先级的先后。
+
+## 什么是阻塞队列
+
+阻塞队列（Blocking Queue）是一种特殊的队列，当队列为空时，消费者尝试从队列里取出元素的操作会被阻塞，直到队列中有可用元素；同样，当队列已满时，生产者尝试向队列添加元素的操作也会被阻塞，直到队列有可用空间。
+
+### 阻塞队列的实现类
+
+1. ArrayBlockingQueue：是一个由数组支持的有界阻塞队列，队列的容量在初始化时设定。
+
+2. LinkedBlockingQueue：是一个由链表支持的可选定长（即可以选择是否定长）阻塞队列。
+
+3. PriorityBlockingQueue：是一个不限大小的并发阻塞队列。队列中的元素可按自然顺序进行排序，也可以通过Comparator接口进行排序。
+
+4. DelayQueue：是一个在定时未到时，不能从中获取元素的无界阻塞队列，其内部实现是一个PriorityQueue。元素由其时间戳的长短决定队列中的排序，队头对象的定时时间最长。
+
+5. SynchronousQueue：不存储元素的阻塞队列，每一个put操作必须等待一个take操作，反之亦然。
+
+6. LinkedTransferQueue：是一种由链表结构组成的无界阻塞TransferQueue队列，相当于其他队列的综合体。TransferQueue是一种阻塞队列，其中的生产者的等待可能是为了将元素转移/传递到消费者。
+
+7. LinkedBlockingDeque：是一个由链表结构组成的双向阻塞队列。在最初提供的阻塞队列中，LinkedBlockingDeque是唯一一个支持前后两端插入和移除元素的队列。
+
+### ArrayBlockingQueue和LinkedBlockingDeque的区别
+
+1. 数据结构：ArrayBlockingQueue基于数组实现的。LinkedBlockingDeque基于链表实现的。
+
+2. 性能：LinkedBlockingDeque基于链表结构，插入和移除元素效率比较高。
+
+3. 双端访问：LinkedBlockingDeque支持从两端插入和移除元素。而ArrayBlockingQueue只能在队尾插入，在对头移除。
+
+4. 灵活性：LinkedBlockingDeque支持双端插入和移除，且可以选择是否定长，更具灵活性。
+
