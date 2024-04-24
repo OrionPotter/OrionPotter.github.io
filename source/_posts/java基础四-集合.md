@@ -283,3 +283,30 @@ Stack继承了vector属于线程安全的，当处理大量数据的时候效率
 
 4. 灵活性：LinkedBlockingDeque支持双端插入和移除，且可以选择是否定长，更具灵活性。
 
+# Map
+
+## HashMap和HashTable的区别
+
+线程安全：HashMap非线程安全，HashTable内部方法用了synchronized修饰是线程安全的
+
+效率问题：HashMap不是线程安全的，效率比较高，考虑线程安全的请看，一般用concurrenthashmap
+
+NULL值和NULL键问题：hashmap允许一个null键多个null值，hashtable不允许null键和null值。
+
+初始容量和扩容问题：hashtable初始容量是11，扩容是2n+1,hashmap初始容量是16，扩容是2n
+
+底层数据结构：hashmap是数组+链表组成的，当链表长度大于8且数组长度大于64会转换为红黑树，hashtable也是数组和链表组成的，但是不会有生成红黑树的机制
+
+遍历方式：hashmap可以通过iterator和foreach遍历，hashtable只能通过iterator遍历。
+
+## HashMap和HashSet的关系
+
+HashSet基于HashMap实现的，hashmap存储的key-value pair,而hashset只存储对象
+
+## HashMap和TreeMap的关系
+
+HashMap和TreeMao都实现了AbstractMap,但是TreeMap实现了NavigableMap和SortedMap两个接口，NavigableMap接口可以实现对集合内的元素搜索的能力，SortedMap接口实现了对集合的键进行排序的能力。
+
+## HashSet如何检查重复
+
+hashset添加一个对象的时候，首先计算这个对象的hashcode,找到数组下标的位置，如果这个位置是空的直接插入，如果不是空的就会使用equals()方法判断，两个hashcode相等的对象是否真的相同，如果相同的话就不会让它加入进去。
