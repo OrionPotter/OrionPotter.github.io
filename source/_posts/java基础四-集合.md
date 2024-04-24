@@ -310,3 +310,92 @@ HashMap和TreeMao都实现了AbstractMap,但是TreeMap实现了NavigableMap和So
 ## HashSet如何检查重复
 
 hashset添加一个对象的时候，首先计算这个对象的hashcode,找到数组下标的位置，如果这个位置是空的直接插入，如果不是空的就会使用equals()方法判断，两个hashcode相等的对象是否真的相同，如果相同的话就不会让它加入进去。
+
+## HashMap的底层实现
+
+hashmap解决冲突用的链地址法，jdk 1.8之前用数组和链表的数据结构，1.8以后优化成了数组+链表+红黑树，当数组长度大于64，链表长度大于8链表部分会转换为红黑树。
+
+**红黑树：叫自平衡二叉搜索树，根节点都是黑色的，其余的节点可以是红色也可以是黑色的，插入、搜索、删除操作时间复杂度都是在O(log n)**
+
+## HashMap长度为什么是2的幂次方
+
+`hash(key) % array.length`
+
+1. 逻辑与计算索引快：当确定键值对应的桶的位置时，需要对哈希编码进行一次模运算，即hash(key) % array.length。当数组长度为2的幂时，这个运算可以用更快的位操作来完成，即hash(key) & (array.length - 1)，位操作的速度一般要快于除法和求余数运算。
+
+2. 散列更均匀：数组长度为2的幂次模运算后的散列的更加均匀
+
+## HashMap的遍历方式
+
+```java
+public class HashMapIterator {
+    public static void main(String[] args) {
+        Map<String,String> map = new HashMap<>();
+        map.put("1", "Java");
+        map.put("2", "JDK");
+        map.put("3", "Spring Framework");
+        map.put("4", "MyBatis framework");
+        map.put("5", "Redis");
+        System.out.println("迭代器");
+        Iterator<Map.Entry<String, String>> iterator = map.entrySet().iterator();
+        while (iterator.hasNext()){
+            Map.Entry<String, String> entry = iterator.next();
+            System.out.println(entry.getKey()+" : "+entry.getValue());
+        }
+        Iterator<String> iterator1 = map.keySet().iterator();
+        while (iterator1.hasNext()){
+            String string = iterator1.next();
+            System.out.println(string+" : "+map.get(string));
+        }
+        System.out.println("foreach");
+        Set<Map.Entry<String, String>> entries = map.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            System.out.println(entry.getKey()+" : "+entry.getValue());
+        }
+        Set<String> strings = map.keySet();
+        for (String string : strings) {
+            System.out.println(string+" : "+map.get(string));
+        }
+        System.out.println("lambda");
+        map.forEach((key,value)->{
+            System.out.println(key+" : "+value);
+        });
+        map.entrySet().stream().forEach((stringStringEntry)->{
+            System.out.println(stringStringEntry.getKey()+" : "+stringStringEntry.getValue());
+        });
+    }
+}
+```
+
+## 什么是concurrenthashmap
+
+jdk1.8之前concurrenthashmap由segment数组和hashentry数组和链表组成，将数据分为一段一段的就是segment，是对每个segment进行加锁保证线程安全，由于segment初始化之后就固定容量，所以concurrenthashmap最多支持16个并发线程。
+
+jdk1.8中concurrenthashmap由Node数组和链表和红黑树组成，采用Node+cas+synchronized保证线程安全，锁粒度更细，`synchronized` 只锁定当前链表或红黑二叉树的首节点。
+
+**1.CAS是一种无锁算法，它通过比较当前值和预期值，如果相同则进行更新，不同则重新操作的方式，减小了对整个数据的锁定概率。这属于乐观锁的一种，尝试不通过加锁的方式达到线程安全，但在高并发情况下，可能导致大量的失败重试。**
+
+**2.ConcurrentHashMap不能由NUll值NULL键。**
+
+# 集合注意事项
+
+## Collections工具类
+
+collections工具类常用的方法有三大类，排序、查找、线程安全方法（不推荐使用）
+
+## 集合判空
+
+判断集合元素是否为空，使用isempty()
+
+## 集合转Map
+
+**在使用 `java.util.stream.Collectors` 类的 `toMap()` 方法转为 `Map` 集合时，一定要注意当 value 为 null 时会抛 NPE 异常。**
+
+## 集合遍历
+
+**不要在 foreach 循环里进行元素的 `remove/add` 操作。remove 元素请使用 `Iterator` 方式，如果并发操作，需要对 `Iterator` 对象加锁。**
+
+## 集合去重
+
+**可以利用 `Set` 元素唯一的特性，可以快速对一个集合进行去重操作，避免使用 `List` 的 `contains()` 进行遍历去重或者判断包含操作。**
+
