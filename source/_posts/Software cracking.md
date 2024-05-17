@@ -1,7 +1,7 @@
 ---
-title: typro hacking
+title: 软件破解
 tag: 
-- hack
+- 破解
 ---
 
 # Typro破解
