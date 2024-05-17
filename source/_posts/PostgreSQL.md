@@ -17,8 +17,7 @@ tag: 教程
 ## 下载源代码
 
 ```url
-https ://www.postgresql.org/download/
-# 下载名为postgresql-10.21.tar.gz  解压
+https ://www.postgresql.org/download/ # 下载名为postgresql-10.21.tar.gz  解压
 gunzip postgresql-10.21.tar.gz
 tar xf postgresql-10.21.tar
 ```
