@@ -89,8 +89,8 @@ MyBatis的懒加载是一种延迟加载技术，当关联对象被真正访问�
 
 ## #{}和${}的区别
 
-- **#{}**：使用预编译机制，可以防止SQL注入，将参数替换为占位符。
-- **${}**：直接拼接SQL字符串，不进行预编译，容易导致SQL注入。
+- `#{}`：使用预编译机制，可以防止SQL注入，将参数替换为占位符。
+- `${}`：直接拼接SQL字符串，不进行预编译，容易导致SQL注入。
 
 ## 如何实现模糊查询
 
@@ -159,17 +159,17 @@ public List<User> findByAgeAndName(Map<String, Object> params);
 ## Xml映射文件中有哪些标签
 
 常用的标签包括：
-- **<select>**：查询语句。
-- **<insert>**：插入语句。
-- **<update>**：更新语句。
-- **<delete>**：删除语句。
-- **<resultMap>**：结果集映射。
-- **<parameterMap>**：参数映射。
-- **<sql>**：可重用的SQL片段。
-- **<include>**：包含SQL片段。
-- **<foreach>**：循环处理。
-- **<if>**：条件判断。
-- **<choose>**、<when>**、<otherwise>**：条件选择。
+- `<select>`：查询语句。
+- `<insert>`：插入语句。
+- `<update>`：更新语句。
+- `<delete>`：删除语句。
+- `<resultMap>`：结果集映射。
+- `<parameterMap>`：参数映射。
+- `<sql>`：可重用的SQL片段。
+- `<include>`：包含SQL片段。
+- `<foreach>`：循环处理。
+- `<if>`：条件判断。
+- `<choose>、<when>、<otherwise>`：条件选择。
 
 # 高级查询
 
@@ -232,11 +232,11 @@ MyBatis动态SQL用于根据条件动态生成不同的SQL语句，从而避免�
 ## 都有哪些动态sql？
 
 常见的动态SQL标签包括：
-- **<if>**：条件判断。
-- **<choose>**、<when>**、<otherwise>**：条件选择。
-- **<trim>**、<where>**、<set>**：处理SQL片段。
-- **<foreach>**：循环处理。
-- **<bind>**：绑定参数。
+- `<if>`：条件判断。
+- `<choose>、<when>、<otherwise>`：条件选择。
+- `<trim>、<where>、<set>`**：处理SQL片段。
+- `<foreach>`：循环处理。
+- `<bind>`：绑定参数。
 
 ## 动态sql的执行原理
 
@@ -262,8 +262,6 @@ MyBatis通过分页插件实现分页查询。分页插件拦截SQL执行，根�
 
 二级缓存是Mapper级别的缓存，多个SqlSession共享。需要在配置文件中显式开启，二级缓存可以减少数据库访问，提高性能。
 
-补充内容：
-
 ### MyBatis集成Spring
 
 MyBatis可以与Spring框架无缝集成，通过Spring容器管理MyBatis的SqlSessionFactory和Mapper接口，实现事务管理和依赖注入。
@@ -276,4 +274,3 @@ MyBatis支持多种日志框架（如Log4j、SLF4J等），可以配置日志记
 
 MyBatis会将所有的数据库操作异常转换为PersistenceException，可以通过自定义异常处理器对异常进行处理和日志记录。
 
-以上是对MyBatis面试题的详细解答和补充，希望对你有所帮助。如果还有其他问题或需要更详细的解答，可以随时提问。
