@@ -234,7 +234,7 @@ MyBatis动态SQL用于根据条件动态生成不同的SQL语句，从而避免�
 常见的动态SQL标签包括：
 - `<if>`：条件判断。
 - `<choose>、<when>、<otherwise>`：条件选择。
-- `<trim>、<where>、<set>`**：处理SQL片段。
+- `<trim>、<where>、<set>`：处理SQL片段。
 - `<foreach>`：循环处理。
 - `<bind>`：绑定参数。
 
