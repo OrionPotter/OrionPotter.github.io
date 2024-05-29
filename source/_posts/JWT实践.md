@@ -140,6 +140,58 @@ Signature 部分是对前两部分的签名，防止数据篡改。
 </dependency>
 ```
 
+## 创建用户注册类
+
+前期准备，创建一个用户注册类来进行用户注册，后续采用jwt登录涉及加密处理，前期注册的时候采用加密存进数据库。
+
+```java
+//控制器类
+@RestController
+@RequestMapping("/auth")
+public class UserController {
+    @Autowired
+    private UserService userService;
+
+    @PostMapping("/register")
+    public String registerUser(@RequestBody User user) {
+        userService.registerUser(user);
+        return "User registered successfully";
+    }
+}
+//接口类
+public interface UserService extends IService<User> {
+    void registerUser(User user);
+}
+//实现类
+@Service
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+    @Autowired
+    private UserMapper userMapper;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+
+    @Override
+    public void registerUser(User user) {
+        String encodedPassword = passwordEncoder.encode(user.getPassword());
+        // 将用户名和加密后的密码存储到数据库中
+        User passwdUser = new User();
+        passwdUser.setUsername(user.getUsername());
+        passwdUser.setPassword(encodedPassword);
+        userMapper.insert(passwdUser);
+    }
+}
+
+//实体类
+@Data
+@TableName(value = "user")
+public class User  {
+    private String username;
+    private String password;
+}
+```
+
 ## 创建Security配置类
 
 创建一个配置类来配置Spring Security：
@@ -370,20 +422,71 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 # 执行流程
 
-1. **用户登录请求**：通过客户端（如浏览器或Postman）发送一个包含用户名和密码的POST请求到`/login`接口
-2. **创建认证对象Token**：`UsernamePasswordAuthenticationToken` 是 Spring Security 中 `Authentication` 接口的一个实现类。它主要用于存储用户的认证信息（用户名和密码），并在认证过程中传递这些信息。
-3. `AuthenticationManager`认证：对创建的`UsernamePasswordAuthenticationToken`对象进行认证，并返回`Authentication`对象。
-4. `Authentication`**认证**：如果认证通过，将返回的对象存储到SecurityContext中，如果不通过则抛出认证失败的异常。
+## 注册阶段
 
+1. **用户发送注册请求**：通过客户端（如浏览器或Postman）发送一个json格式的user对象的POST请求到`/regester`接口。
+2. **调用UserService的注册方法**：将需要注册的user对象传入registerUser方法中，将密码使用PasswordEncoder加密后和用户名存到数据库。
 
+## 认证阶段
+
+1. **用户登录请求**：通过客户端（如浏览器或Postman）发送一个json格式的user对象的POST请求到`/login`接口
+2. **创建认证请求对象**：使用 `UsernamePasswordAuthenticationToken` 创建一个包含用户名和密码的认证请求对象。
+3. **调用 `AuthenticationManager` 的 `authenticate` 方法**：`AuthenticationManager` 调用内部配置的 `AuthenticationProvider` 进行认证。
+4. **`DaoAuthenticationProvider` 进行用户认证**：
+
+- 使用 `UserDetailsService` 加载用户信息。
+- 使用 `PasswordEncoder` 验证密码。
+
+5. **返回认证结果**：
+
+- 如果认证成功，返回一个填充了用户详细信息和权限的 `Authentication` 对象。
+- 如果认证失败，抛出 `AuthenticationException`。
+
+## 生成JWT令牌阶段
+
+1. **调用 `loadUserByUsername` 方法**：
+
+- `jwtUserDetailsService` 是一个实现了 `UserDetailsService` 接口的服务类。
+- `loadUserByUsername` 方法用于根据用户名加载用户详细信息。
+
+2. **查询用户信息**：在 `loadUserByUsername` 方法中，通常会查询数据库或其他存储系统，以获取用户信息。
+
+3. **返回 `UserDetails` 对象**：查询到用户信息后，创建并返回一个实现了 `UserDetails` 接口的对象，通常是一个自定义的用户详细信息类（例如 `JwtUserDetails`）
+
+4. **调用 `generateToken` 方法**：
+
+- `jwtUtils` 是一个用于生成和验证 JWT 令牌的工具类。
+- `generateToken` 方法用于生成一个包含用户名和其他信息的 JWT 令牌。
+
+5. **创建 JWT 令牌**：
+
+- 在 `generateToken` 方法中，使用 JWT 库（例如 `jjwt`）创建一个 JWT 令牌。
+- 令牌中通常包含用户名、签发时间、过期时间等信息，并使用指定的密钥进行签名。
+
+6. **返回 JWT 令牌**：生成的 JWT 令牌以字符串形式返回。
+
+## 受保护的控制器类
+
+以testController为例，来看受保护的请求，如何进行JWT验证的执行流程
+
+1. **请求到达** `DispatcherServlet`：所有请求首先到达 Spring 的 `DispatcherServlet`。
+2. **进入过滤器链**：请求通过 Spring Security 配置的过滤器链。
+3. **通过每个过滤器**：
+
+- `SecurityContextPersistenceFilter`：从存储中加载 `SecurityContext` 并将其存储在 `SecurityContextHolder` 中，以便在请求处理过程中使用。
+- `JwtRequestFilter`（自定义过滤器）：从请求头中提取 JWT 令牌，并验证其有效性。如果令牌有效，将认证信息存储到 `SecurityContextHolder` 中。
+- `ExceptionTranslationFilter`：处理认证和授权过程中抛出的异常，将其转换为适当的 HTTP 响应。
+- `FilterSecurityInterceptor`：进行访问控制决策，检查当前用户是否有权限访问请求的资源。
+
+4. **处理器映射**：`DispatcherServlet` 使用 `HandlerMapping` 查找与请求路径对应的处理器方法。
+5. **调用处理器方法**：`DispatcherServlet` 调用找到的处理器方法。
+6. **返回响应**：处理器方法执行并返回响应，`DispatcherServlet` 将响应返回给客户端。
 
 
 
 # 涉及类介绍
 
-## UsernamePasswordAuthenticationToken
-
->UsernamePasswordAuthenticationToken是Spring Security中`Authentication` 接口的一个实现类。它主要用于存储用户的认证信息（用户名和密码），并在认证过程中传递这些信息。
+## `UsernamePasswordAuthenticationToken`
 
 **作用：**
 
@@ -402,6 +505,71 @@ public UsernamePasswordAuthenticationToken(Object principal, Object credentials)
     this.principal = principal; // 设置用户主体,就是用户名
     this.credentials = credentials; // 设置用户凭据，就是密码
     this.setAuthenticated(false);// 设置认证状态为未认证
+}
+```
+
+## `SecurityContextPersistenceFilter`
+
+**作用**：
+
+- 从存储中加载 `SecurityContext` 并将其存储在 `SecurityContextHolder` 中，以便在请求处理过程中使用。
+- 在请求结束时，将 `SecurityContext` 的状态保存到存储中。
+
+```java
+public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+        throws IOException, ServletException {
+    HttpServletRequest request = (HttpServletRequest) req;
+    HttpServletResponse response = (HttpServletResponse) res;
+    SecurityContext contextBeforeChainExecution = repo.loadContext(holder);
+    try {
+        SecurityContextHolder.setContext(contextBeforeChainExecution);
+        chain.doFilter(request, response);
+    } finally {
+        SecurityContext contextAfterChainExecution = SecurityContextHolder.getContext();
+        SecurityContextHolder.clearContext();
+        repo.saveContext(contextAfterChainExecution, request, response);
+    }
+}
+```
+
+## `ExceptionTranslationFilter`
+
+**作用**：
+
+- 处理认证和授权过程中抛出的异常，将其转换为适当的 HTTP 响应。
+
+```java
+public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+        throws IOException, ServletException {
+    HttpServletRequest request = (HttpServletRequest) req;
+    HttpServletResponse response = (HttpServletResponse) res;
+    try {
+        chain.doFilter(request, response);
+    } catch (AuthenticationException ex) {
+        sendStartAuthentication(request, response, chain, ex);
+    } catch (AccessDeniedException ex) {
+        handleAccessDeniedException(request, response, chain, ex);
+    }
+}
+```
+
+## `FilterSecurityInterceptor`
+
+**作用**：
+
+- 进行访问控制决策，检查当前用户是否有权限访问请求的资源。
+
+```java
+public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
+    FilterInvocation fi = new FilterInvocation(request, response, chain);
+    InterceptorStatusToken token = super.beforeInvocation(fi);
+    try {
+        fi.getChain().doFilter(fi.getRequest(), fi.getResponse());
+    } finally {
+        super.finallyInvocation(token);
+        super.afterInvocation(token, null);
+    }
 }
 ```
 
