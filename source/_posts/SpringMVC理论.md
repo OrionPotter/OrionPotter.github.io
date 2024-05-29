@@ -55,41 +55,23 @@ SpringMVC是Spring Framework的一部分，是一种基于Java的MVC（Model-Vie
 
 ## SpringMVC的核心组件有哪些？
 
-1. **DispatcherServlet**
+1. **DispatcherServlet**：前端控制器（Front Controller），所有的 HTTP 请求都会先经过它。它负责将请求分发到合适的处理器（Controller）。
 
-**作用**：前端控制器（Front Controller），所有的 HTTP 请求都会先经过它。它负责将请求分发到合适的处理器（Controller）。
+2. **Handler Mapping**：将请求映射到相应的处理器（Controller）。它根据请求的 URL、HTTP 方法等信息来确定应该调用哪个处理器。
 
-2. **Handler Mapping**
+3. **Handler Adapter**：将请求处理器（Controller）与 `DispatcherServlet` 连接起来。它负责将请求参数转换为控制器方法的参数，并调用相应的方法来处理请求，最终返回一个 `ModelAndView` 对象。
 
-**作用**：将请求映射到相应的处理器（Controller）。它根据请求的 URL、HTTP 方法等信息来确定应该调用哪个处理器。
+4. **Controller**：处理请求的核心组件。它包含业务逻辑，并返回一个 `ModelAndView` 对象，包含模型数据和视图信息。
 
-3. **Handler Adapter**
+5. **ModelAndView**：一个包含模型数据和视图名称的对象。控制器处理完请求后，会返回一个 `ModelAndView` 对象，`DispatcherServlet` 会根据这个对象来渲染视图。
 
-**作用**：将请求处理器（Controller）与 `DispatcherServlet` 连接起来。它负责将请求参数转换为控制器方法的参数，并调用相应的方法来处理请求，最终返回一个 `ModelAndView` 对象。
+6. **View Resolver**：将逻辑视图名称解析为实际的视图对象（如 JSP、Thymeleaf 模板等）。它根据 `ModelAndView` 中的视图名称来确定具体的视图。
 
-4. **Controller**
+7. **View**：最终呈现给用户的界面。Spring MVC 支持多种视图技术，如 JSP、Thymeleaf、FreeMarker 等。
 
-**作用**：处理请求的核心组件。它包含业务逻辑，并返回一个 `ModelAndView` 对象，包含模型数据和视图信息。
+8. **Model**：用于在控制器和视图之间传递数据的对象。它通常是一个 `Map` 或 `Model` 接口的实现类。
 
-5. **ModelAndView**
-
-**作用**：一个包含模型数据和视图名称的对象。控制器处理完请求后，会返回一个 `ModelAndView` 对象，`DispatcherServlet` 会根据这个对象来渲染视图。
-
-6. **View Resolver**
-
-**作用**：将逻辑视图名称解析为实际的视图对象（如 JSP、Thymeleaf 模板等）。它根据 `ModelAndView` 中的视图名称来确定具体的视图。
-
-7. **View**
-
-**作用**：最终呈现给用户的界面。Spring MVC 支持多种视图技术，如 JSP、Thymeleaf、FreeMarker 等。
-
-8. **Model**
-
-**作用**：用于在控制器和视图之间传递数据的对象。它通常是一个 `Map` 或 `Model` 接口的实现类。
-
-9. **Interceptor**
-
-**作用**：用于在请求处理的各个阶段执行额外逻辑的组件。它类似于过滤器，但更强大，可以在请求处理的前后执行操作。
+9. **Interceptor**：用于在请求处理的各个阶段执行额外逻辑的组件。它类似于过滤器，但更强大，可以在请求处理的前后执行操作。
 
 ## SpringMVC的工作原理
 
@@ -241,7 +223,7 @@ public class HelloController {
 
 ### 控制器相关注解
 
-- **`@Controller`**：标识一个类为SpringMVC控制器。
+- `@Controller`：标识一个类为SpringMVC控制器。
 
   ```java
   @Controller
@@ -250,7 +232,7 @@ public class HelloController {
   }
   ```
 
-- **`@RestController`**：标识一个类为RESTful控制器，相当于同时使用了`@Controller`和`@ResponseBody`。
+- `@RestController`：标识一个类为RESTful控制器，相当于同时使用了`@Controller`和`@ResponseBody`。
 
   ```java
   @RestController
