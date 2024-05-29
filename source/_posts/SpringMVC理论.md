@@ -55,20 +55,131 @@ SpringMVC是Spring Framework的一部分，是一种基于Java的MVC（Model-Vie
 
 ## SpringMVC的核心组件有哪些？
 
-1. **DispatcherServlet**：SpringMVC的核心组件，充当前端控制器。它接收所有的HTTP请求，并将它们分派到适当的处理器（Controller）。
-2. **Controller**：控制器处理HTTP请求，执行业务逻辑，并返回一个视图名称或视图对象。控制器类通常使用`@Controller`注解来标识。
-3. **Model**：模型包含应用程序的数据和业务逻辑。SpringMVC通过`Model`或`ModelAndView`对象将数据传递给视图。
-4. **View**：视图负责将模型数据渲染成用户界面。SpringMVC支持多种视图技术，如JSP、Thymeleaf、FreeMarker等。
-5. **ViewResolver**：视图解析器负责将控制器返回的视图名称解析为实际的视图对象。常见的视图解析器有`InternalResourceViewResolver`、`ThymeleafViewResolver`等。
-6. **HandlerMapping**：处理器映射器将HTTP请求映射到相应的处理器方法。常用的映射器有`RequestMappingHandlerMapping`，它通过`@RequestMapping`注解进行映射。
+1. **DispatcherServlet**
+
+**作用**：前端控制器（Front Controller），所有的 HTTP 请求都会先经过它。它负责将请求分发到合适的处理器（Controller）。
+
+2. **Handler Mapping**
+
+**作用**：将请求映射到相应的处理器（Controller）。它根据请求的 URL、HTTP 方法等信息来确定应该调用哪个处理器。
+
+3. **Handler Adapter**
+
+**作用**：将请求处理器（Controller）与 `DispatcherServlet` 连接起来。它负责将请求参数转换为控制器方法的参数，并调用相应的方法来处理请求，最终返回一个 `ModelAndView` 对象。
+
+4. **Controller**
+
+**作用**：处理请求的核心组件。它包含业务逻辑，并返回一个 `ModelAndView` 对象，包含模型数据和视图信息。
+
+5. **ModelAndView**
+
+**作用**：一个包含模型数据和视图名称的对象。控制器处理完请求后，会返回一个 `ModelAndView` 对象，`DispatcherServlet` 会根据这个对象来渲染视图。
+
+6. **View Resolver**
+
+**作用**：将逻辑视图名称解析为实际的视图对象（如 JSP、Thymeleaf 模板等）。它根据 `ModelAndView` 中的视图名称来确定具体的视图。
+
+7. **View**
+
+**作用**：最终呈现给用户的界面。Spring MVC 支持多种视图技术，如 JSP、Thymeleaf、FreeMarker 等。
+
+8. **Model**
+
+**作用**：用于在控制器和视图之间传递数据的对象。它通常是一个 `Map` 或 `Model` 接口的实现类。
+
+9. **Interceptor**
+
+**作用**：用于在请求处理的各个阶段执行额外逻辑的组件。它类似于过滤器，但更强大，可以在请求处理的前后执行操作。
 
 ## SpringMVC的工作原理
 
-1. **请求接收**：用户通过浏览器发送一个HTTP请求到服务器。
-2. **DispatcherServlet分派**：DispatcherServlet拦截请求，并根据URL映射查找相应的控制器。
-3. **处理请求**：控制器处理请求，执行相应的业务逻辑，并将数据添加到模型中。
-4. **选择视图**：控制器返回一个视图名称，DispatcherServlet通过ViewResolver解析该视图名称，找到对应的视图。
-5. **渲染视图**：视图渲染模型数据，生成最终的HTML响应，并返回给客户端。
+1.**客户端请求**
+
+客户端发送一个 HTTP 请求到服务器，例如：
+
+```http
+GET /hello HTTP/1.1
+Host: localhost:8080
+```
+
+2.**请求到达** `DispatcherServlet`
+
+所有请求首先到达 Spring 的前端控制器 `DispatcherServlet`。`DispatcherServlet` 是 Spring MVC 的核心组件，负责将请求分发到适当的处理器。
+
+3.**处理器映射（Handler Mapping）**
+
+`DispatcherServlet` 使用处理器映射器（Handler Mapping）查找与请求 URL 对应的处理器（Controller）
+
+```java
+@RequestMapping("/hello")
+public String hello() {
+    return "hello";
+}
+```
+
+处理器映射器会查找带有 `@RequestMapping` 注解的方法，并确定哪个方法应该处理当前请求。
+
+4.**处理器适配器（Handler Adapter）**
+
+`DispatcherServlet` 使用处理器适配器（Handler Adapter）调用找到的处理器方法。处理器适配器负责将请求参数转换为方法参数，并调用处理器方法。
+
+5.**处理器方法执行**
+
+处理器方法执行业务逻辑，并返回一个模型和视图（ModelAndView）对象。
+
+```java
+@RequestMapping("/hello")
+public ModelAndView hello() {
+    ModelAndView modelAndView = new ModelAndView();
+    modelAndView.setViewName("hello");
+    modelAndView.addObject("message", "Hello, World!");
+    return modelAndView;
+}
+```
+
+6.**视图解析（View Resolver）**
+
+`DispatcherServlet` 使用视图解析器（View Resolver）解析视图名称，并生成视图对象。
+
+```java
+@Bean
+public InternalResourceViewResolver viewResolver() {
+    InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+    resolver.setPrefix("/WEB-INF/views/");
+    resolver.setSuffix(".jsp");
+    return resolver;
+}
+```
+
+视图解析器将视图名称 `hello` 解析为 `/WEB-INF/views/hello.jsp`。
+
+7.**视图渲染**
+
+视图对象渲染模型数据，并生成最终的 HTML 响应。
+
+```jsp
+<!-- /WEB-INF/views/hello.jsp -->
+<html>
+<body>
+    <h1>${message}</h1>
+</body>
+</html>
+```
+
+8.**响应返回客户端**
+
+`DispatcherServlet` 将生成的响应返回给客户端。
+
+```http
+HTTP/1.1 200 OK
+Content-Type: text/html;charset=UTF-8
+
+<html>
+<body>
+    <h1>Hello, World!</h1>
+</body>
+</html>
+```
 
 ## 示例代码
 
@@ -77,17 +188,16 @@ SpringMVC是Spring Framework的一部分，是一种基于Java的MVC（Model-Vie
 ### 配置类（Java Config）
 
 ```java
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 @Configuration
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/").setViewName("home");
+
+    @Bean
+    public InternalResourceViewResolver viewResolver() {
+        InternalResourceViewResolver resolver = new InternalResourceViewResolver();
+        resolver.setPrefix("/WEB-INF/views/");
+        resolver.setSuffix(".jsp");
+        return resolver;
     }
 }
 ```
@@ -95,19 +205,15 @@ public class WebConfig implements WebMvcConfigurer {
 ### 控制器类
 
 ```java
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
 @Controller
-@RequestMapping("/hello")
 public class HelloController {
 
-    @GetMapping
-    public String sayHello(Model model) {
-        model.addAttribute("message", "Hello, SpringMVC!");
-        return "hello";
+    @RequestMapping("/hello")
+    public ModelAndView hello() {
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("hello");
+        modelAndView.addObject("message", "Hello, World!");
+        return modelAndView;
     }
 }
 ```
@@ -116,11 +222,7 @@ public class HelloController {
 
 ```jsp
 <!-- /WEB-INF/views/hello.jsp -->
-<!DOCTYPE html>
 <html>
-<head>
-    <title>Hello</title>
-</head>
 <body>
     <h1>${message}</h1>
 </body>
@@ -159,7 +261,7 @@ public class HelloController {
 
 ### 请求映射注解
 
-- **`@RequestMapping`**：映射HTTP请求到处理方法或类上。可以用在类和方法级别。
+- `@RequestMapping`：映射HTTP请求到处理方法或类上。可以用在类和方法级别。
 
   ```java
   @Controller
@@ -172,7 +274,7 @@ public class HelloController {
   }
   ```
 
-- **`@GetMapping`**：专门用于处理HTTP GET请求。
+- `@GetMapping`：专门用于处理HTTP GET请求。
 
   ```java
   @GetMapping("/items")
@@ -181,7 +283,7 @@ public class HelloController {
   }
   ```
 
-- **`@PostMapping`**：专门用于处理HTTP POST请求。
+- `@PostMapping`：专门用于处理HTTP POST请求。
 
   ```java
   @PostMapping("/items")
@@ -190,7 +292,7 @@ public class HelloController {
   }
   ```
 
-- **`@PutMapping`**：专门用于处理HTTP PUT请求。
+- `@PutMapping`：专门用于处理HTTP PUT请求。
 
   ```java
   @PutMapping("/items/{id}")
@@ -199,7 +301,7 @@ public class HelloController {
   }
   ```
 
-- **`@DeleteMapping`**：专门用于处理HTTP DELETE请求。
+- `@DeleteMapping`：专门用于处理HTTP DELETE请求。
 
   ```java
   @DeleteMapping("/items/{id}")
@@ -210,7 +312,7 @@ public class HelloController {
 
 ### 参数绑定注解
 
-- **`@PathVariable`**：用于绑定URL中的路径变量到方法参数。
+- `@PathVariable`：用于绑定URL中的路径变量到方法参数。
 
   ```java
   @GetMapping("/items/{id}")
@@ -219,7 +321,7 @@ public class HelloController {
   }
   ```
 
-- **`@RequestParam`**：用于绑定HTTP请求参数到方法参数。
+- `@RequestParam`：用于绑定HTTP请求参数到方法参数。
 
   ```java
   @GetMapping("/search")
@@ -228,10 +330,10 @@ public class HelloController {
   }
   ```
 
-- **`@RequestBody`**：用于将HTTP请求体中的内容绑定到方法参数。
+- `@RequestBody`：用于将HTTP请求体中的内容绑定到方法参数。
 
   ```java
-  java复制代码@PostMapping("/items")
+  @PostMapping("/items")
   public String createItem(@RequestBody Item item) {
       // ...
   }
@@ -239,9 +341,7 @@ public class HelloController {
 
 ### 返回值注解
 
-- `@ResponseBody`
-
-  ：用于将方法返回值直接写入HTTP响应体，常用于AJAX请求。
+- `@ResponseBody`：用于将方法返回值直接写入HTTP响应体，常用于AJAX请求。
 
   ```java
   @GetMapping("/data")
@@ -253,7 +353,7 @@ public class HelloController {
 
 ### 表单处理和验证注解
 
-- **`@ModelAttribute`**：用于绑定请求参数到命令对象，并将该对象添加到模型中。
+- `@ModelAttribute`：用于绑定请求参数到命令对象，并将该对象添加到模型中。
 
   ```java
   @PostMapping("/register")
@@ -262,7 +362,7 @@ public class HelloController {
   }
   ```
 
-- **`@Valid`**：用于启用JSR-303/JSR-380校验。
+- `@Valid`：用于启用JSR-303/JSR-380校验。
 
   ```java
   @PostMapping("/register")
@@ -278,7 +378,7 @@ public class HelloController {
 
 ## 转发和重定向的区别
 
-#### 转发（Forward）
+### 转发（Forward）
 
 - **定义**：在服务器内部，服务器将请求转发到另一个资源（如JSP、Servlet）进行处理，浏览器地址栏不发生变化。
 
@@ -290,7 +390,7 @@ public class HelloController {
   request.getRequestDispatcher("/targetPage").forward(request, response);
   ```
 
-#### 重定向（Redirect）
+### 重定向（Redirect）
 
 - **定义**：服务器向客户端发送一个状态码（通常是302），指示客户端去访问另一个URL，浏览器地址栏会更新为新的URL。
 
@@ -364,7 +464,7 @@ public class HelloController {
 
 ## 如何进行异常处理
 
-1. **使用`@ExceptionHandler`**：
+1. **使用**`@ExceptionHandler`：
 
    ```java
    @ControllerAdvice
