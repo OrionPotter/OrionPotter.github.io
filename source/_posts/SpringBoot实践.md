@@ -1,68 +1,204 @@
 ---
-title: springBoot
+title: SpringBoot实践
 tag:
 - java
-- Springboot
+- springboot
 ---
 
 # 入门
 
-## 入门介绍
+## SringBoot介绍
 
-Spring Boot帮助你创建可以运行的独立的、基于Spring的生产级应用程序。 我们对Spring平台和第三方库采取了有主见的观点，这样你就能以最少的麻烦开始工作。 大多数Spring Boot应用程序只需要很少的Spring配置。
+Spring Boot是一个用于创建独立、生产级Spring应用程序的框架。它简化了Spring应用程序的开发，通过提供一系列开箱即用的配置和功能，使开发者能够快速上手并专注于业务逻辑。
 
-你可以使用Spring Boot来创建Java应用程序，可以通过使用 `java -jar` 或更传统的war部署来启动。
+主要特点：
+- **简化Spring开发**：提供更快、更广泛的入门体验。
+- **默认配置**：提供开箱即用的配置，同时允许灵活定制。
+- **嵌入式服务器**：支持内置服务器（如Tomcat、Jetty），无需外部部署。
+- **非功能性特性**：内置支持安全性、度量、健康检查和外部化配置等常见需求。
+- **无代码生成**：无需代码生成或XML配置（除非需要生成原生镜像）。
 
-我们的主要目标是。
+Spring Boot应用程序可以通过`java -jar`命令或传统的WAR包方式启动，非常适合快速开发和部署Java应用程序。
 
-- 为所有的Spring开发提供一个根本性的更快、更广泛的入门体验。
-- 开箱即用，但随着需求开始偏离默认值，请迅速摆脱困境。
-- 提供一系列大类项目常见的非功能特性（如嵌入式服务器、安全、度量、健康检查和外部化配置）。
-- 绝对没有代码生成（当不以原生镜像为目标时），也不要求XML配置。
+## 系统要求
 
-## 安装要求
+Spring Boot 2.4.8 需要 Java 8 或更高版本，并且可以兼容到 Java 16，包括 Java 16。还需要 Spring Framework 5.3.8 或以上版本。
 
-+ jdk
-+ maven
+**构建工具版本要求**
 
-**pom.xml配置情况**
+| 构建工具 | 版本 |
+| -------- | ---- |
+| Maven    | 3.3+ |
+| Gradle   | 6.x  |
+
+### Servlet 容器
+
+Spring Boot 支持以下嵌入式 Servlet 容器
+
+| Servlet 容器                        | Servlet 版本 |
+| :---------------------------------- | :----------- |
+| Tomcat 10.0                         | 5.0          |
+| Jetty 11.0                          | 5.1          |
+| Undertow 2.2 (Jakarta EE 9 variant) | 5.0          |
+
+**默认配置的容器是 Tomcat**
+
+**原因：**
+
+1. **广泛使用**：Tomcat 是最常用的 Servlet 容器之一，具有广泛的社区支持和成熟的生态系统。
+2. **稳定性和性能**：Tomcat 在性能和稳定性方面表现出色，适用于大多数应用场景。
+3. **Spring Boot 的历史原因**：Spring Boot 从一开始就默认使用 Tomcat，许多开发者已经习惯了这种配置。
+
+**修改为 Jetty或者Undertow,先排除Tomcat依赖，再添加对应依赖**
+
+```xml
+<dependencies>
+    <!-- Exclude Tomcat -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+        <exclusions>
+            <exclusion>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-tomcat</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+    
+    <!-- Include Jetty -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-jetty</artifactId>
+    </dependency>
+    <!-- Include Undertow -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-undertow</artifactId>
+    </dependency>
+</dependencies>
+```
+
+
+
+### GraalVM 原生镜像
+
+>**GraalVM 是一个多语言虚拟机，支持多种编程语言和运行时环境。GraalVM 原生镜像（Native Image）是 GraalVM 提供的一项功能，可以将 Java 应用程序编译成独立的本地可执行文件。这种本地可执行文件不依赖于 JVM，可以在没有 Java 运行时环境的情况下运行。**
+
+Spring Boot应用程序可以通过使用 GraalVM 22.3 或以上版本 [转换为原生镜像](https://springdoc.cn/spring-boot/native-image.html#native-image.introducing-graalvm-native-images)。
+
+镜像可以通过 [本地构建工具](https://github.com/graalvm/native-build-tools) Gradle/Maven插件或GraalVM提供的 `native-image` 工具来创建。你也可以使用 [native-image Paketo buildpack](https://github.com/paketo-buildpacks/native-image) 来创建原生镜像。
+
+支持以下版本。
+
+| 名称               | 版本   |
+| :----------------- | :----- |
+| GraalVM Community  | 22.3   |
+| Native Build Tools | 0.9.23 |
+
+## hello world
+
+### 前提条件
+
+**安装方式：**Maven安装
+
+**软件版本：**
+
++ jdk 1.8
++ maven 3.3.X+
+
+### Maven创建项目
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.example</groupId>
-    <artifactId>person_use</artifactId>
-    <version>1.0-SNAPSHOT</version>
+
+    <groupId>com.example</groupId>
+    <artifactId>myproject</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.6.0</version>
+        <version>2.4.8</version>
+        <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-    </properties>
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-    </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+
+    <!-- 将在此添加其他行... -->
+
+    <!-- ((只有当你使用 milestone 或 snapshot 版本时，你才需要这个。)) -->
+    <repositories>
+        <repository>
+            <id>spring-snapshots</id>
+            <url>https://repo.spring.io/snapshot</url>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <url>https://repo.spring.io/milestone</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>spring-snapshots</id>
+            <url>https://repo.spring.io/snapshot</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>spring-milestones</id>
+            <url>https://repo.spring.io/milestone</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>
+
 ```
 
-**MainApplication.java**
+### 添加依赖到classpath
+
+Spring Boot提供了一些`starter`，不同的`starter`提供不同的功能，添加`starter`可以快速的把一套功能所需要jar添加到你的classpath。例如添加web依赖：
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+</dependencies>
+```
+
+spring-boot-starter-web包含的依赖项详情如下：
+
+1. **spring-boot-starter**：
+   - `org.springframework.boot:spring-boot-starter`
+   - 包含 Spring Boot 的核心功能和自动配置支持。
+2. **spring-boot-starter-json**：
+   - `org.springframework.boot:spring-boot-starter-json`
+   - 包含 Jackson 依赖，用于处理 JSON 数据。
+3. **spring-boot-starter-tomcat**：
+   - `org.springframework.boot:spring-boot-starter-tomcat`
+   - 包含嵌入式 Tomcat 容器。
+4. **spring-web**：
+   - `org.springframework:spring-web`
+   - 提供 Spring MVC 框架的核心功能。
+5. **spring-webmvc**：
+   - `org.springframework:spring-webmvc`
+   - 提供 Spring MVC 框架的 Web 层功能。
+6. **hibernate-validator**：
+   - `org.hibernate.validator:hibernate-validator`
+   - 提供 Java Bean 验证功能。
+7. **spring-boot-starter-logging**：
+   - `org.springframework.boot:spring-boot-starter-logging`
+   - 包含 SLF4J 和 Logback，用于日志记录。
+
+**可以运行以下命令查看依赖树,包含哪些依赖**
+
+```bash
+mvn dependency:tree -Dincludes=org.springframework.boot:spring-boot-starter-web
+```
+
+### 编写代码
+
+Maven默认会从`src/main/java` 编译源代码，因此我们创建一个`src/main/java/MyApplication.java` 的文件，包含以下代码：
 
 ```java
 RestController
@@ -79,22 +215,50 @@ public class MainApplication {
 }
 ```
 
- @RestController 和 @RequestMapping 注解
+####  @RestController 和 @RequestMapping 注解
 
 + `@RestController =@Controller +@ResponseBody`将返回的结果字符串直接响应给客户端
-+ `@RequestMapping`提供了routing路由信息
++ `@RequestMapping`提供了routing路由信息，告诉所有请求都被映射到home()
 
-@SpringBootApplication 注解
+#### @SpringBootApplication 注解
 
 `@SpringBootApplication`=`@SpringBootConfiguration`+`@EnableAutoConfiguration`+`@ComponentScan`
 
-`@EnableAutoConfiguration`告诉Spring Boot根据你添加的jar依赖项 "猜测" 你想如何配置Spring
+`@EnableAutoConfiguration`实现了自动配置，告诉Spring Boot根据你添加的`starter`依赖项 "猜测" 你想如何配置Spring
 
-## main 方法
+#### main 方法
 
 main方法通过调用 `run` 方法，把应用委托给Spring Boot的 `SpringApplication` 类。 `SpringApplication` 引导我们的应用程序启动Spring，而Spring又会启动自动配置的Tomcat网络服务器。 我们需要将 `启动类得类名.class` 作为参数传递给 `run` 方法，以告诉 `SpringApplication` 哪个是主要的Spring组件。 `args` 数组也被传入，这是命令行参数。
 
-创建一个可执行 Jar
+### 运行程序
+
+命令行输入`mvn spring-boot:run`
+
+```bash
+$ mvn spring-boot:run
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::  (v2.4.8-SNAPSHOT)
+....... . . .
+....... . . . (log output here)
+....... . . .
+........ Started MyApplication in 0.906 seconds (process running for 6.514)
+```
+
+打开你的浏览器，访问 `localhost:8080` ，看到以下输出。
+
+```http
+Hello World!
+```
+
+
+
+### 创建一个可执行 Jar
 
 打包为一个独立可执行jar包，它完全可以运行在生产环境中。 可执行的jar文件（有时被称为 “fat jar”）是包含你的编译类以及你的代码运行所需的所有jar依赖项的压缩包。springboot采取了直接嵌套jar,为了创建一个可执行的jar，我们需要在 `pom.xml` 中添加 `spring-boot-maven-plugin` 插件。在 `pom.xml` 的 `dependencies` 节点下面插入以下几行。
 
@@ -111,41 +275,25 @@ main方法通过调用 `run` 方法，把应用委托给Spring Boot的 `SpringAp
 
 # 使用Spring Boot进行开发
 
-## 构建系统
+## starter
 
-Spring Boot的每个版本都提供了一个它所支持的依赖的列表。 在实践中，你不需要在构建配置中为这些依赖声明版本，因为Spring Boot会帮你管理这些。 当你升级Spring Boot本身时，这些依赖也会一同升级。
+Starter 是一组开箱即用的依赖，简化了项目配置。例如，使用 `spring-boot-starter-data-jpa` 轻松集成 Spring 和 JPA。
 
-## Maven
+**关于Starter的命名**
 
->在Maven中使用Spring Boot
+官方 Starter 命名为 `spring-boot-starter-*`，第三方 Starter 应以项目名称开头，如 `thirdpartyproject-spring-boot-starter`。
 
-官方starter
 
-Starter是一系列开箱即用的依赖，你可以在你的应用程序中导入它们。 通过你Starter，可以获得所有你需要的Spring和相关技术的一站式服务，免去了需要到处大量复制粘贴依赖的烦恼。 例如，如果你想开始使用Spring和JPA进行数据库访问，那么可以直接在你的项目中导入 `spring-boot-starter-data-jpa` 依赖。
-
-Starter含了很多你需要的依赖，以使项目快速启动和运行，并拥有一套一致的、受支持的可管理的过渡性依赖。
-
->**关于Starter的命名**
->
->所有**官方的**Starter都遵循一个类似的命名模式；`spring-boot-starter-*`，其中 `*` 是一个特定类型的应用程序。 这种命名结构是为了在你需要寻找Starter时提供帮助。 许多IDE中集成的Maven可以让你按名称搜索依赖。 例如，如果安装了相应的Eclipse或Spring Tools插件，你可以在POM编辑器中按下 `ctrl-space` ，然后输入 “spring-boot-starter” 来获取完整的列表。
->
->第三方启动器不应该以 `spring-boot` 开头，因为它是留给Spring Boot官方组件的。 相反，第三方启动器通常以项目的名称开始。 例如，一个名为 `thirdpartyproject` 的第三方启动器项目通常被命名为 `thirdpartyproject-spring-boot-starter`。
 
 ## 代码结构
 
-Spring Boot对代码的布局，没有特别的要求。 但是，有一些最佳实践。
-
-避免使用default包
-
-当一个类不包括 `package` 的声明时，它被认为是在 “default package” 中。 通常应避免使 “default package”。 对于使用了 `@ComponentScan`, `@ConfigurationPropertiesScan`, `@EntityScan` 或者 `@SpringBootApplication` 注解的Spring Boot应用程序来说，它可能会造成一个问题：项目中的所有jar里面的所有class都会被读取（扫描）。
-
->遵循Java推荐的包的命名惯例，使用域名反转作为包名（例如， `com.example.project`）。
+避免使用 "default package"，使用反转域名（如 `com.example.project`）作为包名，以防止 Spring Boot 应用程序扫描项目中所有 JAR 包里的所有类，增加不必要的开销和潜在问题。
 
 ## 启动类的位置
 
-启动类放在一个根package中，高于其他的类，[`@SpringBootApplication`](https://springdoc.cn/spring-boot/using.html#using.using-the-springbootapplication-annotation) 注解一般都是注解在启动类上的。它默认会扫描当前类下的所有子包。例如，如果你正在编写一个JPA应用程序，你的 `@Entity` 类只有定义在启动类的子包下才能被扫描加载到。这样的好处也显而易见，`@SpringBootApplication` 默认只会扫描加载你项目工程中的组件。
+建议将启动类放在根包中,项目结构如下，高于其他类，确保 `@SpringBootApplication` 默认扫描子包中的所有组件。如果不使用 `@SpringBootApplication`，可以用 `@EnableAutoConfiguration` 和 `@ComponentScan` 代替。
 
-**项目布局**
+**项目结构**
 
 ```
 com
@@ -168,15 +316,17 @@ com
 
 ## Configuration 类
 
-Spring Boot倾向于通过Java代码来进行配置的定义。 虽然也可以使用XML来配置 `SpringApplication` ，但还是建议你通过 `@Configuration` 类来进行配置。 通常，可以把启动类是作为主要的 `@Configuration` 类。
+> Spring Boot倾向于使用Java代码进行配置，建议通过 `@Configuration`类而非 XML 配置。启动类通常作为主要的`@SpringBootConfiguration` 类(相当于`@Configuration`)。
 
-导入额外的 Configuration 类
+### 导入Configuration 类
 
-不需要把所有的 `@Configuration` 放在一个类中。 `@Import` 注解可以用来导入额外的配置类。 另外，你可以使用 `@ComponentScan` 来自动扫描加载所有Spring组件，包括 `@Configuration` 类。
+ `@Import` 注解可以用来导入额外的配置类。 
 
-导入 XML Configuration
+ `@ComponentScan` 指定扫描路径，来自动扫描加载所有Spring组件，包括 `@Configuration` 类。
 
-需要使用基于XML的配置，我们建议你仍然从 `@Configuration` 类开始，然后通过 `@ImportResource` 注解来加载XML配置文件。
+### 导入XML配置文件
+
+`@ImportResource` 注解来加载XML配置文件，将xml配置文件中的bean映射成配置类中bean。
 
 ## 自动装配（配置）
 
