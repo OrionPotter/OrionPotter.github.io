@@ -330,28 +330,100 @@ com
 
 ## 自动装配（配置）
 
-Spring Boot的自动装配机制会试图根据你所添加的依赖来自动配置你的Spring应用程序。 例如，如果你添加了 `HSQLDB` 依赖，而且你没有手动配置任何DataSource Bean，那么Spring Boot就会自动配置内存数据库。
+>Spring Boot的自动装配机制旨在简化配置过程，通过自动检测和配置应用程序所需的组件和服务。
 
-你需要将 `@EnableAutoConfiguration` 或 `@SpringBootApplication` 注解添加到你的 `@Configuration` 类中，从而开启自动配置功能。
+### 自动配置的工作原理
 
-逐步取代自动配置
+1. **依赖检测**：Spring Boot 会根据你项目中的依赖自动检测所需的配置。例如，如果你添加了 HSQLDB 依赖，Spring Boot 会检测到这一点。
+2. **默认配置**：如果你没有手动配置某些 Bean（例如 `DataSource`），Spring Boot 会提供默认配置。例如，在检测到 HSQLDB 依赖且没有手动配置 `DataSource` 的情况下，Spring Boot 会自动配置一个内存数据库。
 
-自动配置是非侵入性的。自定义你自己的配置来取代自动配置的特定部分。 例如，如果你添加了你自己的 `DataSource` bean，默认的嵌入式数据库支持就会“退步”从而让你的自定义配置生效。
+### 启用自动配置
 
-如果想知道在应用中使用了哪些自动配置，你可以在启动命令后添加 `--debug` 参数。 这个参数会为核心的logger开启debug级别的日志，会在控制台输出自动装配项目以及触发自动装配的条件。
+要启用自动配置功能，你需要在你的配置类上添加 `@EnableAutoConfiguration` 或 `@SpringBootApplication` 注解。
 
-禁用指定的自动装配类
+- `@EnableAutoConfiguration`：启用 Spring Boot 的自动配置机制。
+- `@SpringBootApplication`：这是一个组合注解，包含了 `@EnableAutoConfiguration`、`@ComponentScan` 和 `@SpringBootConfiguration`，通常用于 Spring Boot 应用的主类。
 
-如果你想禁用掉项目中某些自动装配类，你可以在 `@SpringBootApplication` 注解的 `exclude` 属性中指定，如下例所示。
+### 示例代码
+
+#### 自动配置
+
+假设你有一个简单的 Spring Boot 应用，并且添加了 HSQLDB 依赖。
+
+**pom.xml**：
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.hsqldb</groupId>
+        <artifactId>hsqldb</artifactId>
+        <scope>runtime</scope>
+    </dependency>
+</dependencies>
+```
+
+**Application.java**：
+
+```java
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+`@SpringBootApplication` 注解启用了自动配置功能。因为你添加了 HSQLDB 依赖，并且没有手动配置 `DataSource`，Spring Boot 会自动配置一个内存数据库。
+
+#### 手动配置
+
+如果你想手动配置 `DataSource`，可以在配置类中定义一个 `DataSource` Bean。
+
+**DataSourceConfig.java**：
+
+```java
+@Configuration
+public class DataSourceConfig {
+
+    @Bean
+    public DataSource dataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/mydb");
+        dataSource.setUsername("root");
+        dataSource.setPassword("password");
+        return dataSource;
+    }
+}
+```
+
+Spring Boot 的自动配置机制会检测到你已经手动配置了 `DataSource`，因此不会再自动配置内存数据库。
+
+### 如何禁用指定类进行自动装配
+
+如果你想禁用掉项目中某些自动装配类，可以在 `@SpringBootApplication` 注解的 `exclude` 属性中指定，如下例所示。
 
 ```java
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
-public class MyApplication {}
+public class MyApplication {
+
+}
 ```
 
-## Spring Bean 和 依赖注入
+## 依赖注入Bean
 
-推荐使用构造函数注入，并使用 `@ComponentScan` 注解来扫描Bean。可以在启动类添加 `@ComponentScan` 注解，也不需要定义它任何参数， 你的所有应用组件（`@Component`、`@Service`、`@Repository`、`@Controller` 和其他）都会自动注册为Spring Bean。
+springBoot推荐使用构造函数注入和 `@ComponentScan` 注解扫描 Bean。如果启动类在顶级包中，`@ComponentScan` 可省略参数。`@SpringBootApplication` 已包含 `@ComponentScan`。以下示例展示了 `@Service` Bean 使用构造器注入 `RiskAssessor` Bean。
+
+**示例代码：**
 
 ```java
 @Service
@@ -363,7 +435,11 @@ public class MyAccountService implements AccountService {
         this.riskAssessor = riskAssessor;
     }
 }
-//如果一个Bean有多个构造函数，你需要用 @Autowired 注解来告诉Spring该用哪个构造函数进行注入。
+```
+
+如果一个Bean有多个构造函数，你需要用 `@Autowired` 注解来告诉Spring该用哪个构造函数进行注入。
+
+```java
 @Service
 public class MyAccountService implements AccountService {
 
@@ -384,9 +460,9 @@ public class MyAccountService implements AccountService {
 }
 ```
 
-## 使用@SpringBootApplication 注解
+## @SpringBootApplication 注解介绍
 
-应用程序能够使用自动配置、组件扫描，并且能够在他们的 "application class "上定义额外的配置。 一个 `@SpringBootApplication` 注解就可以用来启用这三个功能，如下。
+SpringBoot的开发者希望应用程序可以进行自动装配、自动组件扫描、允许导入额外的配置类，因此采用了`@SpringBootApplication` 注解就可以用来启用这三个功能
 
 - `@EnableAutoConfiguration`：启用Spring Boot的自动配置机制。
 - `@ComponentScan`：对应用程序所在的包启用 `@Component` 扫描
@@ -404,37 +480,7 @@ public class MyApplication {
 }
 ```
 
-运行你的应用
 
-如果你使用Spring Boot的Maven或Gradle插件来创建可执行jar，你可以使用 `java -jar` 来运行你的打包后应用程序，如下例所示。
-
-```shell
-$ java -jar target/myapplication-0.0.1-SNAPSHOT.jar
-//打包后的jar程序，也支持通过命令行参数开启远程调试服务，如下。
-$ java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8000,suspend=n \
-       -jar target/myapplication-0.0.1-SNAPSHOT.jar
-
-```
-
-## 开发者工具（Developer Tools）
-
-Spring Boot 提供了一套额外的工具，可以让你更加愉快的开发应用。 `spring-boot-devtools` 模块可以包含在任何项目中，以在开发期间提供一些有用的特性。 要使用devtools，请添加以下依赖到项目中。
-
-```xml
-<dependencies>
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-devtools</artifactId>
-        <optional>true</optional>
-    </dependency>
-</dependencies>
-```
-
-> 要启用devtools，无论用于启动应用程序的类加载器是什么，请设置启动参数 `-Dspring.devtools.restart.enabled=true` 。 在生产环境中不能这样做，因为运行devtools会有安全风险。 要禁用devtools，请删除该依赖或者设置启动参数 `-Dspring.devtools.restart.enabled=false`。
->
->在 Maven 中，`<optional>true</optional>` 的作用是将依赖项标记为可选的。当一个依赖项被标记为可选时，它不会被自动包含在项目的依赖关系中。
->
->当其他项目引用你的项目时，这些可选的依赖项将不会被传递性地引入。只有当其他开发者明确地将这些可选依赖项添加到他们的项目中，这些依赖项才会被包含。
 
 # 核心特性
 
