@@ -283,8 +283,6 @@ Starter 是一组开箱即用的依赖，简化了项目配置。例如，使用
 
 官方 Starter 命名为 `spring-boot-starter-*`，第三方 Starter 应以项目名称开头，如 `thirdpartyproject-spring-boot-starter`。
 
-
-
 ## 代码结构
 
 避免使用 "default package"，使用反转域名（如 `com.example.project`）作为包名，以防止 Spring Boot 应用程序扫描项目中所有 JAR 包里的所有类，增加不必要的开销和潜在问题。
@@ -486,7 +484,7 @@ public class MyApplication {
 
 ## SpringApplication
 
-通过 `SpringApplication` 类，你可以从 `main()` 方法中启动Spring应用程序。 在许多情况下，你可以直接调动 `SpringApplication.run` 静态方法，如以下例子所示。
+>通过调用SpringApplication类的run静态方法，启动springboot应用程序
 
 ```java
 @SpringBootApplication
@@ -497,39 +495,47 @@ public class MyApplication {
 }
 ```
 
-默认情况下，会显示 `INFO` 级别的日志信息，包括一些相关的启动细节，比如启动应用程序的用户。 如果你需要 `INFO` 以外级别的日志，你可以设置它，如日志级别中所述。 应用程序的版本是使用main方法所在类的包的实现版本来确定的。 启动信息的记录可以通过设置 `spring.main.log-startup-info` 为 `false` 来关闭。 这也将关闭应用程序的激活的profiles的日志记录。
+### 启用失败
 
-## 启用失败
-
-如果你的应用程序启动失败，注册的 `FailureAnalyzers` 会尝试提供一个专门的错误信息提示和具体的解决办法。 例如，如果你在端口 `8080` 上启动一个网络应用，而该端口已经被使用，你应该看到类似于下面的信息。
-
-```
-***************************
-APPLICATION FAILED TO START
-***************************
-
-Description:
-
-Embedded servlet container failed to start. Port 8080 was already in use.
-
-Action:
-
-Identify and stop the process that is listening on port 8080 or configure this application to listen on another port.
-```
-
-如果 failure analyzer 不能够处理异常，你仍然可以显示完整的条件报告以更好地了解出错的原因。例如，如果你通过使用 `java -jar` 来运行你的应用程序，你可以按以下方式启用 `debug` 属性。
+如果应用程序启动失败，日志里面异常信息不够，可以通过debug模式启动，来显示完整的报告，更好的了解报错原因。
 
 ```shell
 $ java -jar myproject-0.0.1-SNAPSHOT.jar --debug
 ```
 
-## 懒初始化（Lazy Initialization）
+### 懒初始化（Lazy Initialization）
 
-`SpringApplication` 允许应用程序被懒初始化。 当启用懒初始化时，Bean在需要时被创建，而不是在应用程序启动时。 因此，懒初始化可以减少应用程序的启动时间。 在一个Web应用程序中，启用懒初始化后将导致许多与Web相关的Bean在收到HTTP请求之后才会进行初始化。
+懒加载就是应用程序启动的时候不会创建所有Bean，只有在需要这个Bean的时候才会创建这个Bean。
 
-懒初始化的一个缺点是它会延迟发现应用程序的问题。 如果一个配置错误的Bean被懒初始化了，那么在启动过程中就不会再出现故障，问题只有在Bean被初始化时才会显现出来。 还必须注意确保JVM有足够的内存来容纳应用程序的所有Bean，而不仅仅是那些在启动期间被初始化的Bean。 由于这些原因，默认情况下不启用懒初始化，建议在启用懒初始化之前，对JVM的堆大小进行微调。
+**创建懒加载的方式**
 
-可以使用 `SpringApplicationBuilder` 的 `lazyInitialization` 方法或 `SpringApplication` 的 `setLazyInitialization` 方法以编程方式启用懒初始化。 另外，也可以使用 `spring.main.lazy-initialization` 属性来启用，如下例所示。
+1. 使用 `SpringApplicationBuilder` 的 `lazyInitialization` 方法
+
+```java
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        new SpringApplicationBuilder(Application.class)
+            .lazyInitialization(true)
+            .run(args);
+    }
+}
+```
+
+2. 使用 `SpringApplication` 的 `setLazyInitialization` 方法
+
+```java
+@SpringBootApplication
+public class Application {
+    public static void main(String[] args) {
+        SpringApplication app = new SpringApplication(Application.class);
+        app.setLazyInitialization(true);
+        app.run(args);
+    }
+}
+```
+
+3. 使用 `spring.main.lazy-initialization` 属性
 
 ```yaml
 spring:
@@ -539,28 +545,26 @@ spring:
 
 >如果你想禁用某些Bean的懒初始化，同时对应用程序的其他部分使用懒初始化，你可以使用 `@Lazy(false)` 注解将其`Lazy` 属性显式地设置为 false。
 
-## 自定义 Banner
+### 自定义 Banner
 
 启动时打印的Banner可以通过在 classpath 中添加 `banner.txt` 文件或通过将 `spring.banner.location` 属性设置为该文件的位置来自定义。 如果该文件的编码不是UTF-8，你可以通过 `spring.banner.charset` 属性设置其字符编码。
 
-## 自定义 SpringApplication
+### 自定义SpringApplication
 
-如果 `SpringApplication` 的默认值不符合你的需求，你可以创建一个实例并对其进行自定义。 例如，要关闭Banner，你可以这样写。
+如果需要修改springBoot的默认值，可以进行自定义，如关闭banner
 
 ```java
 @SpringBootApplication
-public class MyApplication {
+public class MpApplication {
     public static void main(String[] args) {
-        SpringApplication application = new SpringApplication(MyApplication.class);
-        application.setBannerMode(Banner.Mode.OFF);
-        application.run(args);
+        SpringApplication springApplication = new SpringApplication(MpApplication.class);
+        springApplication.setBannerMode(Banner.Mode.OFF);
+        springApplication.run(args);
     }
 }
 ```
 
-传递给 `SpringApplication` 的构造参数是 Spring Bean 的配置源。 在大多数情况下，这些是对 `@Configuration` 类的引用，但它们也可能是对 `@Component` 类的直接引用。
-
-## Builder API
+### Builder API
 
 `SpringApplicationBuilder` 允许你链式调用多个方法，包括调用 `parent` 和 `child` 方法，创建一个层次结构，如下例所示。
 
@@ -571,111 +575,753 @@ new SpringApplicationBuilder().sources(Parent.class)
     .run(args);
 ```
 
-## Application 可用性
+### Application 事件和监听器
 
-在平台上部署时，应用程序可以使用 Kubernetes Probes等基础设施向平台提供有关其可用性的信息。Spring Boot对常用的 “liveness” 和 “readiness” 可用性状态提供了开箱即用的支持。如果你使用Spring Boot的 “actuator” ，那么这些状态将作为健康端点组（health endpoint groups）暴露出来。
+在 Spring Boot 应用程序中，除了常见的 Spring 框架事件（如 `ContextRefreshedEvent`）之外，`SpringApplication` 还会发布一些额外的应用事件。这些事件可以帮助开发者在应用程序的不同启动阶段执行特定的逻辑。
 
-## Liveness State
+**1.事件发布顺序**
 
-一个应用程序的 “Liveness” 状态告诉我们它的内部状态是否允许它正常工作，或者在当前失败的情况下自行恢复。 一个broken状态的 “Liveness” 状态意味着应用程序处于一个无法恢复的状态，基础设施应该重新启动应用程序。Spring Boot应用程序的内部状态大多由Spring `ApplicationContext` 表示。如果 application context 已成功启动，Spring Boot就认为应用程序处于有效状态。一旦context被刷新，应用程序就被认为是活的
+以下是 `SpringApplication` 发布的事件按顺序列出：
 
-## Readiness State
+1. **ApplicationStartingEvent**：
+   - **时机**：应用程序启动时，最早发布的事件。
+   - **作用**：在任何处理之前（除了注册监听器和初始化器），发布此事件。
+2. **ApplicationEnvironmentPreparedEvent**：
+   - **时机**：在上下文创建之前，当 `Environment` 已知时发布。
+   - **作用**：表示 `Environment` 已准备好，但上下文还未创建。
+3. **ApplicationContextInitializedEvent**：
+   - **时机**：`ApplicationContext` 已准备好并且 `ApplicationContextInitializers` 被调用，但在任何 Bean 定义被加载之前发布。
+   - **作用**：表示上下文已初始化，但还未加载 Bean 定义。
+4. **ApplicationPreparedEvent**：
+   - **时机**：在刷新开始前但在 Bean 定义加载后发布。
+   - **作用**：表示 Bean 定义已加载，但上下文还未刷新。
+5. **ApplicationStartedEvent**：
+   - **时机**：上下文被刷新之后，但在任何应用程序和命令行运行程序被调用之前发布。
+   - **作用**：表示应用程序已启动，但还未运行任何 `ApplicationRunner` 和 `CommandLineRunner`。
+6. **AvailabilityChangeEvent (LivenessState.CORRECT)**：
+   - **时机**：紧接着 `ApplicationStartedEvent` 发布。
+   - **作用**：表明应用程序被认为是存活的（Liveness）。
+7. **ApplicationReadyEvent**：
+   - **时机**：在所有 `ApplicationRunner` 和 `CommandLineRunner` 被调用后发布。
+   - **作用**：表示应用程序已准备好，可以接受请求。
+8. **AvailabilityChangeEvent (ReadinessState.ACCEPTING_TRAFFIC)**：
+   - **时机**：紧接着 `ApplicationReadyEvent` 发布。
+   - **作用**：表明应用程序已准备好为请求提供服务（Readiness）。
+9. **ApplicationFailedEvent**：
+   - **时机**：启动时出现异常时发布。
+   - **作用**：表示应用程序启动失败。
 
-应用程序的 “Readiness” 状态告诉平台，该应用程序是否准备好处理流量。 failing状态的 “Readiness” 告诉平台，它暂时不应该将流量发送到该应用程序。 这通常发生在启动期间，当 `CommandLineRunner` 和 `ApplicationRunner` 组件还在被处理的时候，或者是应用程序觉得目前负载已经到了极限，不能再处理额外的请求的时候。
+2.**注册监听器**
 
-一旦 `ApplicationRunner` 和 `CommandLineRunner` 被调用完成，就认为应用程序已经准备好了
+有些事件是在 `ApplicationContext` 被创建之前触发的，所以你不能以 `@Bean` 的形式注册监听器。你可以通过以下方式注册监听器：
 
-## 管理应用程序的可用性状态
+1. **通过 `SpringApplication.addListeners(…)` 方法**：
 
-## Application 事件和监听器
-
-有些事件实际上是在 `ApplicationContext` 被创建之前触发的，所以你不能以 `@Bean` 的形式注册一个监听器。 你可以通过 `SpringApplication.addListeners(…)` 方法或 `SpringApplicationBuilder.listeners(…)` 方法注册它们。
-
-如果你想让这些监听器自动注册，不管应用程序是如何创建的，你可以在你的项目中添加一个 `META-INF/spring.factories` 文件，并通过 `org.springframework.context.ApplicationListener` 属性来配置你的监听器，如以下例子所示。
-
-```xml
-org.springframework.context.ApplicationListener=com.example.project.MyListener
+```java
+   SpringApplication app = new SpringApplication(MyApplication.class);
+   app.addListeners(new MyApplicationListener());
+   app.run(args);
 ```
 
-当应用程序运行时，Application event按以下顺序发布。
+2. **通过 `SpringApplicationBuilder.listeners(…)` 方法**：
 
-1. 一个 `ApplicationStartingEvent` 在运行开始时被发布，但在任何处理之前，除了注册监听器和初始化器之外。
-2. 当在上下文中使用的 `Environment` 已知，但在创建上下文之前，将发布 `ApplicationEnvironmentPreparedEvent`。
-3. 当 `ApplicationContext` 已准备好并且 `ApplicationContextInitializers` 被调用，但在任何Bean定义被加载之前，`ApplicationContextInitializedEvent` 被发布。
-4. 一个 `ApplicationPreparedEvent` 将在刷新开始前但在Bean定义加载后被发布。
-5. 在上下文被刷新之后，但在任何应用程序和命令行运行程序被调用之前，将发布一个 `ApplicationStartedEvent`。
-6. 紧接着发布 `LivenessState.CORRECT` 状态的 `AvailabilityChangeEvent`，表明应用程序被认为是存活的。
-7. 在任何[ApplicationRunner 和 CommandLineRunner](https://springdoc.cn/spring-boot/features.html#features.spring-application.command-line-runner)被调用后，将发布一个 `ApplicationReadyEvent`。
-8. 紧接着发布 `ReadinessState.ACCEPTING_TRAFFIC` 状态的 `AvailabilityChangeEvent`，表明应用程序已经准备好为请求提供服务。
-9. 如果启动时出现异常，将发布一个 `ApplicationFailedEvent`。
+```java
+   new SpringApplicationBuilder(MyApplication.class)
+       .listeners(new MyApplicationListener())
+       .run(args);
+```
 
-Application event 是通过使用Spring框架的事件发布机制来发布的。 该机制的一部分确保了发布给子context中的listener的事件也会发布给任何祖先context的listener。 因此，如果你的应用程序使用了多层级的 `SpringApplication`，一个监听器可能会收到同一类型应用程序事件的多个实例（重复收到事件通知）。
 
-为了让你的listener能够区分事件是由哪个context（子、父）发送的，可以注入其application context，然后将注入的context与事件的context进行比较。 context可以通过实现 `ApplicationContextAware` 来注入，如果监听器是一个Bean，则可以通过使用 `@Autowired` 来注入。
 
-## WEB 环境（Environment）
+### WEB 环境（Environment）
 
-`SpringApplication` 会试图帮你创建正确类型的 `ApplicationContext`。 确定为 `WebApplicationType` 的算法如下。
+`SpringApplication` 会试图帮你创建正确类型的 `ApplicationContext`，具体 `WebApplicationType` 的算法如下。
 
 - 如果Spring MVC存在，就会使用 `AnnotationConfigServletWebServerApplicationContext`。
 - 如果Spring MVC不存在而Spring WebFlux存在，则使用 `AnnotationConfigReactiveWebServerApplicationContext`。
 - 否则，将使用 `AnnotationConfigApplicationContext`。
 
-这意味着，如果你在同一个应用程序中使用Spring MVC和新的 `WebClient`（来自于Spring WebFlux），Spring MVC将被默认使用。 你可以通过调用 `setWebApplicationType(WebApplicationType)` 来轻松覆盖。
+### 访问应用参数
 
-也可以通过调用 `setApplicationContextFactory(…)` 来完全控制使用的 `ApplicationContext` 类型。
+传递给 `SpringApplication.run(..)` 的命令行参数,通过 `ApplicationArguments` 接口，访问原始的 `String[]` 参数以及经过解析的 `option` 和 `non-option` 参数。
 
-## 访问应用参数
+### 使用 ApplicationRunner 或 CommandLineRunner
 
-如果你需要访问传递给 `SpringApplication.run(..)` 的命令行参数，你可以注入一个 `org.springframework.boot.ApplicationArguments` bean。 通过 `ApplicationArguments` 接口，你可以访问原始的 `String[]` 参数以及经过解析的 `option` 和 `non-option` 参数。如以下例子所示。
+`ApplicationRunner` 和 `CommandLineRunner` 是 Spring Boot 提供的两个接口，用于在 Spring Boot 应用程序启动完成后执行特定的代码。这两个接口的主要作用是在应用程序启动并初始化所有 Spring 容器和 beans 之后，执行一些自定义逻辑。它们提供了在应用程序初始化完成后立即执行代码的机制，适用于各种初始化任务、资源加载、数据检查等场景。
 
-## 使用 ApplicationRunner 或 CommandLineRunner
+**1.ApplicationRunner**
 
-如果你需要在 `SpringApplication` 启动后运行一些特定的代码，你可以实现 `ApplicationRunner` 或 `CommandLineRunner` 接口。 这两个接口以相同的方式工作，并提供一个单一的 `run` 方法，该方法在 `SpringApplication.run(…)` 执行完毕之前被调用。
+`ApplicationRunner` 接口的 `run` 方法接受一个 `ApplicationArguments` 对象，该对象包含传递给应用程序的参数。
+
+```java
+@Component
+public class MyApplicationRunner implements ApplicationRunner {
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        System.out.println("ApplicationRunner is running with args: " + args.getOptionNames());
+    }
+}
+```
+
+**2.CommandLineRunner**
+
+`CommandLineRunner` 接口的 `run` 方法接受一个 `String` 数组，该数组包含传递给应用程序的原始命令行参数。
 
 ```java
 @Component
 public class MyCommandLineRunner implements CommandLineRunner {
 
     @Override
-    public void run(String... args) {
-        // Do something...
+    public void run(String... args) throws Exception {
+        System.out.println("CommandLineRunner is running with args: " + String.join(", ", args));
     }
 }
 ```
 
-如果定义了多个 `CommandLineRunner` 或 `ApplicationRunner` Bean，并且需要它们按照特定的顺序先后执行。那么可以实现 `org.springframework.core.Ordered` 接口或使用 `org.springframework.core.annotation.Order` 注解来指定顺序。
+**3.主要区别**
 
-## 程序退出
+- **参数类型**：
+  - `ApplicationRunner` 接受 `ApplicationArguments` 对象，提供了对传递给应用程序的参数的更丰富的访问方式。
+  - `CommandLineRunner` 接受一个 `String` 数组，包含传递给应用程序的原始命令行参数。
+- **使用场景**：
+  - `ApplicationRunner` 更适合需要解析和处理复杂参数的场景。
+  - `CommandLineRunner` 更适合处理简单的命令行参数。
 
-每个 `SpringApplication` 都向JVM注册了一个shutdown hook，以确保 `ApplicationContext` 在退出时优雅地关闭。 所有标准的Spring生命周期回调（如 `DisposableBean` 接口或 `@PreDestroy` 注解）都可以使用。
+### SpringBoot程序退出机制
 
-此外，如果Bean希望在调用 `SpringApplication.exit()` 时返回特定的退出代码，可以实现 `org.springframework.boot.ExitCodeGenerator` 接口。 然后，这个退出代码可以被传递给 `System.exit()` ，将其作为状态代码返回，如下面的例子所示。
+**1.JVM Shutdown Hook**
 
-```java
- @Bean
- public ExitCodeGenerator exitCodeGenerator(){
-        return () -> 42;
-    }
+每个 `SpringApplication` 都会向 JVM 注册一个 shutdown hook，以确保在 JVM 退出时优雅地关闭 `ApplicationContext`。这意味着在应用程序退出时，Spring 会自动调用所有标准的生命周期回调，例如实现了 `DisposableBean` 接口的 bean 或带有 `@PreDestroy` 注解的方法。
 
- public static void main(String[] args) {
-        System.exit(SpringApplication.exit(SpringApplication.run(MainApplication.class,args)));
-    }
-```
+**2.ExitCodeGenerator 接口**
 
-另外，`ExitCodeGenerator` 接口可以由异常（Exception）实现。 当遇到这种异常时，Spring Boot会返回由实现的 `getExitCode()` 方法提供的退出代码。
+如果你希望在应用程序退出时返回特定的退出代码，可以实现 `org.springframework.boot.ExitCodeGenerator` 接口。这个接口只有一个方法 `getExitCode()`，返回一个整数作为退出代码。
 
-如果有多个 `ExitCodeGenerator` ，则使用第一个生成的非零退出代码。 要控制生成器（Generator）的调用顺序，你可以实现 `org.springframework.core.Ordered` 接口或使用 `org.springframework.core.annotation.Order` 注解。
+### 开启管理功能
 
-## 管理功能
+设置 `spring.application.admin.enabled` 属性为true，启用应用程序的管理相关功能，它会在 `MBeanServer` 平台上暴露了 `SpringApplicationAdminMXBean`，**打开 JMX 客户端**，**连接到应用程序**。
 
-通过指定 `spring.application.admin.enabled` 属性，可以启用应用程序的管理相关功能。 这在 `MBeanServer` 平台上暴露了 [`SpringApplicationAdminMXBean`](https://github.com/spring-projects/spring-boot/tree/main/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/admin/SpringApplicationAdminMXBean.java)。 你可以使用这个功能来远程管理你的Spring Boot应用程序。 这个功能对任何服务包装器的实现也很有用。
+### SpringBoot启动流程分析
 
-## 应用程序启动追踪
-
-在应用程序启动期间，`SpringApplication` 和 `ApplicationContext` 执行许多与应用程序生命周期相关的任务。 beans的生命周期，甚至是处理应用事件。 通过 [`ApplicationStartup`](https://docs.spring.io/spring-framework/docs/6.1.0-M1/javadoc-api/org/springframework/core/metrics/ApplicationStartup.html), ，Spring框架 [允许你用 `StartupStep` 对象来跟踪应用程序的启动顺序](https://docs.spring.io/spring-framework/docs/6.1.0-M1/reference/html/core.html#context-functionality-startup)。 这些数据可以为分析目的而收集，或者只是为了更好地了解应用程序的启动过程。
-
-你可以在设置 `SpringApplication` 实例时选择一个 `ApplicationStartup` 实现。 例如，要使用 `BufferingApplicationStartup`，你可以这么写。
+在 Spring Boot 应用程序启动期间，`SpringApplication` 和 `ApplicationContext` 会执行许多与应用程序生命周期相关的任务，包括 Bean 的生命周期管理和事件处理。为了更好地了解和分析应用程序的启动过程，Spring 框架提供了 `ApplicationStartup` 接口，通过 `StartupStep` 对象来跟踪应用程序的启动顺序。
 
 ## 外部化的配置
+
+在不同的环境中使用相同的应用程序代码,可以通过多种外部配置源（如properties、YAML、环境变量、命令行参数）来实现。Spring Boot 使用一个特定的 `PropertySource` 顺序来加载配置，这样后面的配置源可以覆盖前面的配置源。
+
+properties文件 > YAML文件 > 环境变量 > 命令行参数  
+
+>properties文件和YAML文件，按顺序加载，JAR包内的先执行，JAR 包外的文件优先于 JAR 包内的文件。
+
+**配置数据文件的加载顺序**
+
+1. **在 JAR 包内的 `application.properties` 和 YAML 文件**。
+2. **在 JAR 包内的特定 Profile 的 `application-{profile}.properties` 和 YAML 文件**。
+3. **在 JAR 包外的 `application.properties` 和 YAML 文件**。
+4. **在 JAR 包外的特定 Profile 的 `application-{profile}.properties` 和 YAML 文件**。
+
+### 通过命令行参数获取属性
+
+- **通过 `@Value` 注解**：直接注入属性值。
+- **通过 `Environment` 接口**：使用 `Environment` 获取属性值。
+- **通过 `@ConfigurationProperties` 注解**：将属性绑定到一个 POJO 类中。
+- **通过 `ApplicationArguments` 接口**：获取原始的命令行参数。
+
+### 通过Json获取属性
+
+环境变量和系统属性往往有限制，这意味着有些属性名称不能使用。 为了帮助解决这个问题，Spring Boot允许你将一个属性块编码为一个单一的JSON结构。
+
+```shell
+$ SPRING_APPLICATION_JSON='{"my":{"name":"test"}}' java -jar myapp.jar
+$ java -Dspring.application.json='{"my":{"name":"test"}}' -jar myapp.jar
+$ java -jar myapp.jar --spring.application.json='{"my":{"name":"test"}}'
+```
+
+### 通过Application Properties获取属性
+
+Spring Boot会自动从以下位置找到并加载 `application.properties` 和 `application.yaml` 文件。
+
+#### 加载顺序
+
+加载顺序如下，最后的会覆盖前面的
+
+1. **当前目录的 `/config` 子目录**：
+   - `file:./config/`
+2. **当前目录**：
+   - `file:./`
+3. **类路径的 `/config` 包**：
+   - `classpath:/config/`
+4. **类路径的根目录**：
+   - `classpath:/`
+
+示例说明
+
+假设你有以下配置文件内容：
+
+```properties
+#./config/application.properties
+server.port=8081
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb_config
+```
+
+```properties
+#./application.properties
+server.port=8082
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb_root
+```
+
+```properties
+#src/main/resources/config/application.properties
+server.port=8083
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb_classpath_config
+```
+
+```properties
+#src/main/resources/application.properties
+server.port=8084
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb_classpath_root
+```
+
+最终结果
+
+```properties
+#src/main/resources/application.properties
+server.port=8084
+spring.datasource.url=jdbc:mysql://localhost:3306/mydb_classpath_root
+```
+
+#### 特定文件
+
+Spring Boot可以使用 `application-{profile}` 的命名惯例加载profile特定的文件。
+
+```properties
+#application.profile
+spring.profiles.active=prod
+```
+
+```properties
+#application-prod.profile
+server.port=8080
+```
+
+#### @ConfigurationProperties
+
+`@ConfigurationProperties` 注解用于将外部化配置（如 `application.properties` 或 `application.yml` 文件中的属性）绑定到一个 POJO 类中。通过 `@ConfigurationProperties` 注解，你可以将一组相关的属性集中到一个类中，便于管理和使用。
+
+1. **定义配置属性类**：创建一个 POJO 类，并使用 `@ConfigurationProperties` 注解指定属性前缀。
+2. **启用配置属性**：在启动类中使用 `@EnableConfigurationProperties` 注解启用配置属性绑定。
+3. **在其他组件中使用配置属性类**：通过依赖注入将配置属性类注入到需要使用的组件中。
+
+### 通过环境变量获取参数
+
+在 Unix/Linux/MacOS 中，你可以使用 `export` 命令
+
+```bash
+export SERVER_PORT=8085
+export SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/mydb_env
+```
+
+通过Environment接口获取变量
+
+```java
+@Component
+public class MyComponent {
+
+    @Autowired
+    private Environment env;
+
+    public void printProperties() {
+        String serverPort = env.getProperty("server.port");
+        String datasourceUrl = env.getProperty("spring.datasource.url");
+        System.out.println("Server Port: " + serverPort);
+        System.out.println("Datasource URL: " + datasourceUrl);
+    }
+}
+```
+
+# 国际化
+
+在 Spring Boot 中，实现国际化（i18n）可以让应用程序支持多种语言和区域设置。以下是如何在 Spring Boot 应用程序中使用国际化的详细步骤：
+
+## 配置国际化资源文件
+
+首先，你需要创建包含不同语言的资源文件。通常，这些文件位于 `src/main/resources` 目录下，并且以 `.properties` 文件的形式存在。
+
+- `messages.properties`（默认语言）
+
+```properties
+  greeting=Hello
+  farewell=Goodbye
+```
+
+- `messages_fr.properties`（法语）
+
+```properties
+  greeting=Bonjour
+  farewell=Au revoir
+```
+
+- `messages_es.properties`（西班牙语）
+
+```properties
+  greeting=Hola
+  farewell=Adiós
+```
+
+## 配置 `MessageSource` Bean
+
+在你的 Spring Boot 应用程序配置类中，配置 `MessageSource` Bean 以加载国际化资源文件。
+
+```java
+@Configuration
+public class InternationalizationConfig implements WebMvcConfigurer {
+
+    @Bean
+    public MessageSource messageSource() {
+        ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
+        messageSource.setBasename("classpath:messages");
+        messageSource.setDefaultEncoding("UTF-8");
+        return messageSource;
+    }
+
+    @Bean
+    public LocaleResolver localeResolver() {
+        CookieLocaleResolver localeResolver = new CookieLocaleResolver();
+        localeResolver.setDefaultLocale(Locale.US);
+        return localeResolver;
+    }
+
+    @Bean
+    public LocaleChangeInterceptor localeChangeInterceptor() {
+        LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
+        interceptor.setParamName("lang");
+        return interceptor;
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(localeChangeInterceptor());
+    }
+}
+```
+
+## 使用国际化资源
+
+在你的控制器或服务中，你可以通过 `MessageSource` Bean 来获取国际化消息。
+
+```java
+@RestController
+public class GreetingController {
+
+    @Autowired
+    private MessageSource messageSource;
+
+    @GetMapping("/greeting")
+    public String greeting(@RequestParam(name = "lang", required = false) String lang) {
+        Locale locale = lang != null ? new Locale(lang) : Locale.getDefault();
+        return messageSource.getMessage("greeting", null, locale);
+    }
+}
+```
+
+## 切换语言
+
+你可以通过在 URL 中添加语言参数来切换语言。例如：
+
+- `http://localhost:8080/greeting?lang=fr` 将返回 "Bonjour"
+- `http://localhost:8080/greeting?lang=es` 将返回 "Hola"
+- `http://localhost:8080/greeting` 将返回 "Hello"（默认语言）
+
+## 使用 `@RequestHeader` 注解自动检测语言
+
+你还可以使用 `@RequestHeader` 注解自动检测请求中的 `Accept-Language` 头来设置语言。
+
+```java
+@RestController
+public class GreetingController {
+    @Autowired
+    private MessageSource messageSource;
+
+    @GetMapping("/greeting")
+    public String greeting(@RequestHeader(name = "Accept-Language", required = false) Locale locale) {
+        return messageSource.getMessage("greeting", null, locale != null ? locale : Locale.getDefault());
+    }
+}
+```
+
+# Json
+
+Spring Boot提供了与三个JSON库的集成,Jackson是首选和默认的库。
+
+- Gson
+- Jackson
+- JSON-B
+
+Jackson 是一个用于处理 JSON 数据的流行库，广泛应用于 Java 应用程序中。它可以轻松地将 Java 对象转换为 JSON 格式（序列化），以及将 JSON 数据转换为 Java 对象（反序列化）。在 Spring Boot 中，Jackson 通常用于处理 RESTful API 的请求和响应。
+
+## 基本使用
+
+### 序列化（将 Java 对象转换为 JSON）
+
+```java
+public class JacksonExample {
+    public static void main(String[] args) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        // 创建一个示例对象
+        User user = new User("John Doe", 30);
+
+        // 将对象转换为 JSON 字符串
+        String jsonString = objectMapper.writeValueAsString(user);
+        System.out.println(jsonString);
+    }
+}
+@Data
+class User {
+    private String name;
+    private int age;
+}
+```
+
+### 反序列化（将 JSON 转换为 Java 对象）
+
+```java
+public class JacksonExample {
+    public static void main(String[] args) throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        // JSON 字符串
+        String jsonString = "{\"name\":\"John Doe\",\"age\":30}";
+
+        // 将 JSON 字符串转换为对象
+        User user = objectMapper.readValue(jsonString, User.class);
+        System.out.println(user.getName() + " - " + user.getAge());
+    }
+}
+```
+
+##  SpringBoot中使用 Jackson
+
+在 Spring Boot 中，Jackson 通常用于处理 RESTful API 的请求和响应。Spring Boot 默认使用 Jackson 作为 JSON 处理库。
+
+### 创建Rest控制器
+
+```java
+@RestController
+@RequestMapping("/api")
+public class UserController {
+
+    @GetMapping("/user")
+    public User getUser() {
+        return new User("John Doe", 30);
+    }
+}
+```
+
+### 发送请求并查看响应
+
+启动应用程序后，访问 `http://localhost:8080/api/user`，你将看到以下 JSON 响应：
+
+```json
+{
+    "name": "John Doe",
+    "age": 30
+}
+```
+
+## 自定义 Jackson 配置
+
+在 Spring Boot 配置类中定义 `ObjectMapper` Bean 来自定义 Jackson 的配置。
+
+```java
+@Configuration
+public class JacksonConfig {
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT); // 启用缩进输出
+        return objectMapper;
+    }
+}
+```
+
+## Jackson注解
+
+```java
+@JsonPropertyOrder({ "age", "name" }) // 指定 JSON 属性的顺序
+@JsonProperty("full_name") // 自定义 JSON 属性名
+@JsonIgnore // 忽略这个属性,使其不被序列化或反序列化
+@JsonInclude 注解可以指定只包含非空属性    
+@JsonSerialize 、@JsonDeserialize //注解可以自定义序列化和反序列化的逻辑。    
+```
+
+# Executor` 和 `TaskScheduler
+
+`Executor` 和 `TaskScheduler` 在Spring Boot中的主要作用就是执行异步任务和定时任务。
+
+##  异步任务执行 (`Executor`)
+
+### 作用
+
+异步任务允许你在后台执行一些耗时的操作，而不会阻塞主线程。这对于提高应用程序的性能和响应速度非常有用。常见的异步任务包括：
+
+- 发送电子邮件
+- 处理文件上传
+- 调用远程服务
+- 数据处理和计算
+
+### 如何使用
+
+使用 `@EnableAsync` 注解来启用异步任务执行，并使用 `@Async` 注解来标记需要异步执行的方法。
+
+```java
+@SpringBootApplication
+@EnableAsync
+public class AsyncApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(AsyncApplication.class, args);
+    }
+}
+```
+
+```java
+@Service
+public class AsyncService {
+    @Async
+    public void executeAsyncTask() {
+        System.out.println("Executing async task...");
+        // 模拟耗时操作
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        System.out.println("Async task completed.");
+    }
+}
+```
+
+## 定时任务执行 (`TaskScheduler`)
+
+### 作用
+
+定时任务允许你在指定的时间间隔或特定的时间点执行某些操作。这对于执行周期性任务非常有用。常见的定时任务包括：
+
+- 数据备份
+- 日志清理
+- 定期报告生成
+- 定时发送通知
+
+### 如何使用
+
+使用 `@EnableScheduling` 注解来启用定时任务执行，并使用 `@Scheduled` 注解来标记需要定时执行的方法。
+
+```java
+@SpringBootApplication
+@EnableScheduling
+public class SchedulingApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(SchedulingApplication.class, args);
+    }
+}
+```
+
+```java
+@Service
+public class ScheduledService {
+    @Scheduled(fixedRate = 5000)
+    public void executeScheduledTask() {
+        System.out.println("Executing scheduled task...");
+    }
+}
+```
+
+## 配置和优化
+
+通过配置文件或自定义配置类来优化 `Executor` 和 `TaskScheduler` 的性能，以满足特定的需求。
+
+```xml
+spring:
+  task:
+    execution:
+      pool:
+        max-size: 16
+        queue-capacity: 100
+        keep-alive: "10s"
+    scheduling:
+      thread-name-prefix: "scheduling-"
+      pool:
+        size: 2
+```
+
+```java
+@Configuration
+public class AppConfig {
+
+    @Bean(name = "taskExecutor")
+    public Executor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(8);
+        executor.setMaxPoolSize(16);
+        executor.setQueueCapacity(100);
+        executor.setKeepAliveSeconds(10);
+        executor.setThreadNamePrefix("Async-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean
+    public ThreadPoolTaskScheduler taskScheduler() {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(2);
+        scheduler.setThreadNamePrefix("Scheduling-");
+        return scheduler;
+    }
+}
+```
+
+# Test
+
+Spring Boot提供了强大的测试支持，可以帮助你编写和运行各种类型的测试，包括单元测试、集成测试和端到端测试。
+
+## 单元测试
+
+单元测试是测试代码的最小单位，通常是一个方法或一个类。Spring Boot提供了JUnit和Mockito等工具来编写单元测试。
+
+### 依赖配置
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+```
+
+### 测试类
+
+```java
+@SpringBootTest
+public class MyServiceTest {
+
+    @Test
+    public void testAddition() {
+        int result = 1 + 1;
+        assertEquals(2, result);
+    }
+}
+```
+
+## 使用Mockito进行单元测试
+
+Mockito是一个流行的Java库，用于创建和配置模拟对象。它非常适合用来测试依赖于其他类或服务的类。
+
+### 服务类
+
+```java
+@Service
+public class MyService {
+    public String greet(String name) {
+        return "Hello, " + name;
+    }
+}
+```
+
+### 测试类
+
+```java
+public class MyServiceTest {
+    @Mock
+    private MyService myService;
+
+    @InjectMocks
+    private MyServiceTest myServiceTest;
+
+    public MyServiceTest() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    public void testGreet() {
+        when(myService.greet("World")).thenReturn("Hello, World");
+        String result = myService.greet("World");
+        assertEquals("Hello, World", result);
+    }
+}
+```
+
+## 集成测试
+
+集成测试用于测试应用程序的不同部分如何协同工作。Spring Boot提供了 `@SpringBootTest` 注解来方便地进行集成测试。
+
+### 控制器类
+
+```java
+@RestController
+public class MyController {
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello, World";
+    }
+}
+```
+
+### 测试类
+
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class MyControllerTest {
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    @Test
+    public void testHello() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/hello", String.class);
+        assertEquals("Hello, World", response.getBody());
+    }
+}
+```
+
+## 使用MockMvc进行Web层测试
+
+MockMvc是Spring提供的一个工具，用于测试Spring MVC控制器，而不需要启动整个服务器。
+
+### 控制器类
+
+```java
+@RestController
+public class MyController {
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello, World";
+    }
+}
+```
+
+### 测试类
+
+```java
+@WebMvcTest(MyController.class)
+public class MyControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Test
+    public void testHello() throws Exception {
+        mockMvc.perform(get("/hello"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Hello, World"));
+    }
+}
+```
+
+
+
+
 
