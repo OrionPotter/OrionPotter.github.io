@@ -1321,7 +1321,294 @@ public class MyControllerTest {
 }
 ```
 
+# Web
 
+SpringBoot支持Web开发，目前有两大框架，Servlet web Application、Reactive Web两种框架
 
+## Servlet Web Application
 
+构建基于Servlet的Web应用，可以利用Spring Boot对Spring MVC或Jersey的自动配置，常用的是MVC模式。
+
+### Spring web Mvc框架
+
+#### 两种编程风格
+
++ 基于注解编程风格
+
++ 基于函数式编程的风格
+
+#### SpringBoot中的Spring Mvc自动配置
+
+1. **视图解析器**：
+   - 包含 `ContentNegotiatingViewResolver` 和 `BeanNameViewResolver` Bean，用于视图解析。
+2. **静态资源支持**：
+   - 提供对静态资源（如CSS、JavaScript、图像）的服务支持，包括对WebJars的支持。
+3. **类型转换和格式化**：
+   - 自动注册 `Converter`、`GenericConverter` 和 `Formatter` Bean，用于类型转换和格式化。
+   - 支持 `HttpMessageConverters`，用于将请求和响应转换为对象。
+4. **消息代码解析器**：
+   - 自动注册 `MessageCodesResolver`，用于国际化和本地化消息的解析。
+5. **静态首页**：
+   - 支持静态的 `index.html` 作为应用程序的首页。
+6. **数据绑定初始化**：
+   - 自动使用 `ConfigurableWebBindingInitializer` Bean，用于初始化数据绑定。
+
+#### 定制Spring MVC
+
+如果你需要在保留Spring Boot自动配置的基础上进行更多的MVC定制，可以使用以下方法：
+
+1. 使用 `WebMvcConfigurer`
+
+- 添加一个不含 `@EnableWebMvc` 注解的 `@Configuration` 类，实现 `WebMvcConfigurer` 接口。
+- 适用于添加拦截器、格式化器、视图控制器等。
+
+```java
+   @Configuration
+   public class MyWebMvcConfig implements WebMvcConfigurer {
+       @Override
+       public void addInterceptors(InterceptorRegistry registry) {
+           registry.addInterceptor(new MyInterceptor());
+       }
+
+       @Override
+       public void addFormatters(FormatterRegistry registry) {
+           registry.addFormatter(new MyFormatter());
+       }
+   }
+```
+
+2. 使用 `WebMvcRegistrations`
+
+- 声明一个 `WebMvcRegistrations` 类型的Bean，用于提供 `RequestMappingHandlerMapping`、`RequestMappingHandlerAdapter` 或 `ExceptionHandlerExceptionResolver` 的自定义实例。
+
+```java
+   @Configuration
+   public class MyWebMvcRegistrations implements WebMvcRegistrations {
+       @Override
+       public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
+           return new MyRequestMappingHandlerMapping();
+       }
+
+       @Override
+       public RequestMappingHandlerAdapter getRequestMappingHandlerAdapter() {
+           return new MyRequestMappingHandlerAdapter();
+       }
+
+       @Override
+       public ExceptionHandlerExceptionResolver getExceptionHandlerExceptionResolver() {
+           return new MyExceptionHandlerExceptionResolver();
+       }
+   }
+```
+
+3. 完全控制Spring MVC
+
+- 添加自己的 `@Configuration` 并使用 `@EnableWebMvc` 注解，完全接管Spring MVC的配置。
+- 适用于需要完全自定义Spring MVC行为的场景。
+
+```java
+   @Configuration
+   @EnableWebMvc
+   public class MyWebMvcConfig implements WebMvcConfigurer {
+       // 完全自定义Spring MVC配置
+   }
+```
+
+#### HTTP消息转换器（HttpMessageConverter）
+
+`HttpMessageConverter` 是 Spring MVC 中用于将 HTTP 请求和响应的内容转换为 Java 对象和反之的接口。它在处理 RESTful Web 服务时非常有用，特别是当你需要将请求体转换为 Java 对象，或者将 Java 对象转换为响应体时。
+
+**1.主要用途**
+
+1. **请求体到Java对象的转换**：
+   - 将客户端发送的 JSON、XML 或其他格式的数据转换为 Java 对象。
+   - 例如，将一个 JSON 请求体转换为一个 Java 对象，以便在控制器方法中使用。
+2. **Java对象到响应体的转换**：
+   - 将控制器方法返回的 Java 对象转换为 JSON、XML 或其他格式的数据，以便发送给客户端。
+   - 例如，将一个 Java 对象转换为 JSON 响应体，发送给客户端。
+
+**2.默认行为**
+
+Spring Boot 提供了一些开箱即用的合理默认值。默认情况下，Spring Boot 会自动配置以下 `HttpMessageConverter`：
+
+- **JSON 转换**：使用 Jackson 库将 Java 对象转换为 JSON 格式，或将 JSON 格式的数据转换为 Java 对象。
+- **XML 转换**：如果 Jackson XML 扩展可用，使用 Jackson XML 扩展进行 XML 转换；否则，使用 JAXB 进行 XML 转换。
+- **字符串转换**：默认情况下，字符串是以 UTF-8 编码的。
+
+**3.自定义** `HttpMessageConverter`
+
+如果你需要添加或定制 `HttpMessageConverter`，可以通过配置类来实现。你可以添加新的转换器，或者覆盖默认的转换器。
+
+**pom.xml**
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+    </dependency>
+</dependencies>
+```
+
+**自定义转换器配置**
+
+```java
+@Configuration(proxyBeanMethods = false)
+public class MyHttpMessageConvertersConfiguration {
+
+    @Bean
+    public HttpMessageConverters customConverters() {
+        List<HttpMessageConverter<?>> converters = new ArrayList<>();
+        
+        // 添加一个自定义的字符串转换器
+        StringHttpMessageConverter stringConverter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
+        converters.add(stringConverter);
+        
+        // 添加一个自定义的 JSON 转换器
+        MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
+        converters.add(jsonConverter);
+        
+        return new HttpMessageConverters(converters);
+    }
+}
+```
+
+`/api/hello` 端点将返回一个字符串，`/api/json` 端点将返回一个 JSON 对象,自定义的 `HttpMessageConverter` 将处理这些。
+
+#### CORS 跨域的支持
+
+跨源资源共享（CORS，Cross-Origin Resource Sharing）是一种W3C规范，允许服务器定义哪些跨域请求是被允许的。这对于现代Web应用程序来说非常重要，因为它允许客户端（如浏览器）从不同的域名请求资源，而不会受到同源策略的限制。
+
+从Spring 4.2版本开始，Spring MVC 支持CORS。Spring Boot 提供了两种配置CORS的方法：
+
+**1.局部CORS配置**
+
+你可以在控制器类或方法上使用 `@CrossOrigin` 注解来配置CORS。例如
+
+```java
+@RestController
+public class MyController {
+
+    @CrossOrigin(origins = "http://example.com")
+    @GetMapping("/api/data")
+    public String getData() {
+        return "Hello, World!";
+    }
+}
+```
+
+**2.全局CORS配置**
+
+为整个应用程序配置CORS，可以通过实现 `WebMvcConfigurer` 接口并重写 `addCorsMappings` 方法来实现全局CORS配置。
+
+```java
+@Configuration(proxyBeanMethods = false)
+public class MyCorsConfiguration {
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                // 允许跨域访问的路径
+                registry.addMapping("/api/**")
+                        // 允许的源
+                        .allowedOrigins("http://example.com")
+                        // 允许的方法
+                        .allowedMethods("GET", "POST", "PUT", "DELETE")
+                        // 允许的请求头
+                        .allowedHeaders("*")
+                        // 是否允许发送Cookie
+                        .allowCredentials(true)
+                        // 预检请求的缓存时间（秒）
+                        .maxAge(3600);
+            }
+        };
+    }
+}
+```
+
+**3.CORS应用场景**
+
++ 前后端分离
++ 微服务
++ 第三方API调用
+
+### JAX-RS 和 Jersey
+
+- **JAX-RS**：Java API for RESTful Web Services，是一个标准的 API，用于创建 RESTful Web 服务。它提供了一组注解和接口，简化了 RESTful 服务的开发。
+- **Jersey**：JAX-RS 的参考实现，提供了完整的 JAX-RS 功能，并扩展了许多额外的特性和功能，帮助开发者更高效地构建 RESTful 服务。
+
+### 嵌入式Servlet容器支持
+
+对于Servlet应用，Spring Boot包括对嵌入式 [Tomcat](https://tomcat.apache.org/)、 [Jetty](https://www.eclipse.org/jetty/) 和 [Undertow](https://github.com/undertow-io/undertow) 服务器的支持。默认情况下，嵌入式服务器监听 `8080` 端口的HTTP请求。
+
+## 优雅停机
+
+在生产环境中，应用程序的优雅停机（Graceful Shutdown）是一个非常重要的功能。它确保应用程序在停止或重启时能够完成正在进行的请求处理，并且正确地释放资源，从而避免数据丢失和服务中断。Spring Boot 提供了对优雅停机的支持，使得开发者可以更轻松地实现这一功能。
+
+### 优雅停机的作用
+
+1. **完成正在进行的请求**：确保正在处理的请求能够在应用程序停止前完成，避免请求被中断。
+2. **释放资源**：正确地关闭数据库连接、文件句柄、线程池等资源，避免资源泄漏。
+3. **避免数据丢失**：确保数据处理操作（如事务、文件写入）能够在应用程序停止前完成，避免数据丢失。
+4. **提高系统稳定性**：在应用程序停止或重启时，减少对系统其他部分的影响，提高系统的整体稳定性。
+
+### Spring Boot 的优雅停机配置
+
+从 Spring Boot 2.3 开始，Spring Boot 提供了对优雅停机的内置支持。你可以通过配置文件来启用和配置优雅停机功能。
+
+#### 配置示例
+
+在 `application.properties` 或 `application.yml` 文件中配置优雅停机。
+
+```xml
+server:
+#启用优雅停机功能。
+  shutdown: graceful
+
+spring:
+  lifecycle:
+#设置每个停机阶段的超时时间为30秒。
+    timeout-per-shutdown-phase: 30s
+```
+
+### 优雅停机的实现
+
+Spring Boot 的优雅停机机制主要通过以下几个步骤实现：
+
+1. **接收停机信号**：当应用程序接收到停机信号（如 `SIGTERM`）时，Spring Boot 会开始优雅停机过程。
+2. **停止接受新请求**：应用程序会停止接受新的请求，但会继续处理已经接收的请求。
+3. **完成正在进行的请求**：应用程序会等待正在进行的请求处理完成，直到达到配置的超时时间。
+4. **释放资源**：应用程序会正确地关闭数据库连接、文件句柄、线程池等资源。
+5. **停止应用程序**：在所有请求处理完成并释放资源后，应用程序会停止。
+
+>**使用Tomcat的优雅关机需要Tomcat 9.0.33或更高版本。**
+
+# 整合技术
+
+## 整合数据库
+
+数据源的配置
+
+连接池配置
+
+## 整合Mybatis
+
+## 缓存
+
+## Quartz Scheduler
+
+## 发送邮件
+
+## 校验
+
+## 调用Rest服务
+
+## Web Service
 
