@@ -1,5 +1,5 @@
 ---
-title: git
+title: git tutorial
 description: 学习如何使用Git
 tag:
 - git
