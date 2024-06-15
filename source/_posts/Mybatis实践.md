@@ -1,6 +1,7 @@
 ---
 title: mybatis实践
-- java
+tag:
+- mybatis
 ---
 
 # 什么是mybatis
