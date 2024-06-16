@@ -484,7 +484,187 @@ public class RedisStreamExample {
 
 # 分布式锁
 
+## 什么是分布式锁
+
+分布式锁是一种在分布式系统中控制对共享资源访问的机制。它确保在同一时间只有一个进程或线程可以访问某个资源，从而避免数据不一致或竞争条件的发生。
+
+## 应用场景
+
+1. **分布式系统中的资源竞争**：多个服务实例需要访问同一个资源，例如数据库记录或文件。
+2. **任务调度**：确保同一任务在同一时间只有一个实例在执行。
+3. **限流**：控制并发访问的数量，防止系统过载。
+4. **分布式事务**：在分布式环境中实现事务的一致性。
+
+## 实现方式及优缺点
+
+1. **基于数据库的分布式锁**
+   - **优点**：实现简单，适用于已有数据库的系统。
+   - **缺点**：性能较低，数据库成为瓶颈，可靠性依赖于数据库。
+2. **基于Redis的分布式锁**
+   - **优点**：性能高，Redis的高可用性和持久化机制可以提高锁的可靠性。
+   - **缺点**：需要额外的Redis服务，可能存在锁失效问题。
+3. **基于Zookeeper的分布式锁**
+   - **优点**：强一致性和高可靠性，适用于需要严格一致性的场景。
+   - **缺点**：实现复杂，性能相对较低，需要额外的Zookeeper服务。
+
+## 实现原理
+
+以Redis分布式锁为例，其实现原理如下：
+
+1. **获取锁**：使用`SETNX`命令（SET if Not eXists）在Redis中创建一个键，如果键不存在则创建并返回成功，否则返回失败。
+2. **设置过期时间**：使用`EXPIRE`命令为键设置过期时间，防止死锁。
+3. **释放锁**：使用`DEL`命令删除键，释放锁。
+
+## 应用示例
+
+假设我们有一个电商系统，多个服务实例需要同时更新库存。为了避免超卖问题，我们需要使用分布式锁来确保同一时间只有一个实例可以更新库存。
+
+### 基于Redis的分布式锁实现
+
+在生产环境中，我们可以使用Redisson库来简化Redis分布式锁的实现。Redisson是一个高效的Redis客户端，提供了许多高级功能，包括分布式锁。
+
+**代码实现**
+
+```java
+@Service
+public class RedisDistributedLock {
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
+    public String acquireLock(String lockKey, long timeout, TimeUnit unit) {
+        ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
+        String lockValue = generateLockValue(); // 使用线程ID和时间戳生成唯一标识
+
+        // 如果键不存在，设置键的值并返回true；如果键已经存在，则返回false
+        Boolean success = ops.setIfAbsent(lockKey, lockValue, timeout, unit);
+
+        if (success != null && success) {
+            return lockValue; // 返回锁的唯一标识
+        }
+        return null;
+    }
+
+    public void releaseLock(String lockKey, String lockValue) {
+        ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
+        String currentValue = ops.get(lockKey);
+
+        if (lockValue.equals(currentValue)) {
+            stringRedisTemplate.delete(lockKey);
+        }
+    }
+
+    private String generateLockValue() {
+        return Thread.currentThread().getId() + "-" + System.currentTimeMillis();
+    }
+
+}
+```
+
+
+
+
+
 # 优先级队列
+
+## 设计思路
+
+1. **使用 Redis 的 Sorted Set**：利用 Redis 的 Sorted Set 数据结构来存储队列中的元素，元素的优先级作为分数。
+2. **使用 Lua 脚本**：通过 Lua 脚本来保证操作的原子性，避免并发问题。
+
+## 实现步骤
+
+1. **入队**：将元素添加到 Sorted Set 中，优先级作为分数。
+2. **出队**：从 Sorted Set 中移除并返回分数最小的元素（优先级最高）。
+
+## 代码实现
+
+需要两个 Lua 脚本，一个用于入队，一个用于出队。
+
+### 入队脚本（enqueue.lua）
+
+```lua
+-- enqueue.lua
+-- 参数：KEYS[1] - 队列名
+-- 参数：ARGV[1] - 元素
+-- 参数：ARGV[2] - 优先级
+
+redis.call('ZADD', KEYS[1], ARGV[2], ARGV[1])
+return 1
+```
+
+### 出队脚本（dequeue.lua）
+
+```lua
+-- dequeue.lua
+-- 参数：KEYS[1] - 队列名
+
+local result = redis.call('ZRANGE', KEYS[1], 0, 0)
+if result[1] then
+    redis.call('ZREM', KEYS[1], result[1])
+    return result[1]
+else
+    return nil
+end
+```
+
+### RedisPriorityQueueService.java
+
+```java
+@Service
+public class RedisPriorityQueueService {
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+    private final RedisScript<Long> enqueueScript;
+    private final RedisScript<String> dequeueScript;
+
+    public RedisPriorityQueueService() {
+        this.enqueueScript = new DefaultRedisScript<>();
+        ((DefaultRedisScript<Long>) this.enqueueScript).setScriptSource(new ResourceScriptSource(new ClassPathResource("scripts/enqueue.lua")));
+        ((DefaultRedisScript<Long>) this.enqueueScript).setResultType(Long.class);
+
+        this.dequeueScript = new DefaultRedisScript<>();
+        ((DefaultRedisScript<String>) this.dequeueScript).setScriptSource(new ResourceScriptSource(new ClassPathResource("scripts/dequeue.lua")));
+        ((DefaultRedisScript<String>) this.dequeueScript).setResultType(String.class);
+    }
+
+    public void enqueue(String queueName, String element, double priority) {
+        redisTemplate.execute(enqueueScript, Collections.singletonList(queueName), element, String.valueOf(priority));
+    }
+
+    public String dequeue(String queueName) {
+        return redisTemplate.execute(dequeueScript, Collections.singletonList(queueName));
+    }
+}
+```
+
+```java
+@RestController
+public class PriorityQueueController {
+
+    @Autowired
+    private RedisPriorityQueueService priorityQueueService;
+
+    @GetMapping("/enqueue")
+    public String enqueue(@RequestParam String queueName, @RequestParam String element, @RequestParam double priority) {
+        priorityQueueService.enqueue(queueName, element, priority);
+        return "Element enqueued";
+    }
+
+    @GetMapping("/dequeue")
+    public String dequeue(@RequestParam String queueName) {
+        String element = priorityQueueService.dequeue(queueName);
+        return element != null ? "Dequeued element: " + element : "Queue is empty";
+    }
+}
+```
+
+1. **入队**：通过 `ZADD` 命令将元素添加到 Sorted Set 中，优先级作为分数。
+2. **出队**：通过 `ZRANGE` 命令获取分数最小的元素（优先级最高），然后通过 `ZREM` 命令将其移除。
+3. **Lua 脚本**：使用 Lua 脚本来保证操作的原子性，避免并发问题。
+4. **Java 代码**：使用 Spring Data Redis 调用 Lua 脚本，实现优先级队列的入队和出队操作。
 
 
 
