@@ -127,7 +127,7 @@ public class RedisHashExample {
 - `RPOP key`：移除并返回列表的最后一个元素。
 - `LRANGE key start stop`：获取列表在指定范围内的元素。
 
-## 示例代码3
+### 示例代码3
 
 ```java
 import redis.clients.jedis.Jedis;
@@ -252,7 +252,7 @@ public class RedisSetExample {
 
 - `ZADD key score member`：向有序集合添加一个成员，或者更新已存在成员的分数。
 - `ZREM key member`：移除有序集合中的一个成员。
-- `ZRANGE key start stop [WITHSCORES]`：返回有序集中指定区间内的成员。
+- `ZRANGE key start stop [WITHSCORES]`： 
 
 ### 示例代码
 
@@ -570,7 +570,7 @@ public class RedisDistributedLock {
 ## 设计思路
 
 1. **使用 Redis 的 Sorted Set**：利用 Redis 的 Sorted Set 数据结构来存储队列中的元素，元素的优先级作为分数。
-2. **使用 Lua 脚本**：通过 Lua 脚本来保证操作的原子性，避免并发问题。
+2. **使用 Lua 脚本**：并发环境中，单个redis的命令是原子性，但是多个命令组合才能实现优先级队列功能（ZRANGE、ZREM），多个命令组合无法保证原子性，Lua脚本在Redis中是原子执行的。即使有多个客户端同时执行 Lua 脚本，Redis 也会保证脚本在执行期间不会被其他命令打断，通过Lua脚本来保证操作的原子性，避免并发问题。
 
 ## 实现步骤
 
@@ -629,42 +629,18 @@ public class RedisPriorityQueueService {
         ((DefaultRedisScript<String>) this.dequeueScript).setScriptSource(new ResourceScriptSource(new ClassPathResource("scripts/dequeue.lua")));
         ((DefaultRedisScript<String>) this.dequeueScript).setResultType(String.class);
     }
-
+	//入队
     public void enqueue(String queueName, String element, double priority) {
         redisTemplate.execute(enqueueScript, Collections.singletonList(queueName), element, String.valueOf(priority));
     }
-
+	//出队
     public String dequeue(String queueName) {
         return redisTemplate.execute(dequeueScript, Collections.singletonList(queueName));
     }
 }
 ```
 
-```java
-@RestController
-public class PriorityQueueController {
 
-    @Autowired
-    private RedisPriorityQueueService priorityQueueService;
-
-    @GetMapping("/enqueue")
-    public String enqueue(@RequestParam String queueName, @RequestParam String element, @RequestParam double priority) {
-        priorityQueueService.enqueue(queueName, element, priority);
-        return "Element enqueued";
-    }
-
-    @GetMapping("/dequeue")
-    public String dequeue(@RequestParam String queueName) {
-        String element = priorityQueueService.dequeue(queueName);
-        return element != null ? "Dequeued element: " + element : "Queue is empty";
-    }
-}
-```
-
-1. **入队**：通过 `ZADD` 命令将元素添加到 Sorted Set 中，优先级作为分数。
-2. **出队**：通过 `ZRANGE` 命令获取分数最小的元素（优先级最高），然后通过 `ZREM` 命令将其移除。
-3. **Lua 脚本**：使用 Lua 脚本来保证操作的原子性，避免并发问题。
-4. **Java 代码**：使用 Spring Data Redis 调用 Lua 脚本，实现优先级队列的入队和出队操作。
 
 
 
