@@ -1,5 +1,5 @@
 ---
-title: kafka
+title: kafka实践
 tag:
 - kafka
 ---
