@@ -1521,7 +1521,7 @@ maxmemory 2gb
 
 >Redis 性能调优是确保 Redis 高效运行的重要步骤。通过配置参数调优、命令优化和网络优化，可以显著提高 Redis 的性能和响应速度。
 
-### 1. 配置参数调优
+### 配置参数调优
 
 #### 内存配置
 
@@ -1591,7 +1591,7 @@ maxmemory 2gb
 # 默认配置即可，无需额外调整
 ```
 
-### 2. 命令优化
+### 命令优化
 
 #### 批量操作
 
@@ -1633,7 +1633,7 @@ HSET user:1000 name "John" age 30
 
 2. **避免嵌套数据结构**：避免使用嵌套数据结构，如在列表中存储列表，可能导致操作复杂度增加。
 
-### 3. 网络优化
+### 网络优化
 
 #### 网络延迟
 
@@ -2159,9 +2159,279 @@ public class RedisPriorityQueueService {
 
 ## 计数器和限流
 
+### 计数器
+
+计数器是一种常见的应用场景，用于统计某个事件的发生次数，例如访问次数、点赞次数等。在分布式系统中，可以使用 Redis 来实现高效的分布式计数器。
+
+### 实现原理
+
+1. **递增计数**：使用 Redis 的 `INCR` 命令对指定键的值进行递增操作。
+2. **获取计数**：使用 Redis 的 `GET` 命令获取指定键的值。
+
+### 应用示例
+
+有一个网站，需要统计每个页面的访问次数。我们可以使用 Redis 来实现分布式计数器。
+
+#### 代码实现
+
+```java
+@Service
+public class RedisCounterService {
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+    /**
+     * 递增计数器
+     * @param key 计数器的键
+     * @return 递增后的值
+     */
+    public Long incrementCounter(String key) {
+        return redisTemplate.opsForValue().increment(key);
+    }
+
+    /**
+     * 获取计数器的值
+     * @param key 计数器的键
+     * @return 计数器的值
+     */
+    public Long getCounter(String key) {
+        String value = redisTemplate.opsForValue().get(key);
+        return value != null ? Long.parseLong(value) : 0L;
+    }
+}
+```
+
+### 限流
+
+限流是一种常见的应用场景，用于控制并发访问的数量，防止系统过载。在分布式系统中，可以使用 Redis 来实现高效的分布式限流。
+
+### 实现原理
+
+1. **令牌桶算法**：使用 Redis 的 `INCR` 和 `EXPIRE` 命令实现令牌桶算法。每次请求到来时，检查令牌桶中的令牌数量，如果令牌数量足够，则允许请求，否则拒绝请求。
+2. **滑动窗口算法**：使用 Redis 的 `ZADD` 和 `ZREMRANGEBYSCORE` 命令实现滑动窗口算法。每次请求到来时，记录请求的时间戳，并删除过期的请求记录。
+
+### 应用示例
+
+我们有一个 API 接口，需要限制每分钟的访问次数不超过100次。我们可以使用Redis来实现分布式限流。
+
+#### 基于令牌桶算法的限流实现
+
+```java
+@Service
+public class RedisRateLimiterService {
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+    /**
+     * 检查是否允许请求
+     * @param key 限流的键
+     * @param limit 每分钟的请求限制
+     * @return 是否允许请求
+     */
+    public boolean isAllowed(String key, int limit) {
+        long currentTimeMillis = System.currentTimeMillis();
+        long currentMinute = currentTimeMillis / 60000;
+        String redisKey = key + ":" + currentMinute;
+
+        Long count = redisTemplate.opsForValue().increment(redisKey);
+        if (count == 1) {
+            redisTemplate.expire(redisKey, 60, TimeUnit.SECONDS);
+        }
+
+        return count <= limit;
+    }
+}
+```
+
+#### 基于滑动窗口算法的限流实现
+
+```java
+@Service
+public class RedisSlidingWindowRateLimiterService {
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+    /**
+     * 检查是否允许请求
+     * @param key 限流的键
+     * @param limit 每分钟的请求限制
+     * @return 是否允许请求
+     */
+    public boolean isAllowed(String key, int limit) {
+        long currentTimeMillis = System.currentTimeMillis();
+        String redisKey = key + ":requests";
+
+        // 删除一分钟前的请求记录
+        redisTemplate.opsForZSet().removeRangeByScore(redisKey, 0, currentTimeMillis - 60000);
+
+        // 记录当前请求
+        redisTemplate.opsForZSet().add(redisKey, String.valueOf(currentTimeMillis), currentTimeMillis);
+
+        // 获取当前时间窗口内的请求数量
+        Long count = redisTemplate.opsForZSet().zCard(redisKey);
+
+        return count <= limit;
+    }
+}
+```
+
 ## 地理位置服务
 
+### 什么是地理位置服务
+
+地理位置服务是一种基于地理空间数据的服务，允许存储和查询地理位置数据。Redis 提供了内置的地理空间数据结构，可以高效地存储和查询地理位置数据。
+
+### 应用场景
+
+1. **查找附近的地点**：例如查找附近的餐馆、加油站等。
+2. **用户位置跟踪**：实时跟踪用户位置，提供基于位置的服务。
+3. **地理围栏**：检测用户是否进入或离开特定的地理区域。
+
+### 实现方式及优缺点
+
+1. 基于数据库的地理位置服务
+   - **优点**：实现简单，适用于已有数据库的系统。
+   - **缺点**：性能较低，数据库成为瓶颈，查询效率较低。
+2. 基于Redis的地理位置服务
+   - **优点**：性能高，Redis 的内置地理空间数据结构可以高效存储和查询地理位置数据。
+   - **缺点**：需要额外的 Redis 服务。
+
+### 实现原理
+
+Redis 提供了以下几个命令用于地理位置服务：
+
+1. **GEOADD**：将地理位置添加到指定的键中。
+2. **GEODIST**：计算两个地理位置之间的距离。
+3. **GEORADIUS**：查找指定范围内的地理位置。
+4. **GEOHASH**：获取地理位置的 Geohash 值。
+
+### 应用示例
+
+有一个应用，需要存储多个地点的地理位置，并提供查找附近地点的功能。我们可以使用 Redis 来实现地理位置服务。
+
+#### 基于Redis的地理位置服务实现
+
+生产环境中，我们可以使用RedisTemplate来简化Redis地理位置服务的实现。
+
+**代码实现**
+
+```java
+@Service
+public class RedisGeoService {
+
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+    /**
+     * 添加地理位置
+     * @param key 键
+     * @param longitude 经度
+     * @param latitude 纬度
+     * @param member 地点名称
+     */
+    public void addGeoLocation(String key, double longitude, double latitude, String member) {
+        redisTemplate.opsForGeo().add(key, new Point(longitude, latitude), member);
+    }
+
+    /**
+     * 计算两个地点之间的距离
+     * @param key 键
+     * @param member1 地点1
+     * @param member2 地点2
+     * @param metric 距离单位
+     * @return 距离
+     */
+    public Distance getDistance(String key, String member1, String member2, Metric metric) {
+        return redisTemplate.opsForGeo().distance(key, member1, member2, metric);
+    }
+
+    /**
+     * 查找指定范围内的地点
+     * @param key 键
+     * @param longitude 经度
+     * @param latitude 纬度
+     * @param radius 范围
+     * @param metric 距离单位
+     * @return 附近的地点
+     */
+    public GeoResults<RedisGeoCommands.GeoLocation<String>> getNearbyLocations(String key, double longitude, double latitude, double radius, Metric metric) {
+        Circle within = new Circle(new Point(longitude, latitude), new Distance(radius, metric));
+        return redisTemplate.opsForGeo().radius(key, within);
+    }
+
+    /**
+     * 获取地理位置的 Geohash 值
+     * @param key 键
+     * @param members 地点名称
+     * @return Geohash 值
+     */
+    public List<String> getGeoHash(String key, String... members) {
+        return redisTemplate.opsForGeo().hash(key, members);
+    }
+}
+```
+
+### 使用示例
+
+以下是一些使用地理位置服务的示例：
+
+#### 添加地理位置
+
+```java
+@Autowired
+private RedisGeoService redisGeoService;
+
+public void addLocations() {
+    redisGeoService.addGeoLocation("locations", 13.361389, 38.115556, "Palermo");
+    redisGeoService.addGeoLocation("locations", 15.087269, 37.502669, "Catania");
+}
+```
+
+#### 计算两个地点之间的距离
+
+```java
+@Autowired
+private RedisGeoService redisGeoService;
+
+public void calculateDistance() {
+    Distance distance = redisGeoService.getDistance("locations", "Palermo", "Catania", Metrics.KILOMETERS);
+    System.out.println("Distance: " + distance.getValue() + " km");
+}
+```
+
+#### 查找指定范围内的地点
+
+```java
+@Autowired
+private RedisGeoService redisGeoService;
+
+public void findNearbyLocations() {
+    GeoResults<RedisGeoCommands.GeoLocation<String>> results = redisGeoService.getNearbyLocations("locations", 15.0, 37.5, 200, Metrics.KILOMETERS);
+    for (GeoResult<RedisGeoCommands.GeoLocation<String>> result : results) {
+        System.out.println("Location: " + result.getContent().getName() + ", Distance: " + result.getDistance().getValue() + " km");
+    }
+}
+```
+
+#### 获取地理位置的 Geohash 值
+
+```java
+@Autowired
+private RedisGeoService redisGeoService;
+
+public void getGeoHash() {
+    List<String> geoHashes = redisGeoService.getGeoHash("locations", "Palermo", "Catania");
+    for (String geoHash : geoHashes) {
+        System.out.println("Geohash: " + geoHash);
+    }
+}
+```
 
 
 
 
+
+ 
