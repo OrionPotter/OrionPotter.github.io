@@ -38,8 +38,6 @@ tag:
 - **性能瓶颈**：复杂的多表查询和嵌套查询在大规模数据下性能差
 - **扩展性有限**：垂直扩展成本高，水平扩展下分布式和高并发存在挑战。
 
-
-
 ## SQL和NoSql数据库的区别
 
 ### Sql数据库
@@ -48,23 +46,17 @@ tag:
 
 ### NoSQL 数据库
 
-> NoSQL（不仅是 SQL）数据库是指非关系数据库，它不遵循固定的数据存储模式。相反，它们使用灵活的半结构化格式，例如 JSON 文档、键值对或图表。 MongoDB、Cassandra、Redis 和 Couchbase 是一些流行的 NoSQL 数据库。
+> NoSQL（不仅是 SQL）数据库是指非关系数据库，它不遵循固定的数据存储模式。相反，它们使用灵活的半结构化格式，例如 JSON 文档、键值对或图表。 MongoDB、Cassandra、Redis是一些流行的 NoSQL 数据库。
 
 ### 数据模型
 
-- **SQL数据库**：
-  - **关系模型**：数据以表格形式存储，表与表之间通过外键建立关系。
-  - **固定模式**：数据模式（Schema）在数据插入之前需要定义，表结构固定。
-- **NoSQL数据库**：
-  - **多种数据模型**：支持多种数据模型，包括文档模型、键值模型、列族模型和图模型。
-  - **灵活模式**：数据模式灵活，可以在没有预定义模式的情况下存储数据，适应频繁变化的需求。
+- **SQL数据库**：数据以表格形式存储，表与表之间通过外键建立关系。
+- **NoSQL数据库**：支持多种数据模型，包括文档模型、键值模型、列族模型和图模型。
 
 ### 查询语言
 
-- **SQL数据库**：
-  - **SQL（Structured Query Language）**：使用标准化的SQL进行数据定义、查询和操作，支持复杂的查询操作。
-- **NoSQL数据库**：
-  - **多样化查询语言**：不同类型的NoSQL数据库使用不同的查询语言和API。例如，MongoDB使用基于JSON的查询语法，Cassandra使用CQL（Cassandra Query Language）。
+- **SQL数据库**：使用标准的SQL查询语言。
+- **NoSQL数据库**：类型的NoSQL数据库使用不同的查询语言和API
 
 ### 扩展性
 
@@ -73,24 +65,19 @@ tag:
 
 ### 事务和一致性
 
-- **SQL数据库**：
-  - **ACID事务**：支持ACID（原子性、一致性、隔离性、持久性）事务，确保数据的一致性和完整性。
-- **NoSQL数据库**：
-  - **CAP理论**：通常在一致性（Consistency）、可用性（Availability）和分区容忍性（Partition Tolerance）之间进行权衡。许多NoSQL数据库选择了可用性和分区容忍性，牺牲了一致性。
-  - **最终一致性**：许多NoSQL数据库采用最终一致性模型，确保在一定时间内数据最终达到一致状态。
+- **SQL数据库**：支持ACID（原子性、一致性、隔离性、持久性）事务，确保数据的一致性和完整性。
+- **NoSQL数据库**：许多NoSQL数据库采用最终一致性模型，确保在一定时间内数据最终达到一致状态。
 
 ### 适用场景
 
 - **SQL数据库**：
   - **事务处理**：适用于需要强一致性和事务支持的应用，如银行、金融、电商等。
   - **复杂查询**：适用于需要执行复杂查询和报表生成的应用，如数据分析、商业智能等。
-  - **数据完整性**：适用于需要严格的数据完整性和一致性的应用，如企业管理系统、ERP、CRM等。
 - **NoSQL数据库**：
   - **大规模数据处理**：适用于需要处理大规模数据和高并发访问的应用，如社交媒体、物联网、大数据分析等。
-  - **灵活数据模型**：适用于数据结构频繁变化或不确定的应用，如内容管理系统、实时分析等。
   - **高可用性和分布式系统**：适用于需要高可用性和分布式存储的应用，如分布式缓存、消息队列等。
 
-# SQL基础语法
+# SQL基础
 
 ## 关键字
 
@@ -113,7 +100,7 @@ tag:
 
 ## 数据类型
 
->SQL 数据类型定义可以存储在数据库表列中的数据类型。根据 DBMS 的不同，数据类型的名称可能略有不同。
+>SQL数据类型定义可以存储在数据库表列中的数据类型。根据 DBMS 的不同，数据类型的名称可能略有不同。
 
 INT用于整数。例如：
 
@@ -206,91 +193,6 @@ CREATE TABLE Orders (
 + |
 + ^
 
-## 语句
-
-### SELECT
-
->`SELECT`语句在 SQL 中用于从数据库中选取特定数据。换句话说，它用于从数据库中选择您想要显示的内容。该语句的语法`SELECT`相当简单：
-
-```sql
-SELECT column(s) FROM table WHERE condition;
-```
-
-- `column(s)`：输入要显示的列的名称。
-- `table`：要从中检索数据的表的名称。
-- `WHERE`： 选修的。这是一个过滤器，仅显示满足此条件的行。
-
-### INSERT
-
->SQL 中的语句`INSERT`用于向数据库的表中添加新的数据行。该语句有三种形式`INSERT INTO`values、`INSERT INTO`set 和`INSERT INTO`select
-
-INSERT INTO VALUES
-
-```sql
-INSERT INTO table_name (column1, column2, column3, ...)
-VALUES (value1, value2, value3, ...);
-```
-
-INSERT INTO SET
-
-```sql
-INSERT INTO table_name 
-SET column1 = value1, column2 = value2, ...;
-```
-
-INSERT INTO SELECT
-
->该`INSERT INTO SELECT`语句用于从一个表复制数据并将其插入到另一表中。或者，将数据插入另一个表中的特定列。
-
-```sql
-INSERT INTO table_name1 (column1, column2, column3, ...)
-SELECT column1, column2, column3, ...
-FROM table_name2
-WHERE condition;
-```
-
-### UPDATE
-
->SQL`UPDATE`语句用于修改数据库中的现有数据
-
-```sql
-UPDATE table_name
-SET column1 = value1, column2 = value2, ...
-WHERE condition;
-```
-
-- `table_name`：将执行更新的表的名称。
-- `SET`：此子句指定列名和应更新为的新值。
-- `column1, column2, ...`：表中的列名称。
-- `value1, value2, ...`：要记录到数据库中的新值。
-- `WHERE`：此子句指定标识要更新的行的条件。
-
-### DELETE
-
->SQL 中的语句`DELETE`可帮助您从数据库中删除现有记录
-
-1. **删除所有行：**
-
-   `DELETE`不带子句的语句将`WHERE`删除表中的所有行。此操作是不可逆的。例子：
-
-   ```
-   DELETE FROM table_name;
-   ```
-
-   此 SQL 语句删除 中的所有记录`table_name`。
-
-2. **删除特定行：**
-
-   当与`WHERE`子句结合使用时，`DELETE`SQL 语句将删除满足条件的特定行。例子：
-
-   ```
-   DELETE FROM table_name WHERE condition;
-   ```
-
-   该语句的此实例从给定匹配的位置`DELETE`删除记录。`table_name``condition`
-
-*注意：“DELETE”语句所做的删除是永久性的，无法撤消。始终确保在运行 DELETE 查询之前有备份，尤其是在生产数据库上时。*
-
 # 数据定义语言
 
 > Data Definition Language(DDL)，数据定义语言 (DDL) 主要功能是创建、修改和删除数据库表结构
@@ -368,21 +270,20 @@ WHERE condition;
 1. **INSERT INTO** - 此命令用于将新行（记录）插入表中。
 
    ```sql
-   //1. 插入完整的列级
+   -- 1. 插入完整的列级
    INSERT INTO table_name  VALUES (value1, value2, ..., valueN);
-   //2. 选择性插入
+   -- 2. 选择性插入
    INSERT INTO table_name ( column1, column2, column3, ... )  VALUES ( value1, value2, value3, ... )  
-   //3. 从另一个表插入
+   -- 3. 从另一个表插入
    INSERT INTO table1 (column1, column2, ... , columnN) SELECT column1, column2, ... , columnN  FROM table2 WHERE condition;
    ```
 
 2. **SELECT** - 该命令用于从数据库中选择数据。返回的数据存储在结果表中，称为结果集。
 
    ```sql
-   SELECT column1, column2, ... 
-   FROM table_name
+   SELECT column1, column2, ... FROM table_name
    ```
-
+   
 3. **UPDATE** - 此命令用于修改表中的现有行。
 
    ```sql
@@ -392,9 +293,9 @@ WHERE condition;
 4. **DELETE FROM** - 此命令用于从表中删除现有行（记录）。
 
    ```sql
-   //1. 删除表中所有行
+   -- 1. 删除表中所有行
    DELETE FROM students;
-   //2. 删除指定行
+   -- 2. 删除指定行
    DELETE FROM table_name WHERE condition;
    ```
 
@@ -406,41 +307,14 @@ WHERE condition;
 
 + COUNT()
 
-  ```sql
-  SELECT COUNT(column_name) 
-  FROM table_name 
-  WHERE condition;
-  ```
-
 + SUM()
-
-  ```sql
-  SELECT SUM(column_name) 
-  FROM table_name 
-  WHERE condition;
 
 + AVG()
 
-  ```sql
-  SELECT AVG(column_name) 
-  FROM table_name 
-  WHERE condition;
-  ```
-
 + MAX()
-
-  ```sql
-  SELECT MIN(column_name) 
-  FROM table_name 
-  WHERE condition;
 
 + MIN()
 
-  ```sql
-  SELECT MAX(column_name) 
-  FROM table_name 
-  WHERE condition;
-  ```
 
 >聚合函数忽略NULL值，使用 COUNT(*) 时，会计算包括 NULL 在内的行的总数；但如果你指定某列如 COUNT(column_name)，则只会计算非 NULL 值的数量。
 
@@ -527,7 +401,7 @@ CREATE TABLE Students (
 );
 ```
 
-## DEFAULT Constraint
+## DEFAULT 约束
 
 >在未指定任何列时为列提供默认值。
 
@@ -545,8 +419,7 @@ CREATE TABLE Students (
 >用于快速创建数据库并从数据库检索数据。
 
 ```sql
-CREATE INDEX idx_name 
-ON Students (Name);
+CREATE INDEX idx_name ON Students (Name);
 ```
 
 # 连接查询
@@ -554,10 +427,7 @@ ON Students (Name);
 ## 内连接
 
 ```sql
-SELECT column_name(s)
-FROM table1
-INNER JOIN table2
-ON table1.column_name = table2.column_name;
+SELECT column_name(s) FROM table1 INNER JOIN table2 ON table1.column_name = table2.column_name;
 ```
 
 ## 左连接
@@ -565,23 +435,15 @@ ON table1.column_name = table2.column_name;
 >该`LEFT JOIN`关键字返回左表（table1）中的所有记录以及右表（table2）中的匹配记录。如果没有匹配，结果`NULL`从右侧开始。
 
 ```sql
-SELECT column_name(s)
-FROM table1
-LEFT JOIN table2
-ON table1.column_name = table2.column_name;
+SELECT column_name(s) FROM table1 LEFT JOIN table2 ON table1.column_name = table2.column_name;
 ```
-
-
 
 ## 右连接
 
 >该`RIGHT JOIN`关键字返回右表 (table2) 中的所有记录以及左表 (table1) 中的匹配记录。如果没有匹配，则结果`NULL`在左侧。
 
 ```sql
-SELECT column_name(s)
-FROM table1
-RIGHT JOIN table2
-ON table1.column_name = table2.column_name;
+SELECT column_name(s) FROM table1 RIGHT JOIN table2 ON table1.column_name = table2.column_name;
 ```
 
 ## 全外连接
@@ -590,19 +452,17 @@ ON table1.column_name = table2.column_name;
 SQL 中的FULL OUTER JOIN是一种根据两个或多个表之间的相关列组合来自两个或多个表的行的方法。它返回左表 ( table1) 和右表 ( table2) 中的所有行。
 ```
 
-
+```sql
+select   a.*,b.*   from   a full join b on a.id=b.id
+```
 
 ## 自连接
 
 >`SELF JOIN`是一个标准 SQL 操作，其中表与其自身连接。
 
 ```sql
-SELECT a.column_name, b.column_name
-FROM table_name AS a, table_name AS b
-WHERE a.common_field = b.common_field;
+SELECT a.column_name, b.column_name FROM table_name AS a, table_name AS b WHERE a.common_field = b.common_field;
 ```
-
-
 
 ## 交叉连接
 
@@ -611,12 +471,9 @@ WHERE a.common_field = b.common_field;
 >交叉联接的问题是它返回两个表的笛卡尔积，这可能会导致大量行和大量资源使用。因此，明智地使用它们并且仅在必要时使用它们至关重要。
 
 ```sql
-SELECT column_name(s)
-FROM table1
-CROSS JOIN table2;
-等价于
-SELECT column_name(s)
-FROM table1, table2;
+SELECT column_name(s) FROM table1 CROSS JOIN table2;
+-- 等价于
+SELECT column_name(s) FROM table1, table2;
 ```
 
 # 子查询
