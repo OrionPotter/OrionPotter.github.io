@@ -64,7 +64,7 @@ redis-server
 
 ## 基本命令
 
-### SET 命令
+**SET 命令**
 
 >将指定的键设置为指定的值。如果键已经存在，则覆盖旧值。
 
@@ -83,7 +83,7 @@ SET mykey "Hello, Redis!" NX
 SET mykey "Hello, Redis!" XX
 ```
 
-### GET 命令
+**GET 命令**
 
 >获取指定键的值。如果键不存在，返回nil
 
@@ -92,7 +92,7 @@ SET mykey "Hello, Redis!" XX
 GET key
 ```
 
-### DEL 命令
+**DEL 命令**
 
 >删除指定的键。如果键不存在，忽略该命令。
 
@@ -102,7 +102,7 @@ DEL key
 DEL key1 key2 key3
 ```
 
-### EXPIRE 命令
+**EXPIRE 命令**
 
 >设置键的过期时间（秒）。当键过期时，它会被自动删除。
 
@@ -111,7 +111,7 @@ DEL key1 key2 key3
 EXPIRE key seconds
 ```
 
-### KEYS 命令
+**KEYS 命令**
 
 >查找所有符合给定模式的键。
 
@@ -124,7 +124,7 @@ KEYS user:*
 KEYS *name*
 ```
 
-### EXISTS 命令
+**EXISTS 命令**
 
 >检查一个或多个键是否存在。返回存在的键的数量。
 
@@ -134,7 +134,7 @@ EXISTS key
 EXISTS key1 key2
 ```
 
-### TTL 命令
+**TTL 命令**
 
 >获取键的剩余生存时间（秒）。如果键不存在或没有设置过期时间，返回 `-1`。
 
@@ -143,7 +143,7 @@ EXISTS key1 key2
 TTL key
 ```
 
-### INCR 命令
+**INCR 命令**
 
 >将键的值加1。如果键不存在，则将键的值初始化为0，然后执行加1操作。
 
@@ -152,7 +152,7 @@ TTL key
 INCR key
 ```
 
-### DECR 命令
+**DECR 命令**
 
 >将键的值减1。如果键不存在，则将键的值初始化为0，然后执行减1操作。
 
@@ -185,8 +185,6 @@ DECR key
 #### 示例代码
 
 ```java
-import redis.clients.jedis.Jedis;
-
 public class RedisStringExample {
     public static void main(String[] args) {
         // 连接到Redis
@@ -233,8 +231,6 @@ public class RedisStringExample {
 #### 示例代码
 
 ```java
-import redis.clients.jedis.Jedis;
-
 public class RedisHashExample {
     public static void main(String[] args) {
         // 连接到Redis
@@ -287,8 +283,6 @@ public class RedisHashExample {
 #### 示例代码
 
 ```java
-import redis.clients.jedis.Jedis;
-
 public class RedisListExample {
     public static void main(String[] args) {
         // 连接到Redis
@@ -348,8 +342,6 @@ public class RedisListExample {
 #### 示例代码
 
 ```java
-import redis.clients.jedis.Jedis;
-
 public class RedisSetExample {
     public static void main(String[] args) {
         // 连接到Redis
@@ -414,11 +406,6 @@ public class RedisSetExample {
 #### 示例代码
 
 ```java
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Tuple;
-
-import java.util.Set;
-
 public class RedisSortedSetExample {
     public static void main(String[] args) {
        
@@ -485,8 +472,6 @@ public class RedisSortedSetExample {
 #### 示例代码
 
 ```java
-import redis.clients.jedis.Jedis;
-
 public class RedisBitmapExample {
     public static void main(String[] args) {
         // 连接到Redis
@@ -529,8 +514,6 @@ HyperLogLog是基数估计算法，可以在低内存消耗下进行大规模基
 #### 示例代码
 
 ```java
-import redis.clients.jedis.Jedis;
-
 public class RedisHyperLogLogExample {
     public static void main(String[] args) {
         // 连接到Redis
@@ -567,10 +550,6 @@ public class RedisHyperLogLogExample {
 #### 示例代码
 
 ```java
-import redis.clients.jedis.Jedis;
-
-import java.util.List;
-
 public class RedisGeoExample {
     public static void main(String[] args) {
         // 连接到Redis
@@ -612,13 +591,6 @@ public class RedisGeoExample {
 #### 示例代码
 
 ```java
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.StreamEntry;
-import redis.clients.jedis.StreamEntryID;
-
-import java.util.List;
-import java.util.Map;
-
 public class RedisStreamExample {
     public static void main(String[] args) {
         // 连接到Redis
