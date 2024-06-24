@@ -2112,7 +2112,7 @@ SELECT first_name, last_name FROM employees WHERE employee_id = 1;
 
 1. **客户端连接**：客户端连接到 MySQL 服务器并发送查询 `SELECT first_name, last_name FROM employees WHERE employee_id = 1;`。
 2. **查询缓存（可选）**：检查查询缓存，如果有返回直接返回，没有缓存则继续下一步。
-3. **解析器**：词法分析：将查询字符串分解成标记。标记：`SELECT`、`first_name`、`,`、`last_name`、`FROM`、`employees`、`WHERE`、`employee_id`、`=`、`1`。语法分析：生成解析树。解析树：表示选择 `first_name` 和 `last_name` 列，从 `employees` 表中选择，过滤条件是 `employee_id = 1`。
+3. **解析器**：词法分析：将查询字符串分解成标记。标记：`SELECT`、`first_name`、`last_name`、`FROM`、`employees`、`WHERE`、`employee_id`、`=`、`1`。语法分析：生成解析树。解析树：表示选择 `first_name` 和 `last_name` 列，从 `employees` 表中选择，过滤条件是 `employee_id = 1`。
 4. **预处理器**：语义检查：检查 `employees` 表和 `employee_id` 列是否存在，权限是否足够。视图展开（如果有视图）。
 5. **优化器**：选择最优执行计划：选择使用 `employee_id` 列上的索引。生成执行计划：扫描 `employees` 表，使用索引查找 `employee_id = 1` 的记录。
 6. **执行器**：执行查询：根据执行计划逐步执行查询。调用存储引擎接口：读取 `employees` 表中的数据。
@@ -2121,34 +2121,23 @@ SELECT first_name, last_name FROM employees WHERE employee_id = 1;
 
 ### 存储引擎
 
-#### MySQL的存储
+#### 数据存储（InnoDB存储引擎）
 
-- **数据存储（InnoDB存储引擎）**：
-  - 存放目录：`/var/lib/mysql`
-  - 文件内容：
-    - `db.opt`：存储当前数据库的默认字符集和字符校验规则。
-    - `表名.frm`：存储表结构。
-    - `表名.ibd`：存储表数据。
-- **InnoDB存储结构**：
-  - 段（segment）：表空间由各个段组成，段由多个区组成。
-    - **索引段**：存放B+树的非叶子节点的区的集合。
-    - **数据段**：存放B+树的叶子节点的区的集合。
-    - **回滚段**：存放回滚数据的区的集合。
-  - **区（extent）**：为索引分配空间的单位，每个区为1MB，连续的64个页。
-  - **页（page）**：InnoDB读取数据库是按页读取的，默认每个页的大小为16KB。
-  - **行（row）**：数据库表中的记录按行存放，每行记录根据不同的行格式有不同的存储结构。
-- **InnoDB行格式**：
-  - Compact：
-    - 记录额外信息：
-      - 变长字段长度列表：逆序保存varchar字段的长度。
-      - NULL值列表：存储哪些列是NULL。
-      - 记录头信息：包括`delete_mask`（标识是否被删除）、`next_record`（下一条记录的位置）、`record_type`（记录类型）。
-    - 记录真实数据：
-      - `row_id`：如果表没有主键或唯一约束列，InnoDB会添加`row_id`。
-      - `trx_id`：事务ID，表示数据由哪个事务生成。
-      - `roll_pointer`：指向上一个版本的指针。
-- **varchar(n)最大取值**：`n = 65535 - 可变长度列表字节数 - NULL列表字节数 - 其他字段占用字节数`
-- **行溢出处理**：当一个页存储不了一条记录时，多余的数据会存储到溢出页上，真实数据处用20字节存储指向溢出页的地址。
+- 存放目录：`/var/lib/mysql`
+- 文件内容：
+  - `db.opt`：存储当前数据库的默认字符集和字符校验规则。
+  - `表名.frm`：存储表结构。
+  - `表名.ibd`：存储表数据。
+
+#### InnoDB存储结构
+
+- 段（segment）：表空间由各个段组成，段由多个区组成。
+  - **索引段**：存放B+树的非叶子节点的区的集合。
+  - **数据段**：存放B+树的叶子节点的区的集合。
+  - **回滚段**：存放回滚数据的区的集合。
+- **区（extent）**：为索引分配空间的单位，每个区为1MB，连续的64个页。
+- **页（page）**：InnoDB读取数据库是按页读取的，默认每个页的大小为16KB。
+- **行（row）**：数据库表中的记录按行存放，每行记录根据不同的行格式有不同的存储结构。
 
 ### 锁
 
@@ -2166,7 +2155,7 @@ FLUSH TABLES WITH READ LOCK;
 
 #### 表级锁（Table-level Locks）
 
-表级锁锁定整个表，适用于需要对整个表进行大规模操作的情况。
+**表锁**：锁定整个表，适用于需要对整个表进行大规模操作的情况。
 
 ```sql
 LOCK TABLES table_name READ;  -- 读锁
@@ -2174,7 +2163,7 @@ LOCK TABLES table_name WRITE; -- 写锁
 UNLOCK TABLES; -- 解锁
 ```
 
-意向锁（Intention Lock）：自动管理，无需显式使用。
+**意向锁（Intention Lock）**：自动管理，无需显式使用。
 
 原理：表锁会锁定整个表，阻止其他事务对该表的读写操作。意向锁用于表明事务即将对表中的某些行加锁，分为意向共享锁（IS）和意向排他锁（IX）。
 
