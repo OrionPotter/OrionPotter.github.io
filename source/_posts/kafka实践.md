@@ -1,7 +1,7 @@
 ---
 title: kafka实践
 tag:
-- kafka
+- mq
 ---
 
 # 基础知识
