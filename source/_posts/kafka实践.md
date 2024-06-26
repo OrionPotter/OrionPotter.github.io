@@ -12,21 +12,6 @@ tag:
 
 1. **Kafka**：Apache Kafka是一个分布式流处理平台，主要用于构建实时数据管道和流应用。它最初由LinkedIn开发，并于2011年开源。
 2. **消息系统**：Kafka是一种消息系统，支持发布-订阅模型，允许生产者（Producer）发布消息，消费者（Consumer）订阅消息。
-3. **Topic**：消息的分类，每个Topic可以有多个分区（Partition）。生产者将消息发送到Topic，消费者从Topic中读取消息。
-4. **Partition**：Topic的子集，允许并行处理和分布式存储。每个Partition是一个有序的消息队列。
-5. **Producer**：消息生产者，负责向Kafka发送消息。
-6. **Consumer**：消息消费者，负责从Kafka读取消息。
-7. **Consumer Group**：消费者组，多个消费者可以组成一个组来共同消费一个Topic。每个消息只会被一个组内的消费者处理一次。
-8. **Offset**：消息在分区中的位置，用于记录消费进度。
-
-### 架构
-
-1. **Broker**：Kafka的服务器实例，负责接收、存储和转发消息。一个Kafka集群由多个Broker组成。
-2. **Zookeeper**：Kafka依赖的分布式协调服务，用于管理Broker的元数据、Leader选举和配置信息。
-3. **Producer**：消息生产者，向Kafka发送消息。Producer可以指定消息发送到哪个Topic和Partition。
-4. **Consumer**：消息消费者，从Kafka读取消息。Consumer可以通过Consumer Group来实现负载均衡和容错。
-5. **Topic**：消息的分类，每个Topic可以有多个分区。生产者将消息发送到Topic，消费者从Topic中读取消息。
-6. **Partition**：Topic的子集，允许并行处理和分布式存储。每个Partition是一个有序的消息队列。
 
 ### 应用场景
 
@@ -34,9 +19,6 @@ tag:
 2. **实时数据分析**：Kafka可以与实时数据处理框架（如Apache Spark、Apache Flink）集成，进行实时数据分析和处理。
 3. **事件驱动架构**：Kafka可以用于构建事件驱动架构，支持微服务之间的异步通信和事件流处理。
 4. **数据管道**：Kafka可以作为数据管道的核心组件，连接不同的数据源和数据目标，实现数据的实时传输和处理。
-5. **监控与报警**：Kafka可以用于收集和处理监控数据，实时监控系统状态，并触发报警。
-
-
 
 ## 消息系统基础
 
@@ -51,7 +33,9 @@ tag:
 
 ### 发布-订阅模型
 
-发布-订阅（Publish-Subscribe，简称Pub/Sub）模型是一种消息传递模式，允许发送方（发布者）将消息发送到一个或多个主题（Topic），接收方（订阅者）订阅这些主题以接收消息。发布-订阅模型的特点包括：
+发布-订阅（Publish-Subscribe，简称Pub/Sub）模型是一种消息传递模式，发送方将消息发送到一个或多个主题（Topic），接收方订阅这些主题以接收消息。
+
+**特点：**
 
 1. **多对多通信**：一个发布者可以向多个订阅者发送消息，一个订阅者也可以从多个发布者接收消息。
 2. **松耦合**：发布者和订阅者之间没有直接的联系，彼此独立。
@@ -61,7 +45,7 @@ tag:
 
 消息传递的可靠性是指消息系统确保消息能够被正确传递和处理的能力。可靠性通常包括以下几个方面：
 
-1. **消息持久化**：消息在发送后会被持久化存储，防止因系统故障导致消息丢失。Kafka通过将消息写入磁盘日志来实现持久化。
+1. **消息持久化**：消息在发送后会被持久化存储，防止因系统故障导致消息丢失。
 2. **消息确认**：接收方在成功处理消息后向消息系统发送确认（ACK），消息系统在收到确认后才会删除消息。Kafka的消费者可以手动提交偏移量（Offset）来确认消息处理。
 3. **重试机制**：如果消息传递失败，消息系统会进行重试，确保消息最终能够被成功传递。
 4. **重复处理**：为了防止消息丢失，消息系统可能会多次传递同一消息，接收方需要具备幂等性（Idempotency）来处理重复消息。
@@ -127,90 +111,87 @@ tag:
   - **自动提交**：Kafka提供自动提交Offset的机制，Consumer可以配置自动提交的频率。
   - **手动提交**：Consumer也可以选择手动提交Offset，以便在消息处理成功后再更新消费进度。
 
-# Kafka架构
+# Kafka集群架构
 
-## 分布式系统
+<img src="https://telegraph-image-2ni.pages.dev/file/84e5a00bf500afc2cc817.jpg" style="zoom: 67%;" />
 
-### 集群（Cluster）
+## 分布式架构
 
-- **定义**：Kafka集群由多个Kafka Broker组成。每个Broker是一个独立的Kafka服务器实例。
-- **功能**：
-  - **负载均衡**：通过多个Broker分担负载，Kafka集群可以处理大量的并发消息。
-  - **高可用性**：即使某个Broker发生故障，集群中的其他Broker仍然可以继续工作，确保系统的高可用性。
-  - **扩展性**：通过增加Broker，Kafka集群可以水平扩展，以处理更多的数据和更高的吞吐量。
+### ZooKeeper集群
 
-### 分区（Partition）
+ZooKeeper是一个分布式协调服务，用于管理Kafka集群的元数据和协调任务。
 
-- **定义**：分区是Topic的子集，是Kafka中消息存储的基本单元。
-- **功能**：
-  - **并行处理**：通过将Topic划分为多个分区，可以实现消息的并行生产和消费，提高系统吞吐量。
-  - **分布式存储**：分区可以分布在不同的Broker上，实现负载均衡和高可用性。
-  - **顺序保证**：在同一个分区内，消息是有序的，消费者可以按照消息的生产顺序进行消费。
+**功能：**
 
-### 复制（Replication）
+**1.元数据管理**：存储Kafka集群的元数据，包括Broker信息、Topic和分区信息、Leader选举等。
 
-- **定义**：复制是指将每个分区的数据复制到多个Broker上，以实现数据冗余和高可用性。
-- **功能**：
-  - **数据冗余**：每个分区有一个Leader副本和多个Follower副本。Leader负责处理所有的读写请求，Follower从Leader复制数据。
-  - **高可用性**：如果Leader副本发生故障，Kafka会自动从Follower副本中选举一个新的Leader，确保数据不丢失且服务不中断。
-  - **一致性**：Kafka通过ISR（In-Sync Replicas）机制确保数据的一致性。ISR是指与Leader保持同步的Follower副本集合。
+**2.Leader选举**：负责管理分区Leader的选举过程，确保在Leader故障时能够快速选举出新的Leader。
 
-### Leader和Follower
+**3.配置管理**：动态管理Kafka的配置信息，方便集群的扩展和维护。
 
-- **Leader**：每个分区有一个Leader副本，负责处理所有的读写请求。
-- **Follower**：每个分区有多个Follower副本，从Leader复制数据，作为备份。
-- **Leader选举**：当Leader副本发生故障时，Kafka会从ISR中选举一个新的Leader，以确保分区的高可用性。
+### 生产者（Producer）
 
-### Zookeeper
+生产者负责向Kafka集群发送消息。
 
-- **定义**：Zookeeper是一个分布式协调服务，Kafka依赖Zookeeper来管理集群的元数据和协调任务。
-- **功能**：
-  - **元数据管理**：Zookeeper存储Kafka集群的元数据，包括Broker信息、Topic和分区信息、Leader选举等。
-  - **Leader选举**：Zookeeper负责管理分区Leader的选举过程，确保在Leader故障时能够快速选举出新的Leader。
-  - **配置管理**：Zookeeper可以动态管理Kafka的配置信息，方便集群的扩展和维护。
+**功能：**
+
+**1.发送消息**：将消息发送到指定的Topic。
+
+**2.指定Key**：可以为消息指定Key，确保具有相同Key的消息被发送到同一个分区。
+
+**3.启用幂等生产者**：确保消息只被写入一次，避免重复消息的出现。
+
+### Kafka集群
+
+Kafka集群由多个Kafka Broker组成，每个Broker是一个独立的Kafka服务器实例。
+
+**功能：**
+
+**1.负载均衡**：通过多个Broker分担负载，Kafka集群可以处理大量的并发消息。
+
+**2.高可用性**：即使某个Broker发生故障，集群中的其他Broker仍然可以继续工作，确保系统的高可用性。
+
+**3.扩展性**：通过增加Broker，Kafka集群可以水平扩展，以处理更多
 
 ### 消费者组（Consumer Group）
 
-- **定义**：消费者组是多个消费者组成的一个组，协同消费一个Topic。
-- **功能**：
-  - **负载均衡**：同一个消费者组内的多个消费者可以分担Topic的分区，实现负载均衡。
-  - **消息分配**：Kafka会自动将分区分配给消费者组中的各个消费者，每个分区只能被一个消费者消费。
-  - **高可用性**：如果某个消费者故障，Kafka会将其负责的分区重新分配给其他消费者，确保消息消费不中断。
+消费者是Kafka集群中的消息消费者，负责从Broker消费消息，消费者组是多个消费者组成的一个组，协同消费一个Topic。
+
+**功能：**
+
+**1.订阅Topic**：消费者可以订阅一个或多个Topic，从Broker消费消息。
+
+**2.消费消息**：消费者从分配给自己的分区中消费消息，处理业务逻辑。
+
+**3.管理偏移量**：消费者需要手动管理每个分区的偏移量，确保消息按照顺序进行处理。
 
 ## 高可用性
 
-### Leader和Follower
+### 副本机制
 
 #### Leader
 
-- **定义**：每个分区（Partition）都有一个Leader副本，Leader负责处理所有的读写请求。
-- **功能**：
-  - **读写请求处理**：所有的生产者（Producer）和消费者（Consumer）都直接与Leader交互，进行消息的生产和消费。
-  - **数据同步**：Leader将接收到的消息同步到Follower副本，以确保数据的一致性。
+每个分区（Partition）都有一个Leader副本，Leader负责处理所有的读写请求，Leader将接收到的消息同步到Follower副本，以确保数据的一致性。
 
 #### Follower
 
-- **定义**：每个分区有多个Follower副本，Follower从Leader复制数据，作为备份。
-- **功能**：
-  - **数据复制**：Follower定期从Leader拉取数据，保持与Leader的数据一致。
-  - **故障备份**：当Leader发生故障时，Follower可以被选举为新的Leader，确保分区的高可用性。
+每个分区有多个Follower副本，Follower定期从Leader拉取数据，作为备份，当leader发生故障，follower可以被选举为新的leader确保分区的高可用。
 
-#### Leader选举
+#### Leader选举过程
 
-- **过程**：
-  - **故障检测**：Kafka通过Zookeeper监控Leader的状态，当检测到Leader故障时，触发Leader选举过程。
-  - **选举机制**：Kafka从ISR（In-Sync Replicas）中选举一个新的Leader。ISR是指与Leader保持同步的Follower副本集合。
-  - **Leader切换**：新的Leader选举完成后，Kafka更新元数据，通知所有Producer和Consumer新的Leader信息。
+**1.故障检测**：Kafka通过Zookeeper监控Leader的状态，当检测到Leader故障时，触发Leader选举过程。
+
+**2.选举机制**：Kafka从ISR（In-Sync Replicas）中选举一个新的Leader，ISR是指与Leader保持同步的Follower副本集合。
+
+**3.Leader切换**：新的Leader选举完成后，Kafka更新元数据，通知所有Producer和Consumer新的Leader信息。
 
 ### ISR（In-Sync Replicas）
 
-#### 定义
-
-- **ISR**：In-Sync Replicas，指的是与Leader保持同步的Follower副本集合。ISR中的副本被认为是最新的，可以参与Leader选举。
+ISR：In-Sync Replicas，指的是与Leader保持同步的Follower副本集合，ISR中的副本被认为是最新的，可以参与Leader选举。
 
 #### 机制
 
-- **同步机制**：Follower副本定期从Leader拉取数据，并将数据写入本地存储。只有当Follower成功拉取并写入数据后，才会被认为是同步的。
+- **同步机制**：Follower副本定期从Leader拉取数据，并将数据写入本地存储，只有当Follower成功拉取并写入数据后，才会被认为是同步的。
 - **动态调整**：ISR集合是动态调整的。当Follower副本无法及时同步数据（例如由于网络延迟或故障），Kafka会将其从ISR中移除。一旦Follower恢复并重新同步数据，Kafka会将其重新加入ISR。
 
 #### 作用
@@ -224,13 +205,10 @@ tag:
 
 - **同步复制**：Producer将消息发送到Leader，Leader将消息写入本地存储后，异步地将消息复制到ISR中的Follower副本。
 
-- 确认机制
-
-  ：Producer可以配置消息发送的确认机制（acks），以确保消息成功发送到Broker。
-
-  - **acks=0**：Producer不等待任何确认，即发送即忘（fire-and-forget）。
+- **确认机制**：Producer可以配置消息发送的确认机制（acks），以确保消息成功发送到Broker。
+- **acks=0**：Producer不等待任何确认，即发送即忘（fire-and-forget）。
   - **acks=1**：Producer等待Leader确认消息已写入本地存储。
-  - **acks=all**：Producer等待Leader和所有ISR中的Follower确认消息已写入本地存储，确保最高的可靠性。
+- **acks=all**：Producer等待Leader和所有ISR中的Follower确认消息已写入本地存储，确保最高的可靠性。
 
 #### 数据一致性
 
