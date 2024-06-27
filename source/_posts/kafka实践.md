@@ -29,25 +29,21 @@ tag:
 
 ### 消息传递的可靠性
 
-消息传递的可靠性是指消息系统确保消息能够被正确传递和处理的能力。可靠性通常包括以下几个方面：
-
-1. **消息持久化**：消息在发送后会被持久化存储，防止因系统故障导致消息丢失。
-2. **消息确认**：接收方在成功处理消息后向消息系统发送确认（ACK），消息系统在收到确认后才会删除消息。Kafka的消费者可以手动提交偏移量（Offset）来确认消息处理。
-3. **重试机制**：如果消息传递失败，消息系统会进行重试，确保消息最终能够被成功传递。
-4. **重复处理**：为了防止消息丢失，消息系统可能会多次传递同一消息，接收方需要具备幂等性（Idempotency）来处理重复消息。
-5. **顺序保证**：消息系统需要保证消息的顺序性，特别是在分区和并行处理的情况下。Kafka通过分区内的顺序性和消费者组来实现顺序保证。
++ 基于生产者的重试机制：消息发送失败，会重试再次发送。
++ 基于消息系统的持久化：消息系统接收到消息后会持久化到硬盘，防止因系统故障导致数据丢失。
++ 基于消费者的确认机制：消费者消费后，通过手动提交偏移量的方式告知消息系统已经成功消费。
 
 ## Kafka基础
 
 ### 简介
 
-1. **Kafka**：Apache Kafka是一个分布式流处理平台，主要用于构建实时数据管道和流应用。它最初由LinkedIn开发，并于2011年开源。
+1. **Kafka**：`Apache Kafka`是一个分布式流处理平台，主要用于构建实时数据管道和流应用。它最初由`LinkedIn`开发，并于2011年开源。
 2. **消息系统**：Kafka是一种消息系统，支持发布-订阅模型，允许生产者（Producer）发布消息，消费者（Consumer）订阅消息。
 
 ### 应用场景
 
 1. **日志收集**：Kafka可以作为日志收集系统的核心组件，收集和存储来自不同服务和应用的日志数据。
-2. **实时数据分析**：Kafka可以与实时数据处理框架（如Apache Spark、Apache Flink）集成，进行实时数据分析和处理。
+2. **实时数据分析**：Kafka可以与实时数据处理框架（如`Apache Spark`、`Apache Flink`）集成，进行实时数据分析和处理。
 3. **事件驱动架构**：Kafka可以用于构建事件驱动架构，支持微服务之间的异步通信和事件流处理。
 4. **数据管道**：Kafka可以作为数据管道的核心组件，连接不同的数据源和数据目标，实现数据的实时传输和处理。
 
@@ -255,7 +251,7 @@ bin/kafka-topics.sh --create --topic my-topic --bootstrap-server localhost:9092 
 
 ### 删除Topic
 
-删除Topic时，Kafka会从Zookeeper中删除对应的元数据,异步删除Topic在磁盘上的数据文件，确保数据被彻底清理。
+删除Topic时，Kafka会从`Zookeeper`中删除对应的元数据,异步删除Topic在磁盘上的数据文件，确保数据被彻底清理。
 
 ```sh
 bin/kafka-topics.sh --delete --topic my-topic --bootstrap-server localhost:9092
@@ -296,6 +292,20 @@ bin/kafka-topics.sh --describe --topic my-topic --bootstrap-server localhost:909
 </dependency>
 ```
 
+### ProducerRecord
+
+```java
+public ProducerRecord(String topic, Integer partition, K key, V value)
+```
+
+`topic`：消息要发送到的目标主题（topic）的名称。
+
+`partition`：可选参数，指定消息要发送到的分区号。
+
+`key`：可选参数，消息的键，用于分区计算。
+
+`value`：消息的实际内容，即要发送的数据
+
 ###  创建Kafka Producer
 
 ```java
@@ -334,9 +344,9 @@ public class KafkaProducerExample {
 ### Producer技术原理
 
 - **序列化**：Producer将消息的键和值序列化为字节数组，以便在网络上传输。
-- **分区选择**：Producer根据配置选择将消息发送到哪个分区，常用的策略有轮询（Round Robin）、哈希（Hashing）等。
+- **分区选择**：Producer根据配置选择将消息发送到哪个分区，不指定分区和键则轮询（Round Robin），设置了键则对键哈希（Hashing），设置分区优先使用分区。
 - **批量发送**：Producer可以将多条消息批量发送，以提高吞吐量和减少网络开销。
-- **确认机制**：Producer可以配置消息发送的确认机制（acks），确保消息成功发送到Broker。
+- **确认机制**：Producer可以配置消息发送的确认机制（`acks`），确保消息成功发送到Broker。
 
 ## 消息消费（Consumer）
 
@@ -360,19 +370,33 @@ public class KafkaConsumerExample {
 		props.put("group.id", "my-group");
 		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
 		props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-		props.put("enable.auto.commit", "false");
-		props.put("auto.offset.reset", "earliest");
+		props.put("enable.auto.commit", "false"); //关闭自动提交 offset
+        //如果找不到之前存储的 offset 位置时的起始位置策略。 earliest从头开始消费，latest从最新开始消费
+		props.put("auto.offset.reset", "earliest");  
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+        //消费指定分区
+        //TopicPartition partition0 = new TopicPartition("my-topic", 0);
+        //consumer.assign(Arrays.asList(partition0));
+        // 在消费之前设置消费者的起始位移（可选）
+        // consumer.seekToBeginning(Arrays.asList(partition0));
+        // 或者 consumer.seek(partition0, offset);
         consumer.subscribe(Collections.singletonList("my-topic"));
-
-        while (true) {
+		try{
+            while (true) {
             ConsumerRecords<String, String> records = consumer.poll(100);
             for (ConsumerRecord<String, String> record : records) {
                 System.out.printf("Consumed record(key=%s value=%s) meta(partition=%d, offset=%d)\n",
                         record.key(), record.value(), record.partition(), record.offset());
             }
+          	// 手动提交 offset
+            consumer.commitSync();    
         }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        
+        
     }
 }
 ```
@@ -392,17 +416,17 @@ public class KafkaConsumerExample {
 
 ## 分布式集群架构
 
-### ZooKeeper集群
+### `ZooKeeper`集群
 
-ZooKeeper是一个分布式协调服务，用于管理Kafka集群的元数据和协调任务。
+`ZooKeeper`是一个分布式协调服务，用于管理Kafka集群的元数据、分区leader选举和动态配置。
 
 **功能：**
 
-**1.元数据管理**：存储Kafka集群的元数据，包括Broker信息、Topic和分区信息、Leader选举等。
+**1.元数据管理**：存储Kafka集群的元数据，包括Broker信息、Topic信息、分区信息和偏移量信息。
 
-**2.Leader选举**：负责管理分区Leader的选举过程，确保在Leader故障时能够快速选举出新的Leader。
+**2.`Leader`选举**：负责管理分区Leader的选举过程，确保在Leader故障时能够快速选举出新的Leader。
 
-**3.配置管理**：动态管理Kafka的配置信息，方便集群的扩展和维护。
+**3.配置管理**：通过`kafka`命令行工具实现动态管理Kafka的配置信息，方便集群的扩展和维护。
 
 ### 生产者（Producer）
 
@@ -454,41 +478,40 @@ Kafka集群由多个Kafka Broker组成，每个Broker是一个独立的Kafka服�
 
 #### Leader选举过程
 
-**1.故障检测**：Kafka通过Zookeeper监控Leader的状态，当检测到Leader故障时，触发Leader选举过程。
+**1.故障检测**：Kafka通过`Zookeeper`监控Leader的状态，当检测到Leader故障时，触发Leader选举过程。
 
-**2.选举机制**：Kafka从ISR（In-Sync Replicas）中选举一个新的Leader，ISR是指与Leader保持同步的Follower副本集合。
+**2.选举机制**：Kafka从`ISR`（In-Sync Replicas）中选举一个新的Leader，`ISR`是指与Leader保持同步的Follower副本集合。
 
-**3.Leader切换**：新的Leader选举完成后，Kafka更新元数据，通知所有Producer和Consumer新的Leader信息。
+**3.`Leader`切换**：新的Leader选举完成后，Kafka更新元数据，通知所有Producer和Consumer新的Leader信息。
 
-### ISR（In-Sync Replicas）
+### `ISR`（In-Sync Replicas）
 
-ISR：In-Sync Replicas，指的是与Leader保持同步的Follower副本集合，ISR中的副本被认为是最新的，可以参与Leader选举。
+`ISR`：In-Sync Replicas，指的是与Leader保持同步的Follower副本集合，`ISR`中的副本被认为是最新的，可以参与Leader选举。
 
 #### 机制
 
 - **同步机制**：Follower副本定期从Leader拉取数据，并将数据写入本地存储，只有当Follower成功拉取并写入数据后，才会被认为是同步的。
-- **动态调整**：ISR集合是动态调整的。当Follower副本无法及时同步数据（例如由于网络延迟或故障），Kafka会将其从ISR中移除。一旦Follower恢复并重新同步数据，Kafka会将其重新加入ISR。
+- **动态调整**：`ISR`集合是动态调整的。当Follower副本无法及时同步数据（例如由于网络延迟或故障），Kafka会将其从`ISR`中移除。一旦Follower恢复并重新同步数据，Kafka会将其重新加入`ISR`。
 
 #### 作用
 
-- **高可用性**：ISR确保了Kafka在Leader故障时能够快速选举出新的Leader，保证分区的高可用性。
-- **数据一致性**：通过维护ISR，Kafka确保只有最新的副本参与Leader选举，保证数据的一致性。
+- **高可用性**：`ISR`确保了Kafka在Leader故障时能够快速选举出新的Leader，保证分区的高可用性。
+- **数据一致性**：通过维护`ISR`，Kafka确保只有最新的副本参与Leader选举，保证数据的一致性。
 
 ### 数据复制和一致性
 
 #### 数据复制
 
-- **同步复制**：Producer将消息发送到Leader，Leader将消息写入本地存储后，异步地将消息复制到ISR中的Follower副本。
+- **同步复制**：Producer将消息发送到Leader，Leader将消息写入本地存储后，异步地将消息复制到`ISR`中的Follower副本。
 
 - **确认机制**：Producer可以配置消息发送的确认机制（acks），以确保消息成功发送到Broker。
-  - **acks=0**：Producer不等待任何确认，即发送即忘（fire-and-forget）。
-  - **acks=1**：Producer等待Leader确认消息已写入本地存储。
-  - **acks=all**：Producer等待Leader和所有ISR中的Follower确认消息已写入本地存储，确保最高的可靠性。
-
+  - **acks=0**：`Producer`不等待任何确认，即发送即忘（fire-and-forget）。
+  - **acks=1**：`Producer`等待Leader确认消息已写入本地存储。
+  - **acks=all**：`Producer`等待Leader和所有`ISR`中的Follower确认消息已写入本地存储，确保最高的可靠性。
 
 #### 数据一致性
 
-- **强一致性**：通过ISR机制，Kafka确保只有最新的数据副本参与Leader选举，保证数据的一致性。
+- **强一致性**：通过`ISR`机制，Kafka确保只有最新的数据副本参与Leader选举，保证数据的一致性。
 - **数据丢失和重复**：在极端情况下（例如网络分区或多个Broker同时故障），Kafka可能会出现数据丢失或重复消费的情况。通过合理配置和监控，可以将这种风险降到最低。
 
 ### 高可用性配置
@@ -498,10 +521,10 @@ ISR：In-Sync Replicas，指的是与Leader保持同步的Follower副本集合�
 - **定义**：副本因子是指每个分区的副本数量，包括一个Leader和多个Follower。副本因子越高，数据冗余和高可用性越强。
 - **配置**：在创建Topic时，可以配置副本因子。推荐的副本因子至少为3，以确保在单节点故障时仍能保证数据的高可用性。
 
-#### 最小ISR（min.insync.replicas）
+#### 最小`ISR（min.insync.replicas）`
 
-- **定义**：最小ISR是指Producer在acks=all配置下，消息写入成功所需的最小ISR数量。
-- **作用**：通过配置最小ISR，可以控制消息写入的可靠性，确保在一定数量的副本确认后才认为消息写入成功。
+- **定义**：最小`ISR`是指Producer在`acks=all`配置下，消息写入成功所需的最小ISR数量。
+- **作用**：通过配置最小`ISR`，可以控制消息写入的可靠性，确保在一定数量的副本确认后才认为消息写入成功。
 
 ## 数据持久化
 
