@@ -6,20 +6,6 @@ tag:
 
 # 基础知识
 
-## Kafka简介
-
-### 基本概念
-
-1. **Kafka**：Apache Kafka是一个分布式流处理平台，主要用于构建实时数据管道和流应用。它最初由LinkedIn开发，并于2011年开源。
-2. **消息系统**：Kafka是一种消息系统，支持发布-订阅模型，允许生产者（Producer）发布消息，消费者（Consumer）订阅消息。
-
-### 应用场景
-
-1. **日志收集**：Kafka可以作为日志收集系统的核心组件，收集和存储来自不同服务和应用的日志数据。
-2. **实时数据分析**：Kafka可以与实时数据处理框架（如Apache Spark、Apache Flink）集成，进行实时数据分析和处理。
-3. **事件驱动架构**：Kafka可以用于构建事件驱动架构，支持微服务之间的异步通信和事件流处理。
-4. **数据管道**：Kafka可以作为数据管道的核心组件，连接不同的数据源和数据目标，实现数据的实时传输和处理。
-
 ## 消息系统基础
 
 ### 消息队列
@@ -51,9 +37,23 @@ tag:
 4. **重复处理**：为了防止消息丢失，消息系统可能会多次传递同一消息，接收方需要具备幂等性（Idempotency）来处理重复消息。
 5. **顺序保证**：消息系统需要保证消息的顺序性，特别是在分区和并行处理的情况下。Kafka通过分区内的顺序性和消费者组来实现顺序保证。
 
-# Kafka核心概念
+## Kafka基础
 
-## **Broker**
+### 简介
+
+1. **Kafka**：Apache Kafka是一个分布式流处理平台，主要用于构建实时数据管道和流应用。它最初由LinkedIn开发，并于2011年开源。
+2. **消息系统**：Kafka是一种消息系统，支持发布-订阅模型，允许生产者（Producer）发布消息，消费者（Consumer）订阅消息。
+
+### 应用场景
+
+1. **日志收集**：Kafka可以作为日志收集系统的核心组件，收集和存储来自不同服务和应用的日志数据。
+2. **实时数据分析**：Kafka可以与实时数据处理框架（如Apache Spark、Apache Flink）集成，进行实时数据分析和处理。
+3. **事件驱动架构**：Kafka可以用于构建事件驱动架构，支持微服务之间的异步通信和事件流处理。
+4. **数据管道**：Kafka可以作为数据管道的核心组件，连接不同的数据源和数据目标，实现数据的实时传输和处理。
+
+### Kafka核心概念
+
+#### **Broker**
 
 - **定义**：Broker是Kafka的消息代理服务器，负责接收、存储和转发消息。
 - **功能**：
@@ -62,7 +62,7 @@ tag:
   - **负载均衡**：在Kafka集群中，多个Broker共同工作以分担负载，每个Broker负责不同的Partition。
   - **高可用性**：通过复制机制（Replication），Broker可以实现高可用性，确保数据不会因为单个Broker故障而丢失。
 
-## **Topic**
+#### **Topic**
 
 - **定义**：Topic是Kafka中消息的分类单元，用于将消息进行逻辑上的组织。
 - **功能**：
@@ -70,7 +70,7 @@ tag:
   - **多分区**：每个Topic可以分为多个Partition，以实现并行处理和分布式存储。
   - **持久化**：Topic中的消息可以根据配置持久化到磁盘，并保留一定时间或数量。
 
-## **Partition**
+#### **Partition**
 
 - **定义**：Partition是Topic的子集，是Kafka中消息存储的基本单元。
 - **功能**：
@@ -78,7 +78,7 @@ tag:
   - **分布式存储**：Partition可以分布在不同的Broker上，实现负载均衡和高可用性。
   - **顺序保证**：在同一个Partition内，消息是有序的，消费者可以按照消息的生产顺序进行消费。
 
-## **Producer**
+#### **Producer**
 
 - **定义**：Producer是消息生产者，负责向Kafka发送消息。
 - **功能**：
@@ -86,7 +86,7 @@ tag:
   - **负载均衡**：Producer可以根据配置选择将消息发送到哪个Partition，常用的策略有轮询（Round Robin）、哈希（Hashing）等。
   - **确认机制**：Producer可以配置消息发送的确认机制（acks），确保消息成功发送到Broker。
 
-## **Consumer**
+#### **Consumer**
 
 - **定义**：Consumer是消息消费者，负责从Kafka读取消息。
 - **功能**：
@@ -94,7 +94,7 @@ tag:
   - **消费组**：Consumer可以加入消费组（Consumer Group），多个Consumer共同消费一个Topic。
   - **偏移量管理**：Consumer需要管理消息的偏移量（Offset），以记录消费进度，确保消息不重复消费或遗漏。
 
-## **Consumer Group**
+#### **Consumer Group**
 
 - **定义**：Consumer Group是多个Consumer组成的一个组，协同消费一个Topic。
 - **功能**：
@@ -102,7 +102,7 @@ tag:
   - **消息分配**：Kafka会自动将Partition分配给Consumer Group中的各个Consumer，每个Partition只能被一个Consumer消费。
   - **高可用性**：如果某个Consumer故障，Kafka会将其负责的Partition重新分配给其他Consumer，确保消息消费不中断。
 
-## **Offset**
+#### **Offset**
 
 - **定义**：Offset是消息在Partition中的位置，用于记录消费进度。
 - **功能**：
@@ -111,11 +111,11 @@ tag:
   - **自动提交**：Kafka提供自动提交Offset的机制，Consumer可以配置自动提交的频率。
   - **手动提交**：Consumer也可以选择手动提交Offset，以便在消息处理成功后再更新消费进度。
 
-# Kafka集群架构
+# Kafka集群
 
 <img src="https://telegraph-image-2ni.pages.dev/file/84e5a00bf500afc2cc817.jpg" style="zoom: 67%;" />
 
-## 分布式架构
+## 分布式集群架构
 
 ### ZooKeeper集群
 
@@ -206,9 +206,10 @@ ISR：In-Sync Replicas，指的是与Leader保持同步的Follower副本集合�
 - **同步复制**：Producer将消息发送到Leader，Leader将消息写入本地存储后，异步地将消息复制到ISR中的Follower副本。
 
 - **确认机制**：Producer可以配置消息发送的确认机制（acks），以确保消息成功发送到Broker。
-- **acks=0**：Producer不等待任何确认，即发送即忘（fire-and-forget）。
+  - **acks=0**：Producer不等待任何确认，即发送即忘（fire-and-forget）。
   - **acks=1**：Producer等待Leader确认消息已写入本地存储。
-- **acks=all**：Producer等待Leader和所有ISR中的Follower确认消息已写入本地存储，确保最高的可靠性。
+  - **acks=all**：Producer等待Leader和所有ISR中的Follower确认消息已写入本地存储，确保最高的可靠性。
+
 
 #### 数据一致性
 
