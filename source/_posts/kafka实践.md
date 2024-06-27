@@ -476,6 +476,16 @@ Kafka集群由多个Kafka Broker组成，每个Broker是一个独立的Kafka服�
 
 每个分区有多个Follower副本，Follower定期从Leader拉取数据，作为备份，当leader发生故障，follower可以被选举为新的leader确保分区的高可用。
 
+#### `ISR`（In-Sync Replicas）
+
+`ISR`：In-Sync Replicas，指的是与Leader保持同步的Follower副本集合，`ISR`中的副本被认为是最新的，可以参与Leader选举，保证数据的一致性。
+
+**同步机制过程**
+
+- Follower 副本会定期主动从 Leader 副本拉取数据,并将数据写入本地存储。
+- 只有当 Follower 成功拉取并写入数据后,才会被认为是同步的,加入`ISR`集合。
+- Kafka 会动态调整`ISR`集合,当 Follower 无法及时同步数据时,会将其从`ISR`中移除。当 Follower 恢复并重新同步数据后,Kafka 会将其重新加入`ISR`。
+
 #### Leader选举过程
 
 **1.故障检测**：Kafka通过`Zookeeper`监控Leader的状态，当检测到Leader故障时，触发Leader选举过程。
@@ -484,30 +494,15 @@ Kafka集群由多个Kafka Broker组成，每个Broker是一个独立的Kafka服�
 
 **3.`Leader`切换**：新的Leader选举完成后，Kafka更新元数据，通知所有Producer和Consumer新的Leader信息。
 
-### `ISR`（In-Sync Replicas）
-
-`ISR`：In-Sync Replicas，指的是与Leader保持同步的Follower副本集合，`ISR`中的副本被认为是最新的，可以参与Leader选举。
-
-#### 机制
-
-- **同步机制**：Follower副本定期从Leader拉取数据，并将数据写入本地存储，只有当Follower成功拉取并写入数据后，才会被认为是同步的。
-- **动态调整**：`ISR`集合是动态调整的。当Follower副本无法及时同步数据（例如由于网络延迟或故障），Kafka会将其从`ISR`中移除。一旦Follower恢复并重新同步数据，Kafka会将其重新加入`ISR`。
-
-#### 作用
-
-- **高可用性**：`ISR`确保了Kafka在Leader故障时能够快速选举出新的Leader，保证分区的高可用性。
-- **数据一致性**：通过维护`ISR`，Kafka确保只有最新的副本参与Leader选举，保证数据的一致性。
-
 ### 数据复制和一致性
 
 #### 数据复制
 
-- **同步复制**：Producer将消息发送到Leader，Leader将消息写入本地存储后，异步地将消息复制到`ISR`中的Follower副本。
-
-- **确认机制**：Producer可以配置消息发送的确认机制（acks），以确保消息成功发送到Broker。
-  - **acks=0**：`Producer`不等待任何确认，即发送即忘（fire-and-forget）。
-  - **acks=1**：`Producer`等待Leader确认消息已写入本地存储。
-  - **acks=all**：`Producer`等待Leader和所有`ISR`中的Follower确认消息已写入本地存储，确保最高的可靠性。
+- 生产者将消息发送到 Leader 副本,Leader 副本将消息写入本地存储后,异步地将消息复制到`ISR`中的 Follower 副本。
+- 生产者可以配置消息发送的确认机制(`acks`)来控制可靠性:
+  - `acks=0`: 生产者不等待任何确认,即发送即忘。
+  - `acks=1`: 生产者等待 Leader 确认消息已写入本地存储。
+  - `acks=all`: 生产者等待 Leader 和所有`ISR`中的 Follower 确认消息已写入本地存储,确保最高的可靠性。
 
 #### 数据一致性
 
@@ -519,16 +514,16 @@ Kafka集群由多个Kafka Broker组成，每个Broker是一个独立的Kafka服�
 #### 副本因子（Replication Factor）
 
 - **定义**：副本因子是指每个分区的副本数量，包括一个Leader和多个Follower。副本因子越高，数据冗余和高可用性越强。
-- **配置**：在创建Topic时，可以配置副本因子。推荐的副本因子至少为3，以确保在单节点故障时仍能保证数据的高可用性。
+- **配置**：在创建Topic时，可以配置副本因子。推荐设置为 3 以上，以确保在单节点故障时仍能保证数据的高可用性。
 
 #### 最小`ISR（min.insync.replicas）`
 
-- **定义**：最小`ISR`是指Producer在`acks=all`配置下，消息写入成功所需的最小ISR数量。
+- **定义**：最小`ISR`是指Producer在`acks=all`配置下，消息写入成功所需的最小`ISR`数量。
 - **作用**：通过配置最小`ISR`，可以控制消息写入的可靠性，确保在一定数量的副本确认后才认为消息写入成功。
 
 ## 数据持久化
 
-Kafka通过将消息写入磁盘中的日志实现持久化。每个分区（Partition）对应一个日志文件（Log），由多个日志段（Log Segment）组成。日志采用顺序追加的方式，保证消息有序，并实现高效IO。通过分段管理和段文件轮转，Kafka增强了可靠性，并通过索引机制实现快速查找。
+Kafka通过将消息写入磁盘中的日志实现持久化。每个分区（Partition）对应一个日志文件（Log），每个日志文件由多个日志段（Log Segment）组成。日志采用顺序追加的方式，保证消息有序，并实现高效IO，通过分段管理和段文件轮转，Kafka增强了可靠性，并通过索引机制实现快速查找。
 
 ### 日志文件（Log）
 
@@ -839,6 +834,7 @@ Kafka Manager 是一个开源的 Kafka 集群管理工具，提供了集群状�
 # 在Kafka的配置文件`server.properties`中，配置副本相关的参数
 default.replication.factor=3  # 默认副本因子
 min.insync.replicas=2  # 最小同步副本数
+# 当 unclean.leader.election.enable=false 时,Kafka 会严格限制 Leader 选举只能从 ISR 集合中选举,这样可以保证新 Leader 的数据完整性,但代价是可能会导致分区长时间无法选举出 Leader,从而无法提供服务。通常在追求数据可靠性较高的场景下,建议将此参数设置为 false。但如果可以接受少量数据丢失,为了提高可用性,也可以将其设置为 true。
 unclean.leader.election.enable=false  # 禁用不干净的Leader选举
 ```
 
