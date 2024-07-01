@@ -1,7 +1,7 @@
 ---
 title: SpringMvc理论
 tag:
-- java
+- springMVC
 ---
 
 # SpringMVC介绍

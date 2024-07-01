@@ -1,7 +1,7 @@
 ---
 title: 基于SpringBoot+SpringSecurity+JWT认证实践
 tag:
-- java
+- springboot
 ---
 
 # 认证流程原理

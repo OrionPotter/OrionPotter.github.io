@@ -1,7 +1,6 @@
 ---
 title: SpringBoot实践
 tag:
-- java
 - springboot
 ---
 

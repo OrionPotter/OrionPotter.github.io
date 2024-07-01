@@ -1,7 +1,7 @@
 ---
 title: Spring理论知识
 tag:
-- java
+- springboot
 ---
 
 # Spring介绍
