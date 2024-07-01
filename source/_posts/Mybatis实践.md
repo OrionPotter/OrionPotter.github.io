@@ -1359,7 +1359,7 @@ MyBatis 提供了两种类型的缓存机制：一级缓存（本地缓存）和
             User user1 = mapper.selectUser(1);
             System.out.println(user1.toString());
 
-            // 第二次查询，MyBatis 会从缓存中获取结果，而不是再次查询数据库
+            // 第二次查询，MyBatis 会从SqlSession缓存中获取结果，而不是再次查询数据库
             User user2 = mapper.selectUser(1);
             System.out.println(user2.toString());
             
@@ -1435,6 +1435,33 @@ public class User implements Serializable {
 - **flushInterval**：刷新间隔，单位是毫秒。
 - **size**：缓存大小，表示可以缓存的对象数目。
 - **readOnly**：只读属性，默认值是 `false`。
+
+#### 示例代码
+
+```java
+@Test
+    public void testCacheLevel2() throws IOException {
+        BuildSqlSessionFactory sqlSessionFactory = new BuildSqlSessionFactory();
+        try (SqlSession sqlSession = sqlSessionFactory.getSqlSessionFactoryByXml().openSession()){
+            UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+            // 第一次查询，结果会被缓存
+            User user1 = mapper.selectUser(1);
+            System.out.println(user1.toString());
+        }
+
+
+        try (SqlSession sqlSession = sqlSessionFactory.getSqlSessionFactoryByXml().openSession()){
+            UserMapper mapper = sqlSession.getMapper(UserMapper.class);
+            // 第二次查询，从缓存中查找数据
+            User user1 = mapper.selectUser(1);
+            System.out.println(user1.toString());
+        }
+    }
+```
+
+
+
+
 
 # 动态 SQL
 
