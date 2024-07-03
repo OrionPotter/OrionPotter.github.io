@@ -213,7 +213,7 @@ public void method() {
 
 ## `volatile`关键字
 
-`volatile` 关键字用于声明变量，确保变量的更新操作对所有线程是可见的,它防止了变量在线程本地缓存中的存储，确保每次读取都是从主内存中读取。
+`volatile` 关键字用于声明变量，确保变量的更新操作对所有线程是可见的,它防止了变量在线程本地缓存中的存储，确保每次读取都是从主内存中读取。也可以禁止指令重排
 
 ```java
 private volatile boolean flag = true;
@@ -276,6 +276,12 @@ ReentrantLock fairLock = new ReentrantLock(true); // 使用公平锁
 - `isLocked()`：查询锁是否被任何线程持有。
 - `getHoldCount()`：查询当前线程持有锁的次数。
 - `isHeldByCurrentThread()`：查询当前线程是否持有锁。
+
+## 悲观锁和乐观锁
+
+悲观锁：共享资源只能被一个线程独享受，有synchronized、ReentrantLock。
+
+乐观锁：共享资源不独享，只有在修改的时候会通过版本号或者cas（比较和交换）算法验证数据是否被其他线程修改，有原子变量类（比如`AtomicInteger`、`LongAdder`）。
 
 ## 死锁及其避免方法
 
@@ -407,48 +413,190 @@ Java并发包中的 `Condition` 接口提供了更灵活的线程通信方式，
 - **使用`wait()`和`notify()`方法实现**：
 
   ```java
-  synchronized (buffer) {
-      while (buffer.isEmpty()) {
-          buffer.wait(); // 等待缓冲区非空
-      }
-      // 消费数据
-      buffer.notify(); // 唤醒生产者
+  public class synchronizedExample {
+  
+          private static final int BUFFER_SIZE = 10; // Buffer size
+          private static final List<Integer> buffer = new ArrayList<>(BUFFER_SIZE); // Shared buffer
+          private static final Object lock = new Object(); // Synchronization lock
+  
+          public static void main(String[] args) {
+              Thread producerThread = new Thread(new Producer());
+              Thread consumerThread = new Thread(new Consumer());
+  
+              producerThread.start();
+              consumerThread.start();
+          }
+  
+          static class Producer implements Runnable {
+  
+              @Override
+              public void run() {
+                  while (true) {
+                      synchronized (lock) {
+                          try {
+                              // Wait if buffer is full
+                              while (buffer.size() == BUFFER_SIZE) {
+                                  lock.wait();
+                              }
+  
+                              // Produce an item and add it to the buffer
+                              int item = (int) (Math.random() * 100);
+                              buffer.add(item);
+                              System.out.println("Produced item: " + item);
+  
+                              // Notify consumer that item is available
+                              lock.notify();
+                          } catch (InterruptedException e) {
+                              e.printStackTrace();
+                          }
+                      }
+                  }
+              }
+          }
+  
+          static class Consumer implements Runnable {
+  
+              @Override
+              public void run() {
+                  while (true) {
+                      synchronized (lock) {
+                          try {
+                              // Wait if buffer is empty
+                              while (buffer.isEmpty()) {
+                                  lock.wait();
+                              }
+  
+                              // Consume an item from the buffer
+                              int item = buffer.remove(0);
+                              System.out.println("Consumed item: " + item);
+  
+                              // Notify producer that space is available
+                              lock.notify();
+                          } catch (InterruptedException e) {
+                              e.printStackTrace();
+                          }
+                      }
+                  }
+              }
+          }
   }
   ```
 
 - **使用`Condition`对象实现**：
 
   ```java
-  private Lock lock = new ReentrantLock();
-  private Condition notEmpty = lock.newCondition();
-  private Condition notFull = lock.newCondition();
+  public class ConditionExample {
   
-  public void consume() throws InterruptedException {
-      lock.lock();
-      try {
-          while (buffer.isEmpty()) {
-              notEmpty.await(); // 等待缓冲区非空
+      private final List<Integer> list;
+      private final int bufferSize;
+      private final Lock lock = new ReentrantLock();
+      Condition produce = lock.newCondition();
+      Condition consumer = lock.newCondition();
+  
+      public ConditionExample(int bufferSize) {
+          this.list = new ArrayList<>();
+          this.bufferSize = bufferSize;
+      }
+  
+      public void put(Integer item) throws Exception {
+          lock.lock();
+          try {
+              while (list.size() == bufferSize) {
+                  produce.await();
+              }
+              list.add(item);
+              consumer.signal();
+          } catch (Exception e) {
+              e.printStackTrace();
+          } finally {
+              lock.unlock();
           }
-          // 消费数据
-          notFull.signal(); // 唤醒生产者
-      } finally {
-          lock.unlock();
+      }
+  
+      public Integer get() throws Exception {
+          lock.lock();
+          try {
+              while (list.isEmpty()) {
+                  consumer.await();
+              }
+              Integer item = list.remove(0);  // Assuming remove(0) returns the first element
+              produce.signal();
+              return item;
+          } catch (Exception e) {
+              e.printStackTrace();
+          } finally {
+              lock.unlock();
+          }
       }
   }
   ```
 
 # 线程池
 
-## 线程池的基本概念和优点
+## 什么是线程池
 
-线程池是一种管理和重复利用线程的机制，它包含若干个工作线程，可以批量执行多个任务。线程池的优点包括：
+线程池是一种管理和重复利用线程的机制，当有任务要处理时，直接从线程池中获取线程来处理，处理完之后线程并不会立即被销毁，而是等待下一个任务。
+
+## 线程池的优点
 
 1. **降低资源消耗**：通过重复利用线程，减少了线程创建和销毁的开销。
 2. **提高响应速度**：任务可以立即执行，无需等待线程创建。
 3. **提高线程的可管理性**：可以限制线程的数量，防止因线程过多导致的资源消耗问题。
 4. **提供更强的任务执行能力**：可以对线程进行统一的管理、调优和监控。
 
-## 使用 `Executors` 创建线程池
+## 创建线程池的方式
+
+**方式一：通过`ThreadPoolExecutor`构造函数来创建（推荐）**
+
+**方式二：通过 `Executor` 框架的工具类 `Executors` 来创建。**
+
+### 使用 `ThreadPoolExecutors` 创建线程池
+
+```java
+public class CustomThreadPoolExample {
+    public static void main(String[] args) {
+        int corePoolSize = 5;// 核心线程数
+        int maxPoolSize = 10;// 最大线程数
+        long keepAliveTime = 5000; //当线程数大于核心线程数时，多余的空闲线程存活的最长时间
+        BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(10); //任务队列，用来储存等待执行任务的队列
+        ThreadFactory threadFactory = Executors.defaultThreadFactory(); //线程工厂，用来创建线程，一般默认即可
+        RejectedExecutionHandler handler = new ThreadPoolExecutor.CallerRunsPolicy(); //拒绝策略，当提交的任务过多而不能及时处理时，我们可以定制策略来处理任务
+
+        // 创建自定义线程池
+        ThreadPoolExecutor customThreadPool = new ThreadPoolExecutor(
+                corePoolSize, maxPoolSize, keepAliveTime, TimeUnit.MILLISECONDS,
+                workQueue, threadFactory, handler);
+
+        // 执行任务
+        for (int i = 0; i < 100; i++) {
+            customThreadPool.execute(() -> System.out.println("Executing task"+ Thread.currentThread()));
+        }
+
+        // 关闭线程池
+        customThreadPool.shutdown();
+    }
+}
+```
+
+**参数介绍：**
+
+- `corePoolSize` : 任务队列未达到队列容量时，最大可以同时运行的线程数量。
+- `maximumPoolSize` : 任务队列中存放的任务达到队列容量的时候，当前可以同时运行的线程数量变为最大线程数。
+- `workQueue`: 新任务来的时候会先判断当前运行的线程数量是否达到核心线程数，如果达到的话，新任务就会被存放在队列中。
+  - 容量为 `Integer.MAX_VALUE` 的 `LinkedBlockingQueue`（无界队列）：`FixedThreadPool` 和 `SingleThreadExector` 。`FixedThreadPool`最多只能创建核心线程数的线程（核心线程数和最大线程数相等），`SingleThreadExector`只能创建一个线程（核心线程数和最大线程数都是 1），二者的任务队列永远不会被放满。
+  - `SynchronousQueue`（同步队列）：`CachedThreadPool` 。`SynchronousQueue` 没有容量，不存储元素，目的是保证对于提交的任务，如果有空闲线程，则使用空闲线程来处理；否则新建一个线程来处理任务。也就是说，`CachedThreadPool` 的最大线程数是 `Integer.MAX_VALUE` ，可以理解为线程数是可以无限扩展的，可能会创建大量线程，从而导致 OOM。
+  - `DelayedWorkQueue`（延迟阻塞队列）：`ScheduledThreadPool` 和 `SingleThreadScheduledExecutor` 。`DelayedWorkQueue` 的内部元素并不是按照放入的时间排序，而是会按照延迟的时间长短对任务进行排序，内部采用的是“堆”的数据结构，可以保证每次出队的任务都是当前队列中执行时间最靠前的。`DelayedWorkQueue` 添加元素满了之后会自动扩容原来容量的 1/2，即永远不会阻塞，最大扩容可达 `Integer.MAX_VALUE`，所以最多只能创建核心线程数的线程。
+
+- `keepAliveTime`:线程池中的线程数量大于 `corePoolSize` 的时候，如果这时没有新的任务提交，核心线程外的线程不会立即销毁，而是会等待，直到等待的时间超过了 `keepAliveTime`才会被回收销毁。
+- `unit` : `keepAliveTime` 参数的时间单位。
+- `threadFactory` :executor 创建新线程的时候会用到。
+- `handler` : 拒绝策略
+  - `ThreadPoolExecutor.AbortPolicy`：抛出 `RejectedExecutionException`来拒绝新任务的处理。
+  - `ThreadPoolExecutor.CallerRunsPolicy`：调用执行自己的线程运行任务，也就是直接在调用`execute`方法的线程中运行(`run`)被拒绝的任务，如果执行程序已关闭，则会丢弃该任务。因此这种策略会降低对于新任务提交速度，影响程序的整体性能。如果你的应用程序可以承受此延迟并且你要求任何一个任务请求都要被执行的话，你可以选择这个策略。
+  - `ThreadPoolExecutor.DiscardPolicy`：不处理新任务，直接丢弃掉。
+  - `ThreadPoolExecutor.DiscardOldestPolicy`：此策略将丢弃最早的未处理的任务请求。
+
+### 使用 `Executors` 创建线程池
 
 Java 提供了 `Executors` 类来创建不同类型的线程池。它是一个工厂类，提供了多种静态方法来创建不同配置的线程池。
 
@@ -485,40 +633,7 @@ public class MultiThread {
 }
 ```
 
-### 线程池的类型
 
-1. **FixedThreadPool**：固定大小的线程池，一旦创建就不会改变大小。适用于负载比较固定的情况。
-2. **CachedThreadPool**：可缓存的线程池，线程数根据需求动态调整。适用于执行很多短期异步任务的情况。
-3. **SingleThreadExecutor**：单线程的线程池，保证所有任务按照指定顺序在单个线程中执行。适用于需要顺序执行任务的场景。
-4. **ScheduledThreadPool**：定时执行任务的线程池，支持定时以及周期性执行任务的需求。
-
-## 自定义线程池的实现和配置
-
-```java
-public class CustomThreadPoolExample {
-    public static void main(String[] args) {
-        int corePoolSize = 5;// 核心线程数
-        int maxPoolSize = 10;// 最大线程数
-        long keepAliveTime = 5000; // 线程空闲时间
-        BlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<>(10); // 任务队列
-        ThreadFactory threadFactory = Executors.defaultThreadFactory(); // 线程工厂
-        RejectedExecutionHandler handler = new ThreadPoolExecutor.CallerRunsPolicy(); // 拒绝策略
-
-        // 创建自定义线程池
-        ThreadPoolExecutor customThreadPool = new ThreadPoolExecutor(
-                corePoolSize, maxPoolSize, keepAliveTime, TimeUnit.MILLISECONDS,
-                workQueue, threadFactory, handler);
-
-        // 执行任务
-        for (int i = 0; i < 100; i++) {
-            customThreadPool.execute(() -> System.out.println("Executing task"+ Thread.currentThread()));
-        }
-
-        // 关闭线程池
-        customThreadPool.shutdown();
-    }
-}
-```
 
 
 
