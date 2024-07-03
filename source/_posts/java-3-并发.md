@@ -319,6 +319,10 @@ public void method() {
 }
 ```
 
+**锁升级的过程**
+
+无锁->偏向锁（有一个线程访问同步代码）->轻量级锁（多个线程访问进行CAS自旋，用户态）->重量级锁（自旋大于10次升级为重量级锁，内核态）
+
 #### `ReentrantLock可重入锁`
 
 `ReentrantLock`（可重入锁），它允许线程在持有锁的情况下能够再次获取同一个锁,具有显式锁定机制，提供了更灵活的锁定操作,它比 `synchronized` 关键字更强大。
@@ -526,6 +530,28 @@ public class AvoidDeadlock {
 3. **提高线程的可管理性**：可以限制线程的数量，防止因线程过多导致的资源消耗问题。
 4. **提供更强的任务执行能力**：可以对线程进行统一的管理、调优和监控。
 
+## 线程池的状态
+
+<img src="https://telegraph-image-2ni.pages.dev/file/185dea93ba62f526dd009.png" style="zoom:50%;" />
+
+
+
+1. **RUNNING（运行）**：线程池处于正常工作状态，能够接受新的任务，并且处理阻塞队列中的任务。
+2. **SHUTDOWN（关闭）**：不再接受新的任务，但是能够处理阻塞队列中已经存在的任务，等待阻塞队列中的任务完成。
+3. **STOP（停止）**：不再接受新的任务，也不处理阻塞队列中的任务，并且会中断正在处理中的任务。
+4. **TIDYING（整理）**：所有任务都已经终止，工作线程数为0，线程池会转换到这个状态来执行一些内部清理工作。
+5. **TERMINATED（终止）**：线程池完全终止，已经执行了terminated()钩子方法。
+
+```java
+private static final int RUNNING    = -1 << COUNT_BITS;
+private static final int SHUTDOWN   =  0 << COUNT_BITS;
+private static final int STOP       =  1 << COUNT_BITS;
+private static final int TIDYING    =  2 << COUNT_BITS;
+private static final int TERMINATED =  3 << COUNT_BITS;
+```
+
+
+
 ## 创建线程池的方式
 
 **方式一：通过`ThreadPoolExecutor`构造函数来创建（推荐）**
@@ -616,6 +642,61 @@ public class MultiThread {
     }
 }
 ```
+
+## 如何启动线程池
+
+### execute方法
+
+```java
+public interface Executor {
+    void execute(Runnable command);
+}
+```
+
+用于提交不需要返回值的任务，适合简单的异步执行。
+
+### submit方法
+
+```java
+public interface ExecutorService extends Executor {
+    <T> Future<T> submit(Callable<T> task);
+    <T> Future<T> submit(Runnable task, T result);
+    Future<?> submit(Runnable task);
+}    
+```
+
+`submit` 方法会返回一个 `Future` 对象，通过 `Future` 对象我们可以获取任务的执行结果，取消任务的执行，或者检查任务是否完成。
+
+如果任务执行过程中抛出了异常，异常会被封装在 `Future` 对象中，并在调用 `get()` 方法时抛出。
+
+## 线程池原理分析
+
+```java
+public void execute(Runnable command) {
+        if (command == null)
+            throw new NullPointerException();
+        int c = ctl.get();
+        if (workerCountOf(c) < corePoolSize) {
+            if (addWorker(command, true))
+                return;
+            c = ctl.get();
+        }
+        if (isRunning(c) && workQueue.offer(command)) {
+            int recheck = ctl.get();
+            if (! isRunning(recheck) && remove(command))
+                reject(command);
+            else if (workerCountOf(recheck) == 0)
+                addWorker(null, false);
+        }
+        else if (!addWorker(command, false))
+            reject(command);
+ }
+```
+
+1. 如果当前运行的线程数小于核心线程数，那么就会新建一个线程来执行任务。
+2. 如果当前运行的线程数等于或大于核心线程数，但是小于最大线程数，那么就把该任务放入到任务队列里等待执行。
+3. 如果向任务队列投放任务失败（任务队列已经满了），但是当前运行的线程数是小于最大线程数的，就新建一个线程来执行任务。
+4. 如果当前运行的线程数已经等同于最大线程数了，新建线程将会使当前运行的线程超出最大线程数，那么当前任务会被拒绝，拒绝策略会调用`RejectedExecutionHandler.rejectedExecution()`方法。
 
 # 高级多线程技术
 
@@ -1379,46 +1460,153 @@ String value = skipListMap.get(2); // 获取键为2的值，返回"Two"
 
 ## 线程安全的设计模式
 
-1. **Immutable对象**：使用`final`关键字声明对象引用和成员变量，确保对象状态不可变。
+### Immutable对象
 
-   ```java
-   public final class ImmutableObject {
-       private final int id;
-       private final String name;
-       
-       public ImmutableObject(int id, String name) {
-           this.id = id;
-           this.name = name;
-       }
-       
-       public int getId() {
-           return id;
-       }
-       
-       public String getName() {
-           return name;
-       }
+使用`final`关键字声明对象引用和成员变量，确保对象状态不可变。
+
+```java
+public final class ImmutableObject {
+    private final int id;
+    private final String name;
+    
+    public ImmutableObject(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+    
+    public int getId() {
+        return id;
+    }
+    
+    public String getName() {
+        return name;
+    }
+}
+```
+
+### ThreadLocal
+
+#### ThreadLocal是什么
+
+`ThreadLocal`是一个线程局部变量，可以让每个线程都有自己的变量副本，不同线程间的变量无法相互访问和修改，避免了线程安全问题。
+
+```java
+public class ThreadLocalExample  {
+    private static final ThreadLocal<Integer> threadLocal = new ThreadLocal<>();
+    
+    public static void main(String[] args) throws InterruptedException {
+        for (int i = 0; i < 10; i++) {
+            int finalI = i;
+            new Thread(()->{
+                threadLocal.set(finalI);
+                System.out.println("当前局部变量值为: "+threadLocal.get());
+            }).start();
+        }
+
+    }
+}
+```
+
+#### ThreadLocal原理解析
+
+ThreadLocal内部使用ThreadLocalMap来存储每个线程的变量副本，最终存到entry中继承WeakReference，其中key是ThreadLocal对象是弱引用，value是设置的值是强引用，ThreadLocalMap是ThreadLocal的静态内部类,每个线程都有自己的ThreadLocalMap。
+
+```java
+public void set(T value) {
+        Thread t = Thread.currentThread();
+        ThreadLocalMap map = getMap(t);
+        if (map != null) {
+            map.set(this, value);
+        } else {
+            createMap(t, value);
    }
-   ```
+}
+```
 
-2. **ThreadLocal**：`ThreadLocal`提供了线程局部变量，每个线程都有自己的变量副本，避免了线程安全问题。
+#### 内存泄漏问题
 
-   ```java
-   public class ThreadLocalExample  {
-       private static final ThreadLocal<Integer> threadLocal = new ThreadLocal<>();
-       
-       public static void main(String[] args) throws InterruptedException {
-           for (int i = 0; i < 10; i++) {
-               int finalI = i;
-               new Thread(()->{
-                   threadLocal.set(finalI);
-                   System.out.println("当前局部变量值为: "+threadLocal.get());
-               }).start();
-           }
-   
-       }
-   }
-   ```
+由于ThreadLocalMap使用ThreadLocal作为key来存储entry,如果ThreadLocal被回收,key变成null,强引用的value无法释放，就会出现内存泄漏。所以ThreadLocal使用完毕后,需要调用remove()方法清除数据,避免出现内存泄漏。
+
+```java
+public void remove() {
+         ThreadLocalMap m = getMap(Thread.currentThread());
+         if (m != null) {
+             m.remove(this);
+         }
+}
+```
+
+```java
+ThreadLocal<String> threadLocal = new ThreadLocal<String>();
+	try {
+    	threadLocal.set("业务数据");
+    	// TODO 其它业务逻辑
+	} finally {
+    	threadLocal.remove();
+	}
+```
+
+#### 使用场景
+
+- 隔离线程，存储一些不安全的工具类，如SimpleDateFormat
+- Spring中的事务管理器
+- SpringMvc中httpSession、HttpRequest、HttpResponse
+
+## Java 内存模型（JMM）
+
+Java 内存模型（Java Memory Model, JMM）定义了多线程程序中变量的访问规则，即一个线程如何与另一个线程通信。JMM 规定了在不同线程之间共享变量时的可见性和有序性。
+
+JMM 的实现是基于happens-before原则的。happens-before 原则定义了两个事件之间的顺序关系，如果一个事件先行于另一个事件，则第一个事件对第二个事件可见。
+
+### 关键概念
+
+1. **可见性**：
+   - 可见性问题是指一个线程对共享变量的修改，另一个线程是否能立即看到。
+   - JMM 通过 `volatile` 关键字、锁（synchronized）、和 final 关键字来保证可见性。
+2. **有序性**：
+   - 有序性问题是指程序执行的顺序是否和代码的顺序一致。
+   - JMM 允许编译器和处理器对指令进行重排序，但会保证重排序不会影响单线程程序的正确性。
+   - `volatile` 关键字和锁也可以用来保证有序性。
+3. **原子性**：
+   - 原子性问题是指一个操作是否是不可分割的，即操作要么全部执行，要么全部不执行。
+   - JMM 保证基本数据类型的读写操作是原子性的，但复合操作（如 i++）不是原子性的。
+
+
+
+## `volatile` 关键字
+
+`volatile` 关键字是 Java 提供的一种轻量级同步机制，用于确保变量的可见性和有序性。
+
+##### 原理
+
+- **可见性**：当一个变量被声明为 `volatile` 时，所有线程对该变量的读写操作都直接从主内存中读取或写入，而不是从线程的本地缓存中读取或写入。
+- **有序性**：`volatile` 变量的读写操作不会被重排序，与 `volatile` 变量的读写操作之间存在内存屏障（Memory Barrier）。
+
+## AQS
+
+AQS（AbstractQueuedSynchronizer）是Java并发编程中用于实现同步锁的抽象类，它提供了统一的锁获取、释放、等待、唤醒等操作。AQS的核心思想是**使用一个原子操作**`state`来表示锁的状态，并使用一个**FIFO队列**来存储等待获取锁的线程。
+
+**AQS关键部分：**
+
+- **state**: 一个volatile的int类型变量，用来表示锁的当前状态。不同的state值代表不同的锁状态，例如0表示锁未被持有，1表示锁被持有，2表示存在等待队列等。
+- **FIFO队列**: 用来存储等待获取锁的线程。AQS使用了一个称为**CLH队列**（Craig、Landin和Hagersten队列）的变体来实现FIFO队列。
+- **tryAcquire**: 尝试获取锁的方法。如果state值为0，则表示锁未被持有，并尝试将其CAS（Compare And Swap）为1，表示获取锁成功。如果state值不为0，则表示锁已被持有，当前线程需要加入FIFO队列等待。
+- **tryRelease**: 释放锁的方法。如果state值为当前线程的持有值，则将其CAS为0，表示释放锁成功。否则，表示当前线程不持有锁，抛出异常。
+- **acquire**: 获取锁的方法。如果tryAcquire成功，则直接返回。如果tryAcquire失败，则当前线程会加入FIFO队列并等待。当锁被释放时，会唤醒FIFO队列中的第一个线程尝试获取锁。
+- **release**: 释放锁的方法。与tryRelease类似，但会唤醒FIFO队列中的下一个等待线程。
+
+**AQS类型的锁**
+
+- **独占锁**: 只有一个线程可以持有锁。例如ReentrantLock。
+- **共享锁**: 多个线程可以同时持有锁，但需要遵守特定的规则。例如ReentrantReadWriteLock。
+- **公平锁**: 按照线程进入队列的顺序分配锁。
+- **非公平锁**: 不按照线程进入队列的顺序分配锁，可能存在先到后得的情况。
+
+**AQS优点：**
+
+- **可扩展性**: AQS的代码结构清晰，易于扩展。
+- **灵活性**: AQS可以支持多种类型的锁，满足不同的同步需求。
+- **效率**: AQS采用了CAS操作和FIFO队列等技术，提高了锁的获取和释放效率。
 
 ## 线程分析工具
 
