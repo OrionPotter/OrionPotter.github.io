@@ -96,8 +96,6 @@ public class ImplementsCallable implements Callable<String> {
 
 ## 线程的生命周期
 
-线程的生命周期可以分为以下五个状态：新建、就绪、运行、阻塞和终止。每个状态之间的转换由线程的行为和调度器的行为决定。
-
 **新建状态(New):** 线程对象被创建时的初始状态，还未调用`start()`方法启动线程。
 
 **就绪 (Runnable):** 当调用线程对象的`start()`方法后，线程进入就绪状态。就绪状态的线程已经具备了运行的条件，等待CPU调度执行。
@@ -124,7 +122,7 @@ thread.start();
 
 ## 线程的命名
 
-在Java中，可以通过两种方式来命名线程：使用构造函数或者设置名称属性。
+通过两种方式来命名线程：使用构造函数或者设置名称属性。
 
 ### 构造函数
 
@@ -187,7 +185,7 @@ public void method() {
 
 `synchronized` 关键字可以用来修饰方法或代码块，以确保同一时间只有一个线程可以执行这些代码。
 
-#### 修饰实例方法
+### 修饰实例方法
 
 ```java
 public synchronized void instanceMethod() {
@@ -195,7 +193,7 @@ public synchronized void instanceMethod() {
 }
 ```
 
-#### 修饰静态方法
+### 修饰静态方法
 
 ```java
 public static synchronized void staticMethod() {
@@ -203,7 +201,7 @@ public static synchronized void staticMethod() {
 }
 ```
 
-#### 修饰代码块
+### 修饰代码块
 
 ```java
 public void method() {
@@ -526,7 +524,7 @@ public class CustomThreadPoolExample {
 
 # 高级多线程技术
 
-### 1. Future 和 Callable 接口
+## Future 和 Callable 接口
 
 - **Callable 接口**：`java.util.concurrent.Callable` 是一个泛型接口，类似于 `Runnable`，但是可以返回一个结果或抛出一个异常。它的 `call()` 方法可以在执行时返回结果。
 
@@ -577,7 +575,78 @@ public class CustomThreadPoolExample {
   }
   ```
 
-### 2. CompletionService 的使用
+## CompletableFuture接口
+
+CompletableFuture 是 Java 8 中引入的一种用于异步编程的类。它扩展了 Future 接口，提供了许多新的特性，使得异步编程更加方便、灵活。
+
+### CompletableFuture用途
+
+**创建异步任务**
+
+- `supplyAsync(Supplier<? extends T> supplier)`：创建一个异步任务，该任务将在 ForkJoinPool 中异步执行，并返回由指定的 `Supplier` 提供的计算结果。
+- `runAsync(Runnable runnable)`：创建一个异步任务，该任务将在 ForkJoinPool 中异步执行，但不返回任何结果。
+
+**组合异步任务**
+
+- `thenCombine(CompletableFuture<U> other, BiFunction<? super T, ? super U, ? extends V> combiner)`：将当前 CompletableFuture 与另一个 CompletableFuture 组合起来，并使用指定的 `BiFunction` 函数组合两个 CompletableFuture 的结果。
+- `thenCompose(Function<? super T, ? extends CompletableFuture<? extends V>> finisher)`：将当前 CompletableFuture 的结果转换为另一个 CompletableFuture，并使用指定的 `Function` 函数启动另一个异步任务。
+- `allOf(CompletableFuture<?>... futures)`：创建一个新的 CompletableFuture，该 CompletableFuture 将在所有指定的 CompletableFuture 都完成后完成。
+- `anyOf(CompletableFuture<?>... futures)`：创建一个新的 CompletableFuture，该 CompletableFuture 将在任何一个指定的 CompletableFuture 完成后完成。
+
+**处理异步任务结果**
+
+- `thenAcceptAsync(Consumer<? super T> action)`：对当前 CompletableFuture 的结果执行指定的 `Consumer` 函数，但不返回任何结果。
+- `thenApplyAsync(Function<? super T, ? extends V> function)`：对当前 CompletableFuture 的结果应用指定的 `Function` 函数，并返回函数的返回值。
+- `thenAcceptBothAsync(CompletableFuture<?> other, BiConsumer<? super T, ? super U> action)`：对当前 CompletableFuture 和另一个 CompletableFuture 的结果执行指定的 `BiConsumer` 函数，但不返回任何结果。
+- `thenCombineAsync(CompletableFuture<?> other, BiFunction<? super T, ? super U, ? extends V> combiner)`：将当前 CompletableFuture 与另一个 CompletableFuture 组合起来，并使用指定的 `BiFunction` 函数组合两个 CompletableFuture 的结果，但返回函数的返回值。
+
+**管理异常**
+
+- `exceptionally(Function<Throwable, ? extends T> function)`：为当前 CompletableFuture 指定异常处理程序。如果 CompletableFuture 执行过程中发生异常，则异常处理程序将被调用，并使用异常作为参数。
+- `handleAsync(BiFunction<? super T, ? super Throwable, ? extends V> function)`：为当前 CompletableFuture 指定异步异常处理程序。如果 CompletableFuture 执行过程中发生异常，则异步异常处理程序将被调用，并使用结果作为参数。
+
+**CompletableFuture优点**
+
+- **易于使用**：CompletableFuture 提供了直观易用的 API，可以轻松地启动、组合和管理异步任务。
+- **功能强大**：CompletableFuture 提供了丰富的功能，可以满足各种异步编程需求。
+- **可扩展性强**：CompletableFuture 可以与其他异步编程框架配合使用，例如 Spring 异步编程框架。
+
+**CompletableFuture的应用场景**
+
+- **网络编程**：CompletableFuture 可以用于异步地发送和接收网络请求。
+- **I/O 操作**：CompletableFuture 可以用于异步地进行文件读写等 I/O 操作。
+- **高并发编程**：CompletableFuture 可以用于提高并发程序的性能。
+
+```java
+public class CompletableFutureExample {
+        public static void main(String[] args) throws Exception {
+            int a = 10;
+            int b = 12;
+            
+			//创建有返回值的异步任务
+            CompletableFuture<Integer> future1 = CompletableFuture.supplyAsync(() -> count(a));
+            CompletableFuture<Integer> future2 = CompletableFuture.supplyAsync(() -> count(b));
+
+            //合并两个异步任务的结果
+            CompletableFuture<String> combinedFuture = future1.thenCombine(future2, (result1, result2) -> {
+                return result1 + "\n\n" + result2;
+            });
+
+            //输出合并后的结果
+            combinedFuture.thenAcceptAsync(result -> System.out.println(result));
+        }
+
+        private static int count(int  a) {
+            try {
+                return a;
+            } catch (Exception e) {
+                throw new RuntimeException("failed count");
+            }
+        }
+}
+```
+
+## CompletionService 的使用
 
 `CompletionService` 接口用于管理一组异步任务的执行，并提供一种方法来获取这些任务的结果。
 
@@ -611,7 +680,7 @@ public class CompletionServiceExample {
 
 
 
-### 3. 并发集合
+## 并发集合
 
 **ConcurrentHashMap**
 
@@ -647,7 +716,7 @@ public class CopyOnWriteArrayListExample {
 }
 ```
 
-### 4. Fork/Join 框架
+## Fork/Join 框架
 
 `java.util.concurrent.ForkJoinPool` 和 `java.util.concurrent.RecursiveTask` / `RecursiveAction` 组成了 Fork/Join 框架，用于处理可以被分解为更小任务并行执行的任务集合。它适用于分治算法，提供了更高效的并行处理能力。
 
@@ -683,7 +752,7 @@ public class FibonacciTask extends RecursiveTask<Integer> {
 }
 ```
 
-### 5. 并行流（Parallel Streams）
+## 并行流（Parallel Streams）
 
 Java 8 引入了并行流（Parallel Streams），可以通过流的 `parallel()` 方法将顺序流转换为并行流，以便在多核处理器上并行执行操作。它利用 Fork/Join 框架来实现并行化的操作，简化了编写并行代码的过程。
 
@@ -699,7 +768,7 @@ list.parallelStream().forEach(System.out::println);
 
 # 多线程工具类
 
-### 1. CountDownLatch
+## CountDownLatch
 
 **作用：** CountDownLatch是一个同步工具类，它允许一个或多个线程等待其他线程完成操作。
 
@@ -744,7 +813,7 @@ public class CountDownLatchExample {
 }
 ```
 
-### 2. CyclicBarrier
+## CyclicBarrier
 
 **作用：** CyclicBarrier也是用来同步多个线程的工具类，它允许一组线程互相等待，直到所有线程都到达某个公共屏障点。
 
@@ -787,7 +856,7 @@ public class CyclicBarrierExample {
 }
 ```
 
-### 3. Semaphore
+## Semaphore
 
 **作用：** Semaphore是用来控制同时访问特定资源的线程数量，它维护了一组许可证。
 
@@ -827,7 +896,7 @@ public class SemaphoreExample {
 }
 ```
 
-### 4. Exchanger
+## Exchanger
 
 **作用：** Exchanger是一个用于两个线程之间交换数据的同步工具类。
 
@@ -1012,7 +1081,7 @@ public class AtomicBooleanExample {
 
 # 性能调优和最佳实践
 
-### 常见的性能问题和调优技巧
+## 常见的性能问题和调优技巧
 
 1. **内存泄漏**：
    - 使用内存分析工具（如Eclipse Memory Analyzer）来检测内存泄漏，查看对象引用链。
@@ -1028,7 +1097,7 @@ public class AtomicBooleanExample {
    - 使用批量更新和批量插入来减少数据库交互次数。
    - 缓存频繁访问的数据，减少对数据库的压力。
 
-### 线程安全的设计模式
+## 线程安全的设计模式
 
 1. **Immutable对象**：使用`final`关键字声明对象引用和成员变量，确保对象状态不可变。
 
@@ -1062,7 +1131,7 @@ public class AtomicBooleanExample {
    }
    ```
 
-### 使用Java VisualVM和其他工具进行线程分析
+## 使用Java VisualVM和其他工具进行线程分析
 
 1. **Java VisualVM**：
    - Java VisualVM是一个集成的、基于图形界面的分析工具，可以用来监视Java应用程序的性能和内存使用情况。
