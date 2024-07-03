@@ -12,6 +12,11 @@ tag:
 
 **进程**：进程是操作系统分配资源和调度执行的基本单位，它包含了一个或多个线程，一个应用程序启动相当于起了一个进程。
 
+## 并行与并发的区别
+
+- **并发**：两个及两个以上的作业在同一 **时间段** 内执行。
+- **并行**：两个及两个以上的作业在同一 **时刻** 执行。
+
 ## 多线程的优缺点
 
 ### 多线程的优点
@@ -34,6 +39,20 @@ tag:
 - 实现`Callable`接口和使用`Future`
 
 # 线程的基本操作
+
+## 线程的生命周期
+
+**新建状态(New):** 线程对象被创建时的初始状态，还未调用`start()`方法启动线程。
+
+**就绪 (Runnable):** 当调用线程对象的`start()`方法后，线程进入就绪状态。就绪状态的线程已经具备了运行的条件，等待CPU调度执行。
+
+**阻塞 (Blocked):**  线程被阻塞，等待获取一个监视器锁，以进入同步块或方法，或者在调用`Object.wait()`后重新进入同步块或方法。
+
+**WAITING（等待）:** 线程因为调用了`Object.wait()`、`Thread.join()`或`LockSupport.park()`等方法，而进入等待状态，等待其他线程执行特定操作。
+
+**TIMED_WAITING（定时等待):** 线程因为调用了带有超时参数的等待方法，如`Thread.sleep()`、`Object.wait(long)`、`Thread.join(long)`等，而进入定时等待状态。
+
+**终止 (Terminated):** 线程执行完毕或者因为未捕获的异常退出，进入终止状态。
 
 ## 创建和启动线程
 
@@ -94,20 +113,6 @@ public class ImplementsCallable implements Callable<String> {
 }
 ```
 
-## 线程的生命周期
-
-**新建状态(New):** 线程对象被创建时的初始状态，还未调用`start()`方法启动线程。
-
-**就绪 (Runnable):** 当调用线程对象的`start()`方法后，线程进入就绪状态。就绪状态的线程已经具备了运行的条件，等待CPU调度执行。
-
-**阻塞 (Blocked):**  线程被阻塞，等待获取一个监视器锁，以进入同步块或方法，或者在调用`Object.wait()`后重新进入同步块或方法。
-
-**WAITING（等待）:** 线程因为调用了`Object.wait()`、`Thread.join()`或`LockSupport.park()`等方法，而进入等待状态，等待其他线程执行特定操作。
-
-**TIMED_WAITING（定时等待):** 线程因为调用了带有超时参数的等待方法，如`Thread.sleep()`、`Object.wait(long)`、`Thread.join(long)`等，而进入定时等待状态。
-
-**终止 (Terminated):** 线程执行完毕或者因为未捕获的异常退出，进入终止状态。
-
 ## 线程的优先级设置
 
 线程的优先级可以通过 `setPriority()` 方法来设置。线程的优先级范围通常是从1到10，其中1是最低优先级，10是最高优先级，默认优先级是5,线程调度器会尽可能地按照线程的优先级来调度执行。
@@ -116,6 +121,7 @@ public class ImplementsCallable implements Callable<String> {
 ExtendThread thread = new ExtendThread();
 thread.setPriority(10);
 thread.start();
+thread.getPriority();//获取优先级
 ```
 
 >通过合理设置线程的优先级，可以在一定程度上影响线程的调度顺序，但应注意它的实际影响可能因环境而异。
@@ -138,54 +144,156 @@ thread.setName("thread name");
 thread.start();
 ```
 
+### 获取线程名称
+
+```java
+thread.getName()：获取线程的名称。
+```
+
+## 线程睡眠
+
+```java
+Thread.sleep(long millis);//让当前正在执行的线程休眠指定的毫秒数。
+```
+
+## 线程中断
+
+```java
+thread.interrupt();中断线程，设置线程的中断状态为true。
+Thread.isInterrupted();判断线程是否被中断，返回一个boolean值。
+Thread.interrupted();静态方法，测试当前线程是否被中断，并清除中断状态。
+```
+
+## 线程同步
+
+```java
+thread.join();//等待该线程终止。
+thread.join(long millis);//等待该线程终止的最长时间为millis毫秒。
+Thread.yield();//暂停当前正在执行的线程对象，并执行其他线程。
+```
+
+## 等待/通知机制
+
+```java
+thread.wait();//导致当前线程等待，直到另一个线程调用该对象的notify()或notifyAll()方法来唤醒线程。
+thread.notify();//唤醒在对象上等待的单个线程，如果有多个线程在等待，则由线程调度器决定唤醒哪一个线程。
+thread.notifyAll();//唤醒在当前对象上等待的所有线程。
+```
+
 
 
 # 线程同步
 
-## 为什么需要线程同步
+## 什么是线程同步？
 
-线程同步是为了防止多个线程同时访问共享资源时产生不一致的数据或状态。没有同步机制的话，可能会出现以下问题：
+线程同步是指多个线程对共享资源进行访问时，按照一定顺序进行操作，以避免由于竞争而导致数据不一致或程序崩溃的一种机制。简单来说，线程同步就是“排队”，让多个线程一个接一个地访问共享资源，避免同时操作导致混乱。
 
-- **数据竞争**：多个线程同时修改同一个变量，导致数据不一致。
-- **死锁**：多个线程相互等待对方释放资源，导致程序无法继续执行。
-- **饥饿**：某些线程长时间得不到资源，导致无法执行。
+## 同步机制目的
 
-## 同步机制
+线程同步的主要目的是保证多线程环境下共享数据的一致性和程序的正确性。
 
-两种主要的同步机制：同步方法和同步块。
+**具体来说，线程同步可以防止以下问题：**
 
-### 同步方法
+- **竞态条件: 由于多个线程同时修改共享数据，导致数据值不一致。**
+- **死锁: 两个或多个线程相互等待资源，导致任何线程都无法继续执行。**
+- **活锁: 两个或多个线程陷入循环等待，导致程序一直处于忙碌状态，但无法取得实际进展。**
 
-同步方法是指在方法声明中使用 `synchronized` 关键字。一个同步方法在同一时间只能被一个线程访问。
+## 同步机制的分类
 
-```java
-public synchronized void synchronizedMethod() {
-    // 线程安全的代码
-}
-```
+### 互斥同步
 
-### 同步块
+互斥同步是指在同一时刻，只能有一个线程访问共享资源。其他试图访问共享资源的线程必须等待，直到当前线程释放资源后才能继续。
 
-同步块是指在方法内部使用 `synchronized` 关键字来同步某一块代码。同步块可以减少同步的范围，从而提高性能。
+互斥同步的常见实现方式是使用互斥锁（mutex）。互斥锁是一种二进制信号量，其值只能为 0 或 1。当一个线程获得互斥锁时，其值变为 1，表示该线程正在访问共享资源；其他线程试图获得互斥锁时，其值将保持为 1，导致其他线程阻塞，直到当前线程释放互斥锁，其值变为 0，其他线程才能继续尝试获取。
 
-```java
-public void method() {
-    synchronized(this) {
-        // 线程安全的代码
-    }
-}
-```
+### 信号量同步
 
-### 使用场景
+信号量同步是一种更通用的同步机制，它允许多个线程同时访问共享资源，但必须遵循一定的规则。
 
-- **同步方法**适合于整个方法都需要加锁的情况，使用简单，但可能会降低性能，因为整个方法被锁住时其他线程无法访问。
-- **同步代码块**适合于只需部分代码需要加锁的情况，可以精确控制加锁的范围，可以提高程序的并发性能，避免不必要的阻塞。
+信号量使用一个整型计数器来表示可用的资源数量。当一个线程试图访问共享资源时，先需要获取信号量。如果计数器大于 0，则表示有可用的资源，计数器减 1，该线程获得资源；如果计数器等于 0，则表示没有可用的资源，该线程必须等待，直到其他线程释放资源，计数器加 1，该线程才能继续尝试获取。
 
-## `synchronized`关键字
+### 条件变量同步
+
+条件变量是一种基于互斥锁的同步机制，它允许多个线程等待特定条件的发生。
+
+条件变量通常与互斥锁一起使用，用于控制多个线程对共享资源的访问顺序。例如，生产者-消费者模式中，生产者线程负责生产数据并放入缓冲区，消费者线程负责从缓冲区中取出数据。为了避免生产者和消费者线程同时访问缓冲区，可以使用条件变量来控制生产者和消费者线程的访问顺序。
+
+### 读写锁
+
+读写锁是一种特殊的互斥锁，它允许多个线程同时读取共享资源，但只能有一个线程写入共享资源。
+
+读写锁提高了多线程环境下读取共享资源的效率，因为多个线程可以同时读取共享资源，而不需要像互斥锁那样排队等待。
+
+### 同步机制的选择
+
+- 如果只需要保证一个线程独占访问共享资源，可以使用互斥锁。
+- 如果需要控制多个线程访问共享资源的数量，可以使用信号量。
+- 如果需要等待特定条件发生，可以使用条件变量。
+- 如果需要提高读取共享资源的效率，可以使用读写锁。
+
+# 线程安全
+
+## 什么是线程安全？
+
+线程安全是指一个对象在多个线程同时访问的情况下，能够保持其状态的一致性和行为的正确性。简单来说，线程安全就是“不怕多线程”，多个线程可以放心地访问同一个对象
+
+## 线程安全问题
+
+### 竞态条件
+
+竞态条件是指多个线程对共享数据进行操作时，由于操作的顺序不同，导致最终结果不一致的一种情况。
+
+**例如：**
+
+假设有一个银行账户，有两个线程要分别从该账户中提取 100 元。如果代码没有采取任何同步措施，那么就有可能出现以下情况：
+
+- 线程 1 首先检查账户余额为 1000 元，然后开始取款操作。
+- 在线程 1 取款操作的过程中，线程 2 也检查账户余额为 1000 元，并开始取款操作。
+- 最终，两个线程都成功取走了 100 元，导致账户余额变为 800 元，而不是预期的 900 元。
+
+### 死锁
+
+死锁是指两个或多个线程相互等待资源，导致任何线程都无法继续执行的一种情况。
+
+**例如：**
+
+假设有两个线程，线程 1 需要获取资源 A 和资源 B，线程 2 需要获取资源 B 和资源 A。如果代码没有采取任何同步措施，那么就有可能出现死锁：
+
+- 线程 1 先获取了资源 A，然后试图获取资源 B。
+- 线程 2 先获取了资源 B，然后试图获取资源 A。
+- 最终，两个线程都处于等待状态，无法继续执行。
+
+### 活锁
+
+活锁是指两个或多个线程陷入循环等待，导致程序一直处于忙碌状态，但无法取得实际进展的一种情况。
+
+**例如：**
+
+假设有两个线程，线程 1 需要获取资源 A 和资源 B，线程 2 需要获取资源 B 和资源 A。如果代码没有采取任何同步措施，那么就有可能出现活锁：
+
+- 线程 1 先释放资源 A，然后试图获取资源 B。
+- 线程 2 先释放资源 B，然后试图获取资源 A。
+- 两个线程不断地释放和获取资源，但始终无法同时获取到所需的两个资源，导致程序一直处于忙碌状态。
+
+## 线程安全的设计原则
+
++ 避免共享数据：如果可以，尽量避免多个线程共享数据。这样可以从根本上消除线程安全问题的可能性。
+
++ 使用同步机制保护共享数据：如果必须共享数据，则必须使用合适的同步机制来保护共享数据。
+
++ 使用不可变对象：如果可以，尽量使用不可变对象。不可变对象一旦创建就不能被修改，因此线程安全。
+
++ 打破依赖关系：如果可以，尽量打破线程之间的依赖关系。这样可以减少线程之间同步的需求。
+
+## 线程安全方法
+
+### 互斥锁
+
+#### `synchronized`关键字
 
 `synchronized` 关键字可以用来修饰方法或代码块，以确保同一时间只有一个线程可以执行这些代码。
 
-### 修饰实例方法
+**1. 同步方法**
 
 ```java
 public synchronized void instanceMethod() {
@@ -193,7 +301,7 @@ public synchronized void instanceMethod() {
 }
 ```
 
-### 修饰静态方法
+**2. 同步静态方法**
 
 ```java
 public static synchronized void staticMethod() {
@@ -201,7 +309,7 @@ public static synchronized void staticMethod() {
 }
 ```
 
-### 修饰代码块
+**3. 同步代码块**
 
 ```java
 public void method() {
@@ -211,19 +319,11 @@ public void method() {
 }
 ```
 
-## `volatile`关键字
-
-`volatile` 关键字用于声明变量，确保变量的更新操作对所有线程是可见的,它防止了变量在线程本地缓存中的存储，确保每次读取都是从主内存中读取。也可以禁止指令重排
-
-```java
-private volatile boolean flag = true;
-```
-
-## `ReentrantLock`
+#### `ReentrantLock可重入锁`
 
 `ReentrantLock`（可重入锁），它允许线程在持有锁的情况下能够再次获取同一个锁,具有显式锁定机制，提供了更灵活的锁定操作,它比 `synchronized` 关键字更强大。
 
-**创建 ReentrantLock 对象：**
+**创建ReentrantLock对象**
 
 ```java
 ReentrantLock lock = new ReentrantLock();
@@ -277,40 +377,108 @@ ReentrantLock fairLock = new ReentrantLock(true); // 使用公平锁
 - `getHoldCount()`：查询当前线程持有锁的次数。
 - `isHeldByCurrentThread()`：查询当前线程是否持有锁。
 
-## 悲观锁和乐观锁
+### 信号量同步
 
-悲观锁：共享资源只能被一个线程独享受，有synchronized、ReentrantLock。
-
-乐观锁：共享资源不独享，只有在修改的时候会通过版本号或者cas（比较和交换）算法验证数据是否被其他线程修改，有原子变量类（比如`AtomicInteger`、`LongAdder`）。
-
-## 死锁及其避免方法
-
-死锁是指两个或多个线程相互等待对方释放资源，导致程序无法继续执行。
-
-### 死锁示例
+信号量同步用于控制共享资源的数量。它允许多个线程同时访问共享资源，但必须遵循一定的规则。
 
 ```java
-public class Deadlock {
-    private final Object lock1 = new Object();
-    private final Object lock2 = new Object();
+public class Buffer {
+    private Semaphore semaphore = new Semaphore(10); // 限制资源数量为 10
 
-    public void method1() {
-        synchronized(lock1) {
-            synchronized(lock2) {
-                // 线程安全的代码
-            }
+    public void put(Object item) throws InterruptedException {
+        semaphore.acquire(); // 获取许可
+        try {
+            // 将 item 放入缓冲区
+        } finally {
+            semaphore.release(); // 释放许可
         }
     }
 
-    public void method2() {
-        synchronized(lock2) {
-            synchronized(lock1) {
-                // 线程安全的代码
-            }
+    public Object take() throws InterruptedException {
+        semaphore.acquire(); // 获取许可
+        try {
+            // 从缓冲区中取出一个 item
+        } finally {
+            semaphore.release(); // 释放许可
         }
     }
 }
 ```
+
+### 条件变量同步
+
+条件变量同步是一种基于互斥锁的同步机制，它允许多个线程等待特定条件发生。通常与 `Lock` 接口一起使用。
+
+```
+public class ProducerConsumer {
+    private Queue<Object> queue = new LinkedList<>();
+    private Condition notEmptyCondition = lock.newCondition();
+    private Condition notFullCondition = lock.newCondition();
+
+    public void produce(Object item) throws InterruptedException {
+        lock.lock();
+        try {
+            while (queue.size() == MAX_SIZE) {
+                notFullCondition.await(); // 等待缓冲区不满
+            }
+            queue.offer(item); // 将 item 放入缓冲区
+            notEmptyCondition.signal(); // 通知消费者可以消费
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public Object consume() throws InterruptedException {
+        lock.lock();
+        try {
+            while (queue.isEmpty()) {
+                notEmptyCondition.await(); // 等待缓冲区非空
+            }
+            Object item = queue.poll(); // 从缓冲区中取出一个 item
+            notFullCondition.signal(); // 通知生产者可以生产
+            return item;
+        } finally {
+            lock.unlock();
+        }
+    }
+}
+
+```
+
+### 读写锁
+
+主要有两个锁：读锁和写锁。通过维护一个计数器来追踪读锁和写锁的持有情况，读操作之间可以共享读锁，写操作必须独占写锁，适合读多写少的场景，可以提升并发性能。
+
+```java
+public class Cache<K, V> {
+    private final Map<K, V> cacheMap = new HashMap<>();
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+
+    public V get(K key) {
+        lock.readLock().lock(); // 获取读锁
+        try {
+            return cacheMap.get(key);
+        } finally {
+            lock.readLock().unlock(); // 释放读锁
+        }
+    }
+
+    public void put(K key, V value) {
+        lock.writeLock().lock(); // 获取写锁
+        try {
+            cacheMap.put(key, value);
+        } finally {
+            lock.writeLock().unlock(); // 释放写锁
+        }
+    }
+}
+```
+
+## 悲观锁和乐观锁
+
+悲观锁：共享资源只能被一个线程独享受，有synchronized、ReentrantLock。
+
+乐观锁：共享资源不独享，只有在修改的时候会通过版本号或者cas（比较和交换）算法验证数据是否被其他线程修改，有原子变量类。
 
 ### 避免死锁的方法
 
@@ -345,192 +513,6 @@ public class AvoidDeadlock {
 }
 ```
 
-# 线程间通信
-
-
-
-## `wait()`、`notify()`和`notifyAll()`方法
-
-**`wait()`方法**：使当前线程进入等待状态，同时释放对象锁。
-
-```java
-synchronized (obj) {
-    while (condition) {
-        obj.wait(); // 等待，并释放obj的锁
-    }
-    // 执行需要同步的操作
-}
-```
-
-**`notify()`方法**：唤醒在对象上等待的单个线程，如果有多个线程在等待，则由线程调度器决定唤醒哪一个线程。
-
-```java
-synchronized (obj) {
-    // 修改条件
-    obj.notify(); // 唤醒在obj上等待的一个线程
-}
-```
-
-**`notifyAll()`方法**：唤醒在对象上等待的所有线程。
-
-```java
-synchronized (obj) {
-    // 修改条件
-    obj.notifyAll(); // 唤醒在obj上等待的所有线程
-}
-```
-
-## 使用`Condition`对象进行线程通信
-
-Java并发包中的 `Condition` 接口提供了更灵活的线程通信方式，通常与 `Lock` 接口一起使用。
-
-- **创建Condition对象**：
-
-  ```
-  ReentrantLock lock = new ReentrantLock();
-  Condition condition = lock.newCondition();
-  ```
-
-- **使用`await()`和`signal()`方法**：
-
-  ```java
-  lock.lock();
-  try {
-      while (condition) {
-          condition.await(); // 等待条件满足
-      }
-      // 执行需要同步的操作
-      condition.signal(); // 唤醒一个等待的线程
-  } finally {
-      lock.unlock();
-  }
-  ```
-
-## 生产者-消费者问题的解决方案
-
-生产者-消费者问题是一个经典的并发问题，涉及到一个共享的有限缓冲区，生产者向缓冲区存放数据，消费者从缓冲区取出数据。
-
-- **使用`wait()`和`notify()`方法实现**：
-
-  ```java
-  public class synchronizedExample {
-  
-          private static final int BUFFER_SIZE = 10; // Buffer size
-          private static final List<Integer> buffer = new ArrayList<>(BUFFER_SIZE); // Shared buffer
-          private static final Object lock = new Object(); // Synchronization lock
-  
-          public static void main(String[] args) {
-              Thread producerThread = new Thread(new Producer());
-              Thread consumerThread = new Thread(new Consumer());
-  
-              producerThread.start();
-              consumerThread.start();
-          }
-  
-          static class Producer implements Runnable {
-  
-              @Override
-              public void run() {
-                  while (true) {
-                      synchronized (lock) {
-                          try {
-                              // Wait if buffer is full
-                              while (buffer.size() == BUFFER_SIZE) {
-                                  lock.wait();
-                              }
-  
-                              // Produce an item and add it to the buffer
-                              int item = (int) (Math.random() * 100);
-                              buffer.add(item);
-                              System.out.println("Produced item: " + item);
-  
-                              // Notify consumer that item is available
-                              lock.notify();
-                          } catch (InterruptedException e) {
-                              e.printStackTrace();
-                          }
-                      }
-                  }
-              }
-          }
-  
-          static class Consumer implements Runnable {
-  
-              @Override
-              public void run() {
-                  while (true) {
-                      synchronized (lock) {
-                          try {
-                              // Wait if buffer is empty
-                              while (buffer.isEmpty()) {
-                                  lock.wait();
-                              }
-  
-                              // Consume an item from the buffer
-                              int item = buffer.remove(0);
-                              System.out.println("Consumed item: " + item);
-  
-                              // Notify producer that space is available
-                              lock.notify();
-                          } catch (InterruptedException e) {
-                              e.printStackTrace();
-                          }
-                      }
-                  }
-              }
-          }
-  }
-  ```
-
-- **使用`Condition`对象实现**：
-
-  ```java
-  public class ConditionExample {
-  
-      private final List<Integer> list;
-      private final int bufferSize;
-      private final Lock lock = new ReentrantLock();
-      Condition produce = lock.newCondition();
-      Condition consumer = lock.newCondition();
-  
-      public ConditionExample(int bufferSize) {
-          this.list = new ArrayList<>();
-          this.bufferSize = bufferSize;
-      }
-  
-      public void put(Integer item) throws Exception {
-          lock.lock();
-          try {
-              while (list.size() == bufferSize) {
-                  produce.await();
-              }
-              list.add(item);
-              consumer.signal();
-          } catch (Exception e) {
-              e.printStackTrace();
-          } finally {
-              lock.unlock();
-          }
-      }
-  
-      public Integer get() throws Exception {
-          lock.lock();
-          try {
-              while (list.isEmpty()) {
-                  consumer.await();
-              }
-              Integer item = list.remove(0);  // Assuming remove(0) returns the first element
-              produce.signal();
-              return item;
-          } catch (Exception e) {
-              e.printStackTrace();
-          } finally {
-              lock.unlock();
-          }
-      }
-  }
-  ```
-
 # 线程池
 
 ## 什么是线程池
@@ -551,6 +533,8 @@ Java并发包中的 `Condition` 接口提供了更灵活的线程通信方式，
 **方式二：通过 `Executor` 框架的工具类 `Executors` 来创建。**
 
 ### 使用 `ThreadPoolExecutors` 创建线程池
+
+线程池必须手动通过 `ThreadPoolExecutor` 的构造函数来声明，避免使用`Executors` 类创建线程池，会有OOM风险,**使用有界队列，控制线程创建数量。**显示地给我们的线程池命名，这样有助于我们定位问题。
 
 ```java
 public class CustomThreadPoolExample {
@@ -632,10 +616,6 @@ public class MultiThread {
     }
 }
 ```
-
-
-
-
 
 # 高级多线程技术
 
@@ -793,44 +773,6 @@ public class CompletionServiceExample {
 }
 ```
 
-
-
-## 并发集合
-
-**ConcurrentHashMap**
-
-`java.util.concurrent.ConcurrentHashMap` 是线程安全的哈希表实现，比 `Hashtable` 和同步的 `HashMap` 更高效，支持高并发的读写操作。
-
-```java
-public class ConcurrentHashMapExample {
-    public static void main(String[] args) {
-        ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
-        map.put("key1", 1);
-        map.put("key2", 2);
-
-        map.forEach((key, value) -> System.out.println(key + ": " + value));
-    }
-}
-```
-
-**CopyOnWriteArrayList**
-
-`java.util.concurrent.CopyOnWriteArrayList` 是线程安全的动态数组，适用于读多写少的场景。每次写操作（添加、修改和移除）都会创建一个新的复制数组，因此适合在迭代操作频繁且数据量不大的情况下使用。
-
-```java
-public class CopyOnWriteArrayListExample {
-    public static void main(String[] args) {
-        List<String> list = new CopyOnWriteArrayList<>();
-        list.add("item1");
-        list.add("item2");
-
-        for (String item : list) {
-            System.out.println(item);
-        }
-    }
-}
-```
-
 ## Fork/Join 框架
 
 `java.util.concurrent.ForkJoinPool` 和 `java.util.concurrent.RecursiveTask` / `RecursiveAction` 组成了 Fork/Join 框架，用于处理可以被分解为更小任务并行执行的任务集合。它适用于分治算法，提供了更高效的并行处理能力。
@@ -881,9 +823,11 @@ list.stream().forEach(System.out::println);
 list.parallelStream().forEach(System.out::println);
 ```
 
-# 多线程工具类
+# 并发包（java.util.concurrent）
 
-## CountDownLatch
+## 多线程工具类
+
+### CountDownLatch
 
 **作用：** CountDownLatch是一个同步工具类，它允许一个或多个线程等待其他线程完成操作。
 
@@ -928,7 +872,7 @@ public class CountDownLatchExample {
 }
 ```
 
-## CyclicBarrier
+### CyclicBarrier
 
 **作用：** CyclicBarrier也是用来同步多个线程的工具类，它允许一组线程互相等待，直到所有线程都到达某个公共屏障点。
 
@@ -971,7 +915,7 @@ public class CyclicBarrierExample {
 }
 ```
 
-## Semaphore
+### Semaphore
 
 **作用：** Semaphore是用来控制同时访问特定资源的线程数量，它维护了一组许可证。
 
@@ -998,9 +942,10 @@ public class SemaphoreExample {
 
         public void run() {
             try {
-                semaphore.acquire();
+                semaphore.acquire();//获取许可
                 System.out.println("Thread " + Thread.currentThread().getName() + " is working.");
                 Thread.sleep((int) (Math.random() * 1000));
+                //释放许可
                 semaphore.release();
                 System.out.println("Thread " + Thread.currentThread().getName() + " has finished.");
             } catch (InterruptedException e) {
@@ -1011,7 +956,7 @@ public class SemaphoreExample {
 }
 ```
 
-## Exchanger
+### Exchanger
 
 **作用：** Exchanger是一个用于两个线程之间交换数据的同步工具类。
 
@@ -1040,7 +985,7 @@ public class ExchangerExample {
             try {
                 String data = "Producer's data";
                 System.out.println("Producer is exchanging data: " + data);
-                String receivedData = exchanger.exchange(data);
+                String receivedData = exchanger.exchange(data);//交换消费者的数据
                 System.out.println("Producer received data from consumer: " + receivedData);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -1059,7 +1004,7 @@ public class ExchangerExample {
             try {
                 String data = "Consumer's data";
                 System.out.println("Consumer is exchanging data: " + data);
-                String receivedData = exchanger.exchange(data);
+                String receivedData = exchanger.exchange(data);//交换生产者的数据
                 System.out.println("Consumer received data from producer: " + receivedData);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -1069,9 +1014,34 @@ public class ExchangerExample {
 }
 ```
 
-# 并发包（java.util.concurrent）
-
 ## 原子类
+
+原子类主要用于解决多线程并发环境下对共享变量的 **原子操作** 问题。原子操作是指不可分割的操作，它确保一个操作要么成功执行，要么完全不执行，不会出现部分执行的情况。
+
+在多线程环境下，多个线程可能会同时对共享变量进行操作，如果操作不是原子的，就可能导致数据竞争和不一致的问题。
+
+```java
+// 非原子操作
+int counter = 0;
+
+public void incrementCounter() {
+    counter++; 
+}
+// 原子操作
+AtomicInteger counter = new AtomicInteger(0);
+
+public void incrementCounter() {
+    counter.getAndIncrement(); //先读取 counter 的值，然后将值加 1，最后将新的值写回 counter。由于整个操作是原子的，所以不会出现数据竞争和不一致的问题。
+}
+```
+
+**JUC 中的原子类主要包括以下几种：**
+
+- `AtomicInteger`：用于原子操作 `int` 类型的值
+- `AtomicLong`：用于原子操作 `long` 类型的值
+- `AtomicBoolean`：用于原子操作 `boolean` 类型的值
+- `AtomicReference`：用于原子操作引用类型的值
+- `AtomicReferenceArray`：用于原子操作引用类型的数组
 
 原子类提供了一种无锁的线程安全机制，通常用于计数器、标志位等场景。
 
@@ -1131,86 +1101,281 @@ public class AtomicBooleanExample {
 }
 ```
 
+## 安全队列
+
+### BlockingQueue的实现类有哪些
+
++ ArrayBlockingQueue：使用数组存储的阻塞队列，具有固定的容量。
+
++ LinkedBlockingQueue：使用链表存储的阻塞队列，容量可变。
+
++ DelayQueue：支持延迟获取元素的阻塞队列，队列中的元素只有在其延迟期满时才能被取出。
+
++ PriorityBlockingQueue：基于优先级堆实现的无界阻塞队列，队列中的元素可以按照它们的自然顺序或通过提供的比较器进行排序。
+
++ ConcurrentLinkedQueue：基于链表的无界线程安全队列，适用于高吞吐量的队列操作。
+
+### `ArrayBlockingQueue`
+
+**`ArrayBlockingQueue`**: 使用数组作为后端支持的有界阻塞队列。它具有固定的容量，在尝试向已满队列添加元素或从空队列检索元素时会阻塞。
+
+```java
+BlockingQueue<Integer> arrayQueue = new ArrayBlockingQueue<>(10);
+arrayQueue.put(1); // 将1添加到队列中，如果队列已满则阻塞
+int head = arrayQueue.take(); // 获取并移除队列头部元素，如果队列为空则阻塞
+```
+
+### `LinkedBlockingQueue`
+
+**`LinkedBlockingQueue`**: 使用链表作为后端支持的阻塞队列，可选地指定容量，默认情况下容量为`Integer.MAX_VALUE`。
+
+```java
+BlockingQueue<String> linkedQueue = new LinkedBlockingQueue<>();
+linkedQueue.put("item"); // 将"item"添加到队列中，如果队列已满则阻塞
+String item = linkedQueue.take(); // 获取并移除队列头部元素，如果队列为空则阻塞
+```
+
+### `DelayQueue`
+
+**`DelayQueue`**: 实现了一个支持延迟获取元素的阻塞队列，队列中的元素只有在其延迟期满时才能被取出。
+
+```java
+DelayQueue<DelayedElement> delayQueue = new DelayQueue<>();
+delayQueue.put(new DelayedElement("item1", 1000)); // 添加延迟1000毫秒的元素
+DelayedElement item = delayQueue.take(); // 在元素延迟期满时取出元素
+```
+
+### `PriorityBlockingQueue`
+
+**`PriorityBlockingQueue`**: 实现了一个基于优先级堆的无界阻塞队列，队列中的元素可以按照它们的自然顺序或者通过提供的比较器进行排序。
+
+```java
+public class PriorityBlockingQueueExample {
+    public static void main(String[] args) throws InterruptedException {
+        PriorityBlockingQueue<Integer> priorityBlockingQueue = new PriorityBlockingQueue<>(10,(a,b)->{
+            return Integer.compare(a,b);
+        });
+        priorityBlockingQueue.put(10);
+        priorityBlockingQueue.put(16);
+        priorityBlockingQueue.put(9);
+        System.out.println(priorityBlockingQueue.take());
+        System.out.println(priorityBlockingQueue.take());
+        System.out.println(priorityBlockingQueue.take());
+    }
+}
+```
+
+### `ConcurrentLinkedQueue`
+
+**`ConcurrentLinkedQueue`**: 实现了一个基于链表的无界线程安全队列，适用于多线程环境下高吞吐量的队列操作。
+
+```java
+ConcurrentLinkedQueue<String> concurrentQueue = new ConcurrentLinkedQueue<>();
+concurrentQueue.add("item1"); // 添加"item1"到队列中
+String item = concurrentQueue.poll(); // 获取并移除队列头部元素，如果队列为空则返回null
+```
+
+## 并发集合
+
+### ConcurrentHashMap
+
+`java.util.concurrent.ConcurrentHashMap` 是线程安全的哈希表实现，比 `Hashtable` 和同步的 `HashMap` 更高效，支持高并发的读写操作。
+
+```java
+public class ConcurrentHashMapExample {
+    public static void main(String[] args) {
+        ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();
+        map.put("key1", 1);
+        map.put("key2", 2);
+
+        map.forEach((key, value) -> System.out.println(key + ": " + value));
+    }
+}
+```
+
+### CopyOnWriteArrayList
+
+`java.util.concurrent.CopyOnWriteArrayList` 是线程安全的动态数组，适用于读多写少的场景。每次写操作（添加、修改和移除）都会创建一个新的复制数组，因此适合在迭代操作频繁且数据量不大的情况下使用。
+
+```java
+public class CopyOnWriteArrayListExample {
+    public static void main(String[] args) {
+        List<String> list = new CopyOnWriteArrayList<>();
+        list.add("item1");
+        list.add("item2");
+
+        for (String item : list) {
+            System.out.println(item);
+        }
+    }
+}
+```
+
+### `ConcurrentSkipListMap`
+
+**`ConcurrentSkipListMap`**: 实现了一个并发的、基于跳表的`NavigableMap`，提供了对映射中元素的预期平均log(n)时间复杂度的操作。
+
+```java
+ConcurrentSkipListMap<Integer, String> skipListMap = new ConcurrentSkipListMap<>();
+skipListMap.put(3, "Three");
+skipListMap.put(1, "One");
+skipListMap.put(2, "Two");
+
+String value = skipListMap.get(2); // 获取键为2的值，返回"Two"
+```
+
+**性能**：如果需要高性能的Map，并且可以接受元素无序，那么ConcurrentHashMap 是更好的选择。
+
+**有序性**：如果需要有序的Map，那么ConcurrentSkipListMap 是更好的选择。
+
+**哈希冲突**：如果担心哈希冲突，那么ConcurrentSkipListMap 是更好的选择。
+
+# 线程通信解决方案
 
 
-## `BlockingQueue`接口和实现类
 
-`BlockingQueue`接口代表一个支持阻塞操作的队列，在检索元素时等待队列变为非空，在存储元素时等待空间变得可用。关键的实现类包括：
+## 生产者-消费者问题的解决方案
 
-- **`ArrayBlockingQueue`**: 使用数组作为后端支持的有界阻塞队列。它具有固定的容量，在尝试向已满队列添加元素或从空队列检索元素时会阻塞。
+生产者-消费者问题是一个经典的并发问题，涉及到一个共享的有限缓冲区，生产者向缓冲区存放数据，消费者从缓冲区取出数据。
+
+- **使用`wait()`和`notify()`方法实现**：
 
   ```java
-  BlockingQueue<Integer> arrayQueue = new ArrayBlockingQueue<>(10);
-  arrayQueue.put(1); // 将1添加到队列中，如果队列已满则阻塞
-  int head = arrayQueue.take(); // 获取并移除队列头部元素，如果队列为空则阻塞
-  ```
-
-- **`LinkedBlockingQueue`**: 使用链表作为后端支持的阻塞队列，可选地指定容量，默认情况下容量为`Integer.MAX_VALUE`。
-
-  ```java
-  BlockingQueue<String> linkedQueue = new LinkedBlockingQueue<>();
-  linkedQueue.put("item"); // 将"item"添加到队列中，如果队列已满则阻塞
-  String item = linkedQueue.take(); // 获取并移除队列头部元素，如果队列为空则阻塞
-  ```
-
-## `DelayQueue`和`PriorityBlockingQueue`
-
-- **`DelayQueue`**: 实现了一个支持延迟获取元素的阻塞队列，队列中的元素只有在其延迟期满时才能被取出。
-
-  ```java
-  DelayQueue<DelayedElement> delayQueue = new DelayQueue<>();
-  delayQueue.put(new DelayedElement("item1", 1000)); // 添加延迟1000毫秒的元素
-  DelayedElement item = delayQueue.take(); // 在元素延迟期满时取出元素
-  ```
-
-- **`PriorityBlockingQueue`**: 实现了一个基于优先级堆的无界阻塞队列，队列中的元素可以按照它们的自然顺序或者通过提供的比较器进行排序。
-
-  ```java
-  PriorityBlockingQueue<Integer> priorityQueue = new PriorityBlockingQueue<>();
-  priorityQueue.put(5); // 将5添加到优先级队列中
-  int highestPriority = priorityQueue.take(); // 获取并移除优先级最高的元素
-  ```
-
-## `ConcurrentLinkedQueue`
-
-- **`ConcurrentLinkedQueue`**: 实现了一个基于链表的无界线程安全队列，适用于多线程环境下高吞吐量的队列操作。
-
-  ```java
-  ConcurrentLinkedQueue<String> concurrentQueue = new ConcurrentLinkedQueue<>();
-  concurrentQueue.add("item1"); // 添加"item1"到队列中
-  String item = concurrentQueue.poll(); // 获取并移除队列头部元素，如果队列为空则返回null
-  ```
-
-## `ConcurrentSkipListMap`
-
-- **`ConcurrentSkipListMap`**: 实现了一个并发的、基于跳表的`NavigableMap`，提供了对映射中元素的预期平均log(n)时间复杂度的操作。
-
-  ```java
-  ConcurrentSkipListMap<Integer, String> skipListMap = new ConcurrentSkipListMap<>();
-  skipListMap.put(3, "Three");
-  skipListMap.put(1, "One");
-  skipListMap.put(2, "Two");
+  public class synchronizedExample {
   
-  String value = skipListMap.get(2); // 获取键为2的值，返回"Two"
+          private static final int BUFFER_SIZE = 10; // Buffer size
+          private static final List<Integer> buffer = new ArrayList<>(BUFFER_SIZE); // Shared buffer
+          private static final Object lock = new Object(); // Synchronization lock
+  
+          public static void main(String[] args) {
+              Thread producerThread = new Thread(new Producer());
+              Thread consumerThread = new Thread(new Consumer());
+  
+              producerThread.start();
+              consumerThread.start();
+          }
+  
+          static class Producer implements Runnable {
+  
+              @Override
+              public void run() {
+                  while (true) {
+                      synchronized (lock) {
+                          try {
+                              // Wait if buffer is full
+                              while (buffer.size() == BUFFER_SIZE) {
+                                  lock.wait();
+                              }
+  
+                              // Produce an item and add it to the buffer
+                              int item = (int) (Math.random() * 100);
+                              buffer.add(item);
+                              System.out.println("Produced item: " + item);
+  
+                              // Notify consumer that item is available
+                              lock.notify();
+                          } catch (InterruptedException e) {
+                              e.printStackTrace();
+                          }
+                      }
+                  }
+              }
+          }
+  
+          static class Consumer implements Runnable {
+  
+              @Override
+              public void run() {
+                  while (true) {
+                      synchronized (lock) {
+                          try {
+                              // Wait if buffer is empty
+                              while (buffer.isEmpty()) {
+                                  lock.wait();
+                              }
+  
+                              // Consume an item from the buffer
+                              int item = buffer.remove(0);
+                              System.out.println("Consumed item: " + item);
+  
+                              // Notify producer that space is available
+                              lock.notify();
+                          } catch (InterruptedException e) {
+                              e.printStackTrace();
+                          }
+                      }
+                  }
+              }
+          }
+  }
   ```
 
-# 性能调优和最佳实践
+- **使用`Condition`对象实现**：
 
-## 常见的性能问题和调优技巧
+  ```java
+  public class ConditionExample {
+  
+      private final List<Integer> list;
+      private final int bufferSize;
+      private final Lock lock = new ReentrantLock();
+      Condition produce = lock.newCondition();
+      Condition consumer = lock.newCondition();
+  
+      public ConditionExample(int bufferSize) {
+          this.list = new ArrayList<>();
+          this.bufferSize = bufferSize;
+      }
+  
+      public void put(Integer item) throws Exception {
+          lock.lock();
+          try {
+              while (list.size() == bufferSize) {
+                  produce.await();
+              }
+              list.add(item);
+              consumer.signal();
+          } catch (Exception e) {
+              e.printStackTrace();
+          } finally {
+              lock.unlock();
+          }
+      }
+  
+      public Integer get() throws Exception {
+          lock.lock();
+          try {
+              while (list.isEmpty()) {
+                  consumer.await();
+              }
+              Integer item = list.remove(0);  // Assuming remove(0) returns the first element
+              produce.signal();
+              return item;
+          } catch (Exception e) {
+              e.printStackTrace();
+          } finally {
+              lock.unlock();
+          }
+      }
+  }
+  ```
 
-1. **内存泄漏**：
-   - 使用内存分析工具（如Eclipse Memory Analyzer）来检测内存泄漏，查看对象引用链。
-   - 确保及时释放不再需要的对象引用，尤其是长生命周期对象。
-2. **高CPU使用率**：
-   - 使用性能分析工具（如Java VisualVM）或线程分析工具（如jstack）来确定哪些线程消耗了大量CPU资源。
-   - 优化算法和数据结构，减少CPU密集型操作。
-3. **长时间的GC暂停**：
-   - 使用GC日志分析工具（如GCViewer）来分析GC活动，查看GC类型和暂停时间。
-   - 调整JVM的堆大小和GC算法，优化对象的创建和销毁，减少频繁GC的触发。
-4. **低效的数据库访问**：
-   - 使用数据库连接池管理数据库连接，避免频繁创建和销毁连接。
-   - 使用批量更新和批量插入来减少数据库交互次数。
-   - 缓存频繁访问的数据，减少对数据库的压力。
+# 性能调优
+
+## 调优技巧
+
+1. **合理使用线程池**：尽量使用线程池来复用线程，减少线程创建和销毁的开销。
+
+2. **避免死锁和竞态条件**：使用同步工具类（如 `java.util.concurrent` 包中的锁、条件变量等）来避免出现死锁和竞态条件。尽量避免使用低级别的同步机制，如 `synchronized` 关键字，而是使用更高级别的并发工具。
+
+3. **减少锁粒度**：当需要同步访问共享资源时，尽可能缩小锁的范围，避免在整个方法或代码块上加锁。
+
+4. **避免线程上下文切换**：线程的上下文切换会消耗大量的系统资源，尽量减少线程数量和频繁的线程切换。可以通过合理使用线程池来控制线程的数量，避免创建过多的线程。
+
+5. **使用无锁数据结构**：对于高并发场景使用无锁数据结构（如  `ConcurrentHashMap`、`ConcurrentLinkedQueue` 等）来替代传统的同步集合，减少锁竞争。
+
+6. **优化IO操作**：对于涉及IO操作的多线程程序，使用非阻塞IO或者异步IO技术，可以减少线程阻塞时间，提高系统的并发处理能力。
+
+   
 
 ## 线程安全的设计模式
 
@@ -1239,21 +1404,26 @@ public class AtomicBooleanExample {
 2. **ThreadLocal**：`ThreadLocal`提供了线程局部变量，每个线程都有自己的变量副本，避免了线程安全问题。
 
    ```java
-   private static final ThreadLocal<SimpleDateFormat> dateFormatThreadLocal = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd"));
+   public class ThreadLocalExample  {
+       private static final ThreadLocal<Integer> threadLocal = new ThreadLocal<>();
+       
+       public static void main(String[] args) throws InterruptedException {
+           for (int i = 0; i < 10; i++) {
+               int finalI = i;
+               new Thread(()->{
+                   threadLocal.set(finalI);
+                   System.out.println("当前局部变量值为: "+threadLocal.get());
+               }).start();
+           }
    
-   public static String formatDate(Date date) {
-       return dateFormatThreadLocal.get().format(date);
+       }
    }
    ```
 
-## 使用Java VisualVM和其他工具进行线程分析
+## 线程分析工具
 
-1. **Java VisualVM**：
-   - Java VisualVM是一个集成的、基于图形界面的分析工具，可以用来监视Java应用程序的性能和内存使用情况。
-   - 可以通过VisualVM的线程界面查看每个线程的状态、堆栈信息和CPU使用情况，以便识别潜在的性能瓶颈和死锁情况。
-2. **其他工具**：
-   - **jstack**: 通过命令行可以生成线程快照，查看Java进程中每个线程的堆栈信息，分析线程状态和可能的死锁。
-   - **VisualVM的Heap Dump和GC日志**: 可以分析内存使用情况和GC行为，识别内存泄漏和优化对象的分配和回收策略。
+1. **Java VisualVM**：基于图形界面的多功能工具，可以监视本地和远程的Java应用程序，它提供了线程和堆栈跟踪的能力，可以用来识别应用程序中的线程问题和性能瓶颈。
+2. **jstack**：JDK自带的一个命令行工具，用于生成 Java 应用程序中每个线程的堆栈跟踪信息，它可以帮助分析线程的状态、线程之间的死锁等问题。
 
 
 
