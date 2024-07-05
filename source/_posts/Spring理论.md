@@ -1,7 +1,7 @@
 ---
 title: Spring理论知识
 tag:
-- springboot
+- Spring
 ---
 
 # Spring介绍
@@ -737,10 +737,6 @@ Spring AOP（面向切面编程）和AspectJ AOP（又称纯AspectJ AOP）都是
 ### 创建切面类
 
 ```java
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.springframework.stereotype.Component;
-
 @Aspect
 @Component
 public class LoggingAspect {
@@ -759,10 +755,6 @@ public class LoggingAspect {
 使用注解配置类来启用AOP：
 
 ```java
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
-
 @Configuration
 @ComponentScan(basePackages = "com.example")
 @EnableAspectJAutoProxy
@@ -775,8 +767,6 @@ public class AppConfig {
 ### 创建目标对象
 
 ```java
-import org.springframework.stereotype.Service;
-
 @Service
 public class UserService {
 
@@ -789,9 +779,6 @@ public class UserService {
 ### 测试AOP功能
 
 ```java
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
 public class MainApp {
 
     public static void main(String[] args) {
@@ -883,10 +870,6 @@ public class UserService {
 Spring表达式可以通过`ExpressionParser`和`EvaluationContext`来解析和求值：
 
 ```java
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
-
 public class SpELDemo {
     public static void main(String[] args) {
         ExpressionParser parser = new SpelExpressionParser();

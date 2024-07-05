@@ -1,7 +1,7 @@
 ---
 title: SpringBoot实践
 tag:
-- springboot
+- SpringBoot
 ---
 
 # 入门
@@ -1592,10 +1592,6 @@ Spring Boot 的优雅停机机制主要通过以下几个步骤实现：
 # 整合技术
 
 ## 整合数据库
-
-数据源的配置
-
-连接池配置
 
 ## 整合Mybatis
 
