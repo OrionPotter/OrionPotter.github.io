@@ -96,29 +96,72 @@ spring依赖反射，反射影响性能
 
 ## Core模块
 
-### Resource 抽象
+### Resource接口
 
-+ `Resource` 接口及其实现类（`ClassPathResource`、`FileSystemResource` 等）
+Spring的`Resource`抽象提供了一种统一的方式来访问底层资源。
 
-+ 资源文件的加载和使用
+- `UrlResource`: 包装一个 `java.net.URL`,可用于访问任何可以用 URL 正常访问的对象,如文件、HTTP 目标、FTP 目标等。
+- `ClassPathResource`: 表示应从类路径中获取的资源。它使用线程上下文类加载器、给定的类加载器或给定的类来加载资源。
+- `FileSystemResource`: 用于处理 `java.io.File` 和 `java.nio.file.Path` 的资源实现。它支持作为文件和 URL 进行解析。
+- `ServletContextResource`: 用于处理 `ServletContext` 资源的资源实现,它解释相对于相关 Web 应用程序根目录的相对路径。
+
+```java
+ClassPathResource classPathResource = new ClassPathResource("applicationContext.xml");
+FileSystemResource fileSystemResource = new FileSystemResource("D:\\applicationContext.xml");
+```
 
 ### Core 工具类
 
-+ `ReflectionUtils`、`CollectionUtils` 等工具类
+`ReflectionUtils`工具类
+
+`ReflectionUtils` 是 Spring 框架提供的一个工具类,用于简化反射操作。它提供了一系列静态方法,用于执行常见的反射任务。
+
+```java
+//获取可访问的构造函数
+Constructor<T> accessibleConstructor(Class<T> clazz, Class<?>... parameterTypes)
+//清除内部缓存
+void clearCache()
+//检查方法是否声明异常    
+boolean declaresException(Method method, Class<?> exceptionType)
+//遍历类层次结构中的字段
+void doWithFields(Class<?> clazz, FieldCallback fc)
+void doWithFields(Class<?> clazz, FieldCallback fc, FieldFilter ff)
+//遍历类层次结构中的方法
+void doWithMethods(Class<?> clazz, MethodCallback mc)
+void doWithMethods(Class<?> clazz, MethodCallback mc, MethodFilter mf)    
+```
+
+`CollectionUtils`工具类
+
+`CollectionUtils` 是 Spring 框架提供的另一个工具类,用于简化集合操作。
+
+```java
+//检查集合是否为空
+boolean isEmpty(Collection<?> collection)
+boolean isEmpty(Map<?, ?> map)
+//合并集合
+Collection<?> mergeArrayIntoCollection(Object array, Collection<Object> collection)
+//过滤集合
+Collection<?> select(Collection<?> collection, Predicate<? super Object> predicate)
+//转换集合
+Collection<?> collect(Collection<?> collection, Transformer<? super Object, ?> transformer)
+//查找集合中的元素
+Object find(Collection<?> collection, Predicate<? super Object> predicate)    
+```
 
 ### IoC 容器基础
 
 #### 什么是Spring IOC 容器
 
-IoC容器是Spring框架用于管理应用程序中bean的生命周期的组件。它负责实例化、配置和组装 bean,并提供给应用程序使用。
+IoC容器是Spring框架用于管理应用程序中bean的生命周期的组件,它负责实例化、配置和组装 bean,并提供给应用程序使用。
 
 #### IOC的作用
 
-1. **管理bean的生命周期**：负责实例化bean、配置bean的属性和依赖关系、管理bean的作用域(singleton、prototype等)、销毁bean
-2. **依赖注入**：通过构造函数、setter 方法或字段注入 bean 的依赖使得 bean 可以声明式地接收依赖,而不需要自己创建依赖
-3. **解耦应用程序组件**：通过依赖注入,bean不需要知道自己的依赖是谁提供的提高了组件的可重用性和可测试性
-4. **配置管理**：支持多种配置方式,如 XML、注解和 Java 配置提供了灵活的配置方式,适应不同的需求
-5. **生命周期管理**：支持bean的生命周期回调方法可以在bean初始化和销毁时执行定制的逻辑
+1. **管理bean的生命周期**：负责实例化bean、配置bean的属性和依赖关系、管理bean的作用域、销毁bean。
+2. **依赖注入**：通过构造函数、setter 方法或字段注入 bean 的依赖使得 bean 可以声明式地接收依赖,而不需要自己创建依赖。
+3. **解耦应用程序组件**：通过依赖注入,bean不需要知道自己的依赖是谁提供的提高了组件的可重用性和可测试性。
+4. **配置管理**：支持多种配置方式,如 XML、注解和 Java 配置提供了灵活的配置方式,适应不同的需求。
+5. **生命周期管理**：支持bean的生命周期回调方法可以在bean初始化和销毁时执行定制的逻辑。
 
 #### IoC的实现原理/流程
 
@@ -133,11 +176,7 @@ IoC容器是Spring框架用于管理应用程序中bean的生命周期的组件�
 
 IOC控制反转是一种设计理念，具体的实现方式有两种，一种是依赖注入，一种是依赖查找，依赖查找就是硬编码，A类对象初始化的时候创建B对象，依赖注入是交由IOC容器进行管理的，A类不再去实例化B类对象，而是简单声明B，由IOC容器负责将B的实例提供给A
 
-
-
 ### Bean的生命周期
-
-根据搜索结果,Spring Bean的生命周期可以从以下几个角度来分析:
 
 1. Bean的实例化
 
@@ -181,14 +220,34 @@ IOC控制反转是一种设计理念，具体的实现方式有两种，一种�
 
 ## Beans模块
 
-**BeanFactory：**
+### BeanFactory接口
 
-- `BeanFactory` 接口及其实现类（`XmlBeanFactory`、`DefaultListableBeanFactory` 等）
+- `XmlBeanFactory` 实现类
 
-**Bean 定义：**
+```java
+ClassPathResource classPathResource = new ClassPathResource("applicationContext.xml");
+BeanFactory beanFactory = new XmlBeanFactory(classPathResource);
+```
 
-- 使用 XML、注解和 Java 配置定义 Bean
-- Bean 的作用域（singleton、prototype 等）
++ `DefaultListableBeanFactory` 实现类
+
+```java
+// 创建 DefaultListableBeanFactory 实例
+DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+// 注册 Bean 定义
+BeanDefinitionRegistry registry = beanFactory;
+BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(MyBean.class);
+builder.addPropertyValue("message", "Hello, Spring!");
+registry.registerBeanDefinition("myBean", builder.getBeanDefinition());
+// 获取 Bean 实例
+MyBean bean = beanFactory.getBean(MyBean.class);
+System.out.println(bean.getMessage()); // 输出: "Hello, Spring!"
+// 自定义 Bean 后处理器
+beanFactory.addBeanPostProcessor(new MyBeanPostProcessor());
+// 再次获取 Bean 实例
+bean = (MyBean) beanFactory.getBean("myBean");
+System.out.println(bean.getMessage()); // 输出: "Hello, Spring! (Processed)"
+```
 
 ### 什么是Bean
 
@@ -201,274 +260,324 @@ Spring Bean代指的就是那些被 IoC 容器所管理的对象。
 **XML配置**
 
 ```xml
-<bean id="anotherBean" class="com.example.AnotherClass"></bean>
-<bean id="myBean" class="com.example.MyClass">
-   <property name="anotherClass" ref="anotherBean"/>
-</bean>
+<bean id="createBeanExample" class="com.spring.learn.entity.CreateBeanExample"/>
 ```
 
 **注解配置**
 
+```xml
+<!-- applicationContext.xml 开启组件扫描 -->
+<context:component-scan base-package="com.spring" />
+```
+
 ```java
+//添加 @Component 注解
 @Component
-public class MyBean {
-    @Autowired
-    private AnotherClass anotherClass;
+public class CreateBeanExample {
+    public void createBean() {
+        System.out.println("创建Bean成功了");
+    }
 }
 ```
 
 **Java配置**
 
+```xml
+<!-- applicationContext.xml 开启组件扫描 -->
+<context:component-scan base-package="com.spring" />
+```
+
 ```java
 @Configuration
-public class AppConfig {
+public class App {
     @Bean
-    public MyBean myBean() {
-        return new MyBean(anotherBean());
-    }
-
-    @Bean
-    public AnotherClass anotherBean() {
-       return new AnotherClass();
+    public CreateBeanExample createBeanExample() {
+        return new CreateBeanExample();
     }
 }
 ```
 
 ### Bean的作用域
 
-1. Singleton：在每个Spring IoC容器中，一个Bean定义对应唯一一个单独的Bean实例。单例是所有作用域的默认值。
+| 作用域        | 描述                                    | 适用场景                                      |
+| ------------- | --------------------------------------- | --------------------------------------------- |
+| Singleton     | 一个 BeanFactory 只有一个该 bean 的实例 | 通用 bean，需要保持单一实例                   |
+| Prototype     | 每次请求都会创建一个新的实例            | 有状态的 bean，需要每次都创建新实例           |
+| Request       | 每次 HTTP 请求创建一个新实例            | Web 应用程序中，每个 HTTP 请求需要独立的 bean |
+| Session       | 每次 HTTP session 创建一个新实例        | Web 应用程序中，与用户会话相关的 bean         |
+| GlobalSession | 全局 HTTP session 作用域                | Portlet 环境下，与整个应用程序会话相关的 bean |
 
-2. Prototype：原型作用域会导致在每次对特定Bean请求的时候，都会创建一个新的Bean实例。
+xml配置
 
-3. Request：在一个HTTP请求的生命周期范围内，Spring容器会返回该bean的同一个实例。只有在Web应用程序的上下文中，这个作用域才可用。
-
-4. Session：在一个HTTP Session 中，Spring容器会返回该Bean的同一个实例。只有在Web应用程序的上下文中，此作用域才可用。
-
-5. Global Session：在一个全局的HTTP Session中，Spring容器会返回该Bean的同一个实例。这通常被用在Portlet应用环境。只有在Web应用程序的上下文中，此作用域才可用。
-
-
-
-
-
-**依赖注入：**
-
-- 构造器注入和 Setter 注入
-- 自动装配（autowiring）的模式（byName、byType、constructor）
-
-
-
-## 基于XML注入Bean的方式
-
-### 构造器注入
-
-构造器注入是通过在Spring XML配置文件中使用<constructor-arg>元素，和相对应的构造器参数进行依赖注入。
-
-```java
-<bean id="textEditor" class="com.example.TextEditor">
-    <constructor-arg ref="spellChecker"/>
-</bean>
-<bean id="spellChecker" class="com.example.SpellChecker"/>
+```xml
+<bean id="createBeanExample" class="com.spring.learn.entity.CreateBeanExample" scope="singleton"/>
 ```
 
-### Setter注入
-
-Setter注入是通过在Spring XML配置文件中使用<property>元素，和相对应的setter方法进行依赖注入。
+java配置
 
 ```java
-<bean id="textEditor" class="com.example.TextEditor">
-    <property name="spellChecker" ref="spellChecker"/>
-</bean>
-<bean id="spellChecker" class="com.example.SpellChecker"/>
+@Configuration
+public class App {
+    @Bean
+    @Scope("prototype")
+    public CreateBeanExample createBeanExample() {
+        return new CreateBeanExample();
+    }
+}
 ```
 
-### 自动装配模式
+> Spring中的单例Bean是线程安全吗？
+>
+> 虽然 Spring 单例 bean 是线程安全的，但如果bean包含可变状态（例如实例变量），需要确保正确地处理并发访问，可以通过同步机制（如 `synchronized` 关键字或使用线程安全的集合类）来保证数据的一致性。
+
+### 依赖注入
+
+#### 构造器注入和Setter注入
+
+**构造器注入**
+
+```java
+<bean id="user" class="com.spring.learn.entity.User">
+        <constructor-arg name="username" value="lithium"/>
+        <constructor-arg name="age" value="12"/>
+</bean>
+```
+
+```java
+@Configuration
+public class App {
+    @Bean
+    @Scope("prototype")
+    public User user() {
+        return new User("lithium",12);
+    }
+}
+```
+
+**Setter注入**
+
+```java
+<bean name="user" class="com.spring.learn.entity.User">
+        <property name="username" value="lithium"/>
+        <property name="age" value="12"/>
+</bean>
+```
+
+```java
+@Configuration
+public class App {
+    @Bean
+    @Scope("prototype")
+    public User user() {
+        User user = new User();
+        user.setUsername("lithium");
+        user.setAge(12);
+        return user;
+    }
+
+}
+```
+
+#### 自动装配
 
 在Spring框架中，在配置文件中设定bean的依赖关系是一个很好的机制，Spring 容器能够自动装配相互合作的bean，这意味着容器不需要和配置，能通过Bean工厂自动处理bean之间的协作。这意味着 Spring可以通过向Bean Factory中注入的方式自动搞定bean之间的依赖关系。自动装配可以设置在每个bean上，也可以设定在特定的bean上。
 
-### 自动装配Bean的方式
+1. No: 这是默认的配置，没有发生自动装配,Bean引用需要通过ref属性定义。
 
-1. No: 这是默认的配置，没有发生自动装配。Bean引用需要通过ref属性定义。
+```xml
+<bean name="address" class="com.spring.learn.entity.Address">
+        <property name="province" value="sd"/>
+        <property name="city" value="NJ"/>
+</bean>
+<bean name="user" class="com.spring.learn.entity.User" autowire="default">
+        <property name="username" value="lithium"/>
+        <property name="age" value="12"/>
+        <property name="address" ref="address"/>
+</bean>
+```
 
 2. By Name: 配置中的autowire =“byName”允许容器查看其属性的名称，并寻找定义在配置中具有相同名称的bean。
 
-例如：
-
 ```xml
-<bean id="textEditor" class="com.example.TextEditor" autowire="byName" />
-<bean id="spellChecker" class="com.example.SpellChecker" />
+<bean name="address" class="com.spring.learn.entity.Address">
+        <property name="province" value="sd"/>
+        <property name="city" value="NJ"/>
+</bean>
+<bean name="user" class="com.spring.learn.entity.User" autowire="byName">
+        <property name="username" value="lithium"/>
+        <property name="age" value="12"/>
+</bean>
 ```
 
-在上面的例子中，如果TextEditor类有一个SpellChecker类型的setSpellChecker方法，那么spellChecker bean会被自动装配到textEditor bean中。
-
 3. By Type: 当我们将autowire的属性设置为byType时，Spring容器为该bean的每一属性尝试匹配并自动装配exact type的单个bean。如果找到更多相同类型的bean，就会抛出异常。
-
 4. By Constructor: 类似于byType，但适用于构造器参数。如果在容器中没有发现构造器参数的类型或者有多余一个的类型，则抛出异常。
 
-5. Autodetect: Spring首先尝试使用构造器自动装配，如果失败，Spring会尝试由类型（byType）装配。
+```xml
+<bean name="address" class="com.spring.learn.entity.Address">
+        <constructor-arg name="province" value="SD"/>
+        <constructor-arg name="city" value="NJ"/>
+</bean>
+<bean name="user" class="com.spring.learn.entity.User" autowire="constructor">
+        <constructor-arg name="username" value="lithium"/>
+        <constructor-arg name="age" value="12"/>
+</bean>
+```
 
+### BeanPostProcessor
 
+`BeanPostProcessor`是Spring框架中用于对Spring管理的bean进行后处理的接口。它提供了一种机制，可以在 bean 实例化和依赖注入之后以及自定义初始化方法之前，对 bean 进行额外的处理。
 
-**BeanPostProcessor：**
+`BeanPostProcessor` 接口定义了两个方法：
 
-- `BeanPostProcessor` 接口及其实现
-- 自定义 Bean 后处理器
+1. `postProcessBeforeInitialization(Object bean, String beanName)`：在bean的初始化回调方法（如 `afterPropertiesSet` 或自定义的初始化方法）调用之前执行,可以对bean进行预处理操作。
+2. `postProcessAfterInitialization(Object bean, String beanName)`：在bean的初始化回调方法调用之后执行,可以在这里对 bean 进行一些后处理操作，可以返回一个包装后的 bean。
+
+**定义BeanPostProcessor**
+
+```java
+public class MyBeanPostProcessor implements BeanPostProcessor {
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        if (bean instanceof User) {
+            System.out.println("BeforeInitialization : " + beanName);
+        }
+        return bean;
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) {
+        if (bean instanceof User) {
+            System.out.println("AfterInitialization : " + beanName);
+        }
+        return bean;
+    }
+}
+```
+
+**配置方式**
+
+1.xml配置
+
+```xml
+<bean id="myBeanPostProcessor" class="com.spring.learn.MyBeanPostProcessor"/>
+```
+
+2.Java配置
+
+```java
+@Configuration
+public class App {
+    @Bean
+    public MyBeanPostProcessor myBeanPostProcessor(){
+        return new MyBeanPostProcessor();
+    }
+}    
+```
 
 
 
 ## Context模块
 
-**ApplicationContext：**
+### ApplicationContext接口
 
-- `ApplicationContext` 接口及其实现类（`ClassPathXmlApplicationContext`、`FileSystemXmlApplicationContext` 等）
-- `ConfigurableApplicationContext` 接口及其扩展
+`ApplicationContext`它提供了许多功能来管理 Spring 应用中的 bean，它是 Spring IoC 容器的一种高级形式，继承了 `BeanFactory`，提供了更多的企业级功能。
 
-**事件机制：**
+`ApplicationContext`实现类
 
-- 自定义事件和监听器
-- 发布和处理应用事件
+1. ClassPathXmlApplicationContext：从类路径下的 XML 配置文件中加载上下文。
+2. FileSystemXmlApplicationContext： 从文件系统中的 XML 配置文件中加载上下文。
+3. AnnotationConfigApplicationContext： 从 Java 配置类中加载上下文，常用于基于注解和 Java 配置的 Spring 应用。
+4. WebApplicationContext： 专门为 web 应用设计的 `ApplicationContext` 接口，继承自 `ApplicationContext`，用于 web 应用程序中的上下文管理。
 
-**国际化（i18n）：**
-
-- `MessageSource` 接口及其实现
-- 国际化消息资源的加载和使用
-
-**注解支持：**
-
-- 使用注解配置 Bean（`@Component`、`@Service`、`@Repository`、`@Controller`）
-- 组件扫描（`@ComponentScan`）
-- 注解驱动的依赖注入（`@Autowired`、`@Qualifier`）
-
-### BeanFactory 和 ApplicationContext有什么区别？
-
-BeanFactory和ApplicationContext都是Spring框架中的核心接口，用于管理和创建bean对象。但在使用过程中，它们之间有一些主要的区别如下：
-
-1. 功能：相比于BeanFactory，ApplicationContext具有更多的功能。BeanFactory主要提供了基础的IOC功能，主要是用于创建和管理Bean。而ApplicationContext除了支持BeanFactory所提供的所有功能外，还提供了更多高级的应用框架特性，如实现消息资源的国际化，事件传播，资源加载和透明的创建上下文（如WebApplicationContext）等。
-
-2. 启动方式：BeanFactory在初始化后并不会立即初始化单例Bean，而是在获取对象时才会创建。这种方式被称为懒加载。而对于ApplicationContext而言，当配置文件被加载后，其管理的所有单例Bean都会被立即初始化。
-
-3. 事件发布：ApplicationContext具有事件发布功能，可以监听ApplicationContext中的事件，而BeanFactory则没有这个能力。
-
-4. 应用场景：ApplicationContext用于对企业级应用程序提供支持，其功能更加强大且适用于大型系统。相反，BeanFactory则更适用于轻量级应用程序或者小型项目。
-
-5. 内置支持：ApplicationContext对许多企业级服务有内置支持，如邮件服务、JNDI查找以及模板系统等。相对的，BeanFactory没有内置支持这些服务。
-
-因此，虽然在很多情况下BeanFactory和ApplicationContext可以互换使用，但是在大多数复杂应用程序中，倾向于使用ApplicationContext，以取得其更多的框架性的特性。
-
-### ApplicationContext实现有哪些
-
-1. ClassPathXmlApplicationContext：该实现是Spring最常用的ApplicationContext实现类之一，它可以加载类路径中的XML配置文件，创建上下文。
-
-2. FileSystemXmlApplicationContext：该实现也可以加载XML配置文件，但与ClassPathXmlApplicationContext不同的是，它可以加载文件系统中的任何路径下的XML配置文件。
-
-3. AnnotationConfigApplicationContext：这是一个相对新的ApplicationContext实现类，用于基于Java注解的配置。它可以接受一个或多个带有@Configuration注解的类作为输入，也可以通过scan(String... basePackages)方法设置包路径来扫描你的应用程序。
-
-4. WebApplicationContext：这是一个专用于Web应用程序的ApplicationContext实现，它增加了对Web相关环境的支持。
-
-5. XmlWebApplicationContext：这是WebApplicationContext的一个实现，它可以加载Web应用中的XML配置文件。
-
-6. AnnotationConfigWebApplicationContext：这也是WebApplicationContext的一个实现，它支持基于Java注解的配置。
-
-7. RefreshableApplicationContext：这是一个特殊的ApplicationContext接口，它增加了一个refresh方法，允许在运行时重新加载配置。
-
-### applicationContext配置文件
-
-1. Bean 的定义
-
-<bean>标签是配置文件中最常见的元素。每一个<bean>标签都会告诉 Spring 应该实例化、配置和提供哪种类型的类。<bean>元素包括 id、class 属性,以及可能包含的<property>或<constructor-arg>元素等,它们定义了 bean 属性的注入方式。
-
-```xml
-<bean id="myBean" class="com.example.MyBean">
-    <property name="property1" value="value1" />
-    <property name="property2" ref="anotherBean" />
-</bean>
+```java
+ApplicationContext applicationContext = new ClassPathXmlApplicationContext("applicationContext.xml");
+ApplicationContext applicationContext1 = new FileSystemXmlApplicationContext("applicationContext.xml");
+ApplicationContext applicationContext2 = new AnnotationConfigApplicationContext(App.class);
 ```
 
-2. 别名配置
+### `ConfigurableApplicationContext`接口
 
-<alias>标签允许为 Bean 定义一个或多个别名。这使得我们可以使用不同的名字引用同一个 Bean。
+`ConfigurableApplicationContext` 扩展了 `ApplicationContext` 接口，提供了额外的配置和生命周期管理方法。这使得 Spring 应用程序上下文可以更灵活地进行配置和管理。
 
-```xml
-<alias name="myBean" alias="myBeanAlias" />
+```java
+ConfigurableApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+//刷新应用上下文，使其重新加载所有的 bean 定义并应用所有的配置.
+context.refresh();
+//关闭应用上下文，释放所有的资源和锁.
+context.close();
+//注册一个钩子，当 JVM 关闭时，自动调用 close() 方法。
+context.registerShutdownHook();
 ```
 
-3. Bean 的作用范围
+### 事件机制
 
-Spring 提供了不同的 Bean 作用范围,如 singleton(单例)、prototype(多例)、request、session 等。我们可以在<bean>标签中使用 scope 属性来设置 Bean 的作用范围。
+Spring 的事件机制允许应用程序在发生特定事件时发布和处理自定义事件，Spring 提供了一个标准的方式来实现事件驱动的编程模式，通过发布事件和监听事件来解耦组件之间的交互。
 
-```xml
-<bean id="myBean" class="com.example.MyBean" scope="prototype" />
+**自定义事件**
+
+```java
+public class CustomEvent extends ApplicationEvent {
+    private String message;
+
+    public CustomEvent(Object source, String message) {
+        super(source);
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+}
 ```
 
-4. 集合类型
+**创建事件监听器**
 
-<list>、<set>、<map>、<props>等标签允许我们注入集合类型的属性。
-
-```xml
-<bean id="myBean" class="com.example.MyBean">
-    <property name="list">
-        <list>
-            <value>value1</value>
-            <value>value2</value>
-        </list>
-    </property>
-</bean>
+```java
+@Component
+public class CustomEventListener  implements ApplicationListener<CustomEvent> {
+    @Override
+    public void onApplicationEvent(CustomEvent event) {
+        System.out.println("Received custom event - " + event.getMessage());
+    }
+}
 ```
 
-5. 组件扫描
+**创建发布事件**
 
-<context:component-scan>标签告诉 Spring 在哪些包下面进行扫描,将标注了@Component 及其派生注解的类注册为 bean。
+```java
+@Component
+public class CustomEventPublisher {
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
-```xml
-<context:component-scan base-package="com.example" />
+    public void publishEvent(String message) {
+        CustomEvent event = new CustomEvent(this, message);
+        applicationEventPublisher.publishEvent(event);
+    }
+}
 ```
 
-6. 导入其他配置文件
+### 注解支持
 
-<import>元素允许将多个小的 XML 配置文件组合成一个大的配置文件,增加了配置文件的模块性和可管理性。
+#### **开启注解配置**
 
-```xml
-<import resource="classpath:another-config.xml" />
+```java
+// 指定配置类
+@Configuration
+// 指定扫描包路径
+@ComponentScan(basePackages = "com.spring.learn")
+public class App {
+
+}
 ```
 
-7. 消息源配置
-
-<context:property-placeholder>元素用于外部化字符串到属性文件。
-
-```xml
-<context:property-placeholder location="classpath:config.properties" />
+```java
+ApplicationContext context = new AnnotationConfigApplicationContext(App.class);
 ```
 
-8. AspectJ 支持
+#### **注解方式注入**
 
-<aop:config>元素用于配置 AOP 代理,<aop:aspect>元素用于声明一个切面,<aop:before>、<aop:after>、<aop:around>等元素用于声明通知。
-
-```xml
-<aop:config>
-    <aop:aspect id="myAspect" ref="myAspectBean">
-        <aop:before pointcut="execution(* com.example..*(..))" method="beforeMethod" />
-    </aop:aspect>
-</aop:config>
-```
-
-1. 
-
-### Spring中的单例Bean是线程安全吗？
-
-不是线程安全，Spring中的bean默认是单例bean，对无状态的对象来说是线程安全，对有状态的bean是非线程安全。
-
-### 如何处理并发线程问题
-
-在一般情况下，只有无状态的Bean才可以在多线程环境下共享，在Spring中，绝大部分Bean都可以声明为singleton作用域，因为Spring对一些Bean中非线程安全状态采用ThreadLocal进行处理，解决线程安全问题。
-
-
-
-### 内部Bean
-
-在Spring框架中，当一个bean仅被用作另一个bean的属性时，它能被声明为一个内部bean。内部bean可以用setter注入“属性”和构造方法注入“构造参数”的方式来实现，内部bean通常是匿名的，它们的Scope一般是prototype。
-
-### 注解方式的依赖注入
-
-#### @Autowired
+**@Autowired**
 
 `@Autowired` 是Spring提供的最常用的注解,用于实现自动装配。它可以应用于构造函数、setter方法和字段上。
 
@@ -481,7 +590,7 @@ public class MyService {
 
 Spring 容器会自动根据类型匹配来注入 `MyRepository` 实例。如果有多个匹配的 bean,则会抛出异常,这时可以使用 `@Qualifier` 来指定具体的 bean。
 
-#### @Qualifier
+**@Qualifier**
 
 `@Qualifier` 注解用于进一步限定 `@Autowired` 的注入对象。当有多个同类型的 bean 时,可以使用 `@Qualifier` 来指定注入哪个 bean。
 
@@ -499,7 +608,7 @@ public class MyService {
 }
 ```
 
-#### @Resource
+**@Resource**
 
 `@Resource` 是Java标准 (JSR-250) 提供的注解,Spring 也支持使用。它与 `@Autowired` 的区别在于:
 
@@ -515,150 +624,152 @@ public class MyService {
 
 `@Autowired` 是最常用的,可以结合 `@Qualifier` 来进一步限定注入对象。`@Resource` 则提供了另一种按名称注入的方式。
 
+### BeanFactory 和 ApplicationContext有什么区别？
+
+| 特点/功能      | BeanFactory                         | ApplicationContext                                       |
+| -------------- | ----------------------------------- | -------------------------------------------------------- |
+| **基本功能**   | 管理和获取 bean 实例                | 在 BeanFactory 功能基础上增强，提供更多企业级功能        |
+| **延迟初始化** | 是                                  | 是                                                       |
+| **提前初始化** | 否（按需初始化）                    | 是（预加载所有 singleton bean）                          |
+| **功能丰富性** | 较少，主要为 IoC 和 DI 提供基础支持 | 提供 AOP、事务管理、国际化、事件发布、资源管理等高级功能 |
+| **实现类**     | `DefaultListableBeanFactory`        | `ClassPathXmlApplicationContext`                         |
+| **使用场景**   | 资源受限环境或需要定制扩展时使用    | 大多数应用场景推荐使用，提供更多功能和便利               |
+| **性能**       | 较轻量级，启动时资源占用较少        | 启动时可能占用更多资源，但提高了应用响应速度             |
 
 
-### 自动装配
-
-### 自动装配过程
-
-1. **Bean 实例化**: Spring 容器会根据 Bean 的定义实例化 Bean 对象。
-
-2. **依赖查找和注入**
-   - Spring容器会扫描Bean中使用@Autowired注解的属性、构造函数或 setter 方法。
-   - 容器会尝试从容器中找到与这些依赖匹配的 Bean,并将其注入到目标 Bean 中。
-
-3. **类型匹配**
-   - 容器会先尝试按照类型匹配来找到合适的 Bean 注入。
-   - 如果容器中存在多个匹配的 Bean,则会抛出 NoUniqueBeanDefinitionException 异常。
-
-4. **@Qualifier 限定**
-   - 如果存在多个匹配的 Bean,可以使用 @Qualifier 注解来进一步限定要注入的 Bean。
-   - 容器会根据 @Qualifier 指定的限定符来查找合适的 Bean 进行注入。
-
-5. **自动装配模式**
-   - Spring 容器支持 byType、byName 等不同的自动装配模式。
-   - 容器会根据配置的自动装配模式来决定如何查找和注入依赖 Bean。
-
-6. **依赖解析**
-   - 如果容器中没有找到匹配的 Bean,则会根据 @Autowired 注解的 required 属性来决定是否抛出异常。
-   - 如果 required=true,则会抛出 NoSuchBeanDefinitionException 异常;如果 required=false,则会注入 null。
-
-7. **Bean 生命周期回调**
-   - 在依赖注入完成后,容器会调用 Bean 的生命周期回调方法,如 @PostConstruct 注解标注的方法。
 
 ## SpEL模块
-
-**表达式解析：**
-
-- `ExpressionParser` 接口及其实现（`SpelExpressionParser`）
-- 使用表达式在 XML 和注解中进行配置
-
-**对象图导航：**
-
-- 使用 SpEL 访问对象属性、方法调用、数组和集合
-
-**逻辑和数学运算：**
-
-- 使用 SpEL 进行基本的逻辑运算和数学运算
-
-**模板表达式：**
-
-- 在配置文件和注解中使用 SpEL 表达式
 
 ### 什么是SpEL
 
 SpEL（Spring Expression Language）是Spring框架中的一种功能强大的表达式语言。它用于在运行时查询和操作对象图，类似于EL（Expression Language），但功能更为强大和灵活。SpEL的设计目的是提供一种通用的表达式求值引擎，可以在Spring应用程序的不同部分（例如配置、注解、XML）中使用。
 
-### SpEL的主要功能和特性
+### 主要功能
 
-1. **基本语法和操作**：
-   - 支持常见的操作符：算术运算符（`+`, `-`, `*`, `/`），关系运算符（`==`, `!=`, `<`, `>`, `<=`, `>=`），逻辑运算符（`and`, `or`, `not`），以及条件运算符（`?:`）。
-   - 支持方法调用：可以调用Java对象的方法，例如`T(Math).random()`调用`Math.random()`方法。
-   - 支持属性访问：可以访问对象的属性，例如`person.name`。
-2. **集合和数组**：
-   - 支持列表、集合、数组和字典的操作。例如，`list[0]`访问列表的第一个元素，`map['key']`访问字典的值。
-   - 提供了强大的集合操作符，例如投影（`![...]`）和选择（`?[...]`）。
-3. **内置函数**：
-   - 提供了多种内置函数，例如字符串操作函数、数学函数等。
-4. **模板表达式**：
-   - 可以在字符串中嵌入表达式，例如`"Hello, #{user.name}"`。
-5. **安全性和错误处理**：
-   - 提供了配置和控制表达式求值的安全性和错误处理机制。
++ **访问对象属性和调用方法**：直接获取对象的属性值或者调用对象的方法。
 
-### SpEL的示例
++ **条件和逻辑运算**：支持条件判断（等于、大于、小于等）和逻辑运算（与、或、非）。
 
-#### 在配置文件中使用SpEL
++ **数学和字符串操作**：进行数学计算（加减乘除）和字符串操作（连接、截取等）。
 
-Spring XML配置文件中可以使用SpEL
++ **集合和数组处理**：遍历、访问、过滤集合和数组元素。
 
-```xml
-<bean id="person" class="com.example.Person">
-    <property name="name" value="John Doe"/>
-    <property name="age" value="#{30}"/>
-</bean>
++ **类型转换和类型检查**：转换对象类型或者检查对象类型。
 
-<bean id="greetingService" class="com.example.GreetingService">
-    <property name="message" value="#{'Hello, ' + person.name}"/>
-</bean>
-```
++ **引用外部变量和 Bean**：引用系统变量、环境变量和 Spring 容器中的 Bean。
 
-在这个示例中，SpEL用于将`person` bean的`name`属性值嵌入到`greetingService` bean的`message`属性中。
++ **模板表达式**：在配置文件和注解中动态配置属性和依赖关系。
 
-#### 在注解中使用SpEL
+### `ExpressionParser` 接口
 
-SpEL可以在Spring注解中使用，例如在Spring EL注解中：
+`ExpressionParser` 接口是用于解析表达式的核心接口，而`SpelExpressionParser` 是其默认实现，用于解析 SpEL 表达式。
 
 ```java
-@Service
-public class UserService {
+ExpressionParser parser = new SpelExpressionParser();
+// Example SpEL expressions
+String expression = "'Hello World'.concat('!')";
+String result = parser.parseExpression(expression).getValue(String.class);
+System.out.println(result); // Output: Hello World!
+```
 
-    @Value("#{systemProperties['user.name']}")
-    private String systemUserName;
+### 对象图导航
 
-    @Value("#{T(Math).random() * 100}")
-    private double randomValue;
+**访问对象属性和方法调用**
 
-    public void printValues() {
-        System.out.println("System User Name: " + systemUserName);
-        System.out.println("Random Value: " + randomValue);
+```java
+@Component
+public class MyBean {
+    private String name = "Alice";
+    private int age = 30;
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
     }
 }
 ```
 
-#### 在Spring表达式中使用SpEL
+```java
+@Component
+public class MyComponent {
+    @Autowired
+    private MyBean myBean;
 
-Spring表达式可以通过`ExpressionParser`和`EvaluationContext`来解析和求值：
+    @Value("#{ myBean.name }")
+    private String name;
+
+    @Value("#{ myBean.getAge() }")
+    private int age;
+	
+}    
+```
+
+**访问数组和集合**
 
 ```java
-public class SpELDemo {
-    public static void main(String[] args) {
-        ExpressionParser parser = new SpelExpressionParser();
-        StandardEvaluationContext context = new StandardEvaluationContext();
+public class MyComponent {
+	@Value("#{ {'apple', 'banana', 'orange'} }")
+    private String[] fruits;
 
-        // 简单的字符串表达式
-        String expression1 = "'Hello World'.toUpperCase()";
-        String result1 = parser.parseExpression(expression1).getValue(String.class);
-        System.out.println(result1); // 输出 "HELLO WORLD"
+    @Value("#{ {'apple', 'banana', 'orange'}.?[startsWith('a')] }")
+    private List<String> fruitsStartingWithA;
+}    
+```
 
-        // 计算表达式
-        String expression2 = "100 * 2 + 400";
-        int result2 = parser.parseExpression(expression2).getValue(Integer.class);
-        System.out.println(result2); // 输出 600
+### 逻辑和数学运算
 
-        // 调用方法和访问属性
-        context.setVariable("person", new Person("John", 30));
-        String expression3 = "#person.name";
-        String result3 = parser.parseExpression(expression3).getValue(context, String.class);
-        System.out.println(result3); // 输出 "John"
-    }
+**逻辑运算**
+
+```java
+@Component
+public class MyComponent {
+
+    @Value("#{ 1 == 1 }")
+    private boolean isEqual;
+
+    @Value("#{ 10 > 5 }")
+    private boolean isGreater;
+
+    @Value("#{ 'John' != 'Doe' }")
+    private boolean isNotEqual;
+
 }
 ```
 
-在这个示例中，`SpelExpressionParser`用于解析表达式并获取其值。
+**数学运算**
 
+```java
+@Component
+public class MyComponent {
 
+    @Value("#{ 10 + 5 }")
+    private int addition;
 
+    @Value("#{ 20 - 10 }")
+    private int subtraction;
 
+    @Value("#{ 3 * 4 }")
+    private int multiplication;
+
+    @Value("#{ 20 / 5 }")
+    private int division;
+
+}
+```
+
+### 模板表达式
+
+```java
+@Component
+public class MyComponent {
+
+    @Value("#{ T(java.lang.Math).random() * 100.0 }")
+    private double randomNumber;
+}
+```
 
 
 
@@ -666,7 +777,15 @@ public class SpELDemo {
 
 ## 什么是AOP
 
-AOP（Aspect-Oriented Programming，面向切面编程）是Spring框架中的一个重要特性，它旨在通过分离跨领域关注点（cross-cutting concerns）来提高代码的模块化和可维护性。在传统的面向对象编程中，业务逻辑和跨领域关注点（如日志记录、事务管理、安全性等）往往会混在一起，使代码复杂且难以维护。AOP通过将这些关注点抽取为独立的“切面”（aspects），使得代码更清晰且更易于管理。
+面向切面编程（AOP）是一种编程范式，旨在通过在应用程序中横切关注点（cross-cutting concerns）的分离，使得系统更易于理解、维护和扩展。
+
+## AOP的思想
+
+**横切关注点的分离**：将系统中横跨多个模块的通用功能（如日志、事务、安全性、缓存等）从核心业务逻辑中剥离出来，形成独立的切面（Aspect）。
+
+**模块化关注点**：AOP 将这些横切关注点抽象为切面，通过切面的引入（Introduction）、通知（Advice）、切点（Pointcut）、织入（Weaving）等机制，实现与核心业务逻辑的解耦合。
+
+**提升代码重用和系统模块化**：AOP 使得可以将横切关注点的代码逻辑统一管理，减少重复代码，提高了系统的可维护性和可扩展性。
 
 ## AOP的核心概念
 
@@ -856,8 +975,6 @@ Spring 事务传播机制用于定义当一个事务方法被另一个事务方�
 ```
 
 **2.使用注解**
-
-
 
 ```java
 @Service

@@ -1,7 +1,7 @@
 ---
 title: SpringBoot+JWT整合Swagger
 tag:
-- springboot
+- SpringBoot
 ---
 
 # 什么是 Swagger？
