@@ -178,6 +178,104 @@ IOC控制反转是一种设计理念，具体的实现方式有两种，一种�
 
 ### Bean的生命周期
 
+<img src="https://telegraph-image-2ni.pages.dev/file/205dcba19454277e044b4.png" style="zoom: 50%;" />
+
+
+
+**源码**
+
+```java
+protected Object doCreateBean(final String beanName, final RootBeanDefinition mbd, final Object[] args) {
+    // 1. 实例化 Bean
+    BeanWrapper instanceWrapper = null;
+    if (mbd.isSingleton()) {
+        instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
+    }
+    if (instanceWrapper == null) {
+        instanceWrapper = createBeanInstance(beanName, mbd, args);
+    }
+    final Object bean = (instanceWrapper != null ? instanceWrapper.getWrappedInstance() : null);
+    Class<?> beanType = (instanceWrapper != null ? instanceWrapper.getWrappedClass() : null);
+
+    // 2. 允许后处理器修改合并的 Bean 定义
+    synchronized (mbd.postProcessingLock) {
+        if (!mbd.postProcessed) {
+            applyMergedBeanDefinitionPostProcessors(mbd, beanType, beanName);
+            mbd.postProcessed = true;
+        }
+    }
+
+    // 3. 提前暴露单例 Bean，解决循环依赖问题
+    boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences && isSingletonCurrentlyInCreation(beanName));
+    if (earlySingletonExposure) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Eagerly caching bean '" + beanName + "' to allow for resolving potential circular references");
+        }
+        addSingletonFactory(beanName, new ObjectFactory<Object>() {
+            @Override
+            public Object getObject() throws BeansException {
+                return getEarlyBeanReference(beanName, mbd, bean);
+            }
+        });
+    }
+
+    // 4. 初始化 Bean 实例
+    Object exposedObject = bean;
+    try {
+        // 4.1 属性赋值
+        populateBean(beanName, mbd, instanceWrapper);
+        // 4.2 初始化 Bean
+        if (exposedObject != null) {
+            exposedObject = initializeBean(beanName, exposedObject, mbd);
+        }
+    } catch (Throwable ex) {
+        if (ex instanceof BeanCreationException && beanName.equals(((BeanCreationException) ex).getBeanName())) {
+            throw (BeanCreationException) ex;
+        } else {
+            throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Initialization of bean failed", ex);
+        }
+    }
+
+    // 5. 处理早期单例引用
+    if (earlySingletonExposure) {
+        Object earlySingletonReference = getSingleton(beanName, false);
+        if (earlySingletonReference != null) {
+            if (exposedObject == bean) {
+                exposedObject = earlySingletonReference;
+            } else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
+                String[] dependentBeans = getDependentBeans(beanName);
+                Set<String> actualDependentBeans = new LinkedHashSet<String>(dependentBeans.length);
+                for (String dependentBean : dependentBeans) {
+                    if (!removeSingletonIfCreatedForTypeCheckOnly(dependentBean)) {
+                        actualDependentBeans.add(dependentBean);
+                    }
+                }
+                if (!actualDependentBeans.isEmpty()) {
+                    throw new BeanCurrentlyInCreationException(beanName,
+                            "Bean with name '" + beanName + "' has been injected into other beans [" +
+                                    StringUtils.collectionToCommaDelimitedString(actualDependentBeans) +
+                                    "] in its raw version as part of a circular reference, but has eventually been " +
+                                    "wrapped. This means that said other beans do not use the final version of the " +
+                                    "bean. This is often the result of over-eager type matching - consider using " +
+                                    "'getBeanNamesOfType' with the 'allowEagerInit' flag turned off, for example.");
+                }
+            }
+        }
+    }
+
+    // 6. 注册可销毁的 Bean
+    try {
+        registerDisposableBeanIfNecessary(beanName, bean, mbd);
+    } catch (BeanDefinitionValidationException ex) {
+        throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Invalid destruction signature", ex);
+    }
+
+    return exposedObject;
+}
+```
+
+
+
 1. Bean的实例化
 
 - Spring容器根据配置文件或注解元数据创建Bean的实例。
@@ -186,8 +284,7 @@ IOC控制反转是一种设计理念，具体的实现方式有两种，一种�
 
 2. 设置属性值和依赖关系
 
-- 容器根据配置文件或注解中指定的属性值和依赖关系设置Bean的属性值。
-- 这个过程称为依赖注入。
+- 容器根据配置文件或注解中指定的属性值和依赖关系设置Bean的属性值，这个过程称为依赖注入。
 
 3. BeanNameAware和BeanFactoryAware接口
 
@@ -423,7 +520,7 @@ public class App {
 </bean>
 ```
 
-### BeanPostProcessor
+### BeanPostProcessor接口
 
 `BeanPostProcessor`是Spring框架中用于对Spring管理的bean进行后处理的接口。它提供了一种机制，可以在 bean 实例化和依赖注入之后以及自定义初始化方法之前，对 bean 进行额外的处理。
 
@@ -473,8 +570,6 @@ public class App {
     }
 }    
 ```
-
-
 
 ## Context模块
 
@@ -779,23 +874,162 @@ public class MyComponent {
 
 面向切面编程（AOP）是一种编程范式，旨在通过在应用程序中横切关注点（cross-cutting concerns）的分离，使得系统更易于理解、维护和扩展。
 
-## AOP的思想
+## AOP的优势
 
-**横切关注点的分离**：将系统中横跨多个模块的通用功能（如日志、事务、安全性、缓存等）从核心业务逻辑中剥离出来，形成独立的切面（Aspect）。
-
-**模块化关注点**：AOP 将这些横切关注点抽象为切面，通过切面的引入（Introduction）、通知（Advice）、切点（Pointcut）、织入（Weaving）等机制，实现与核心业务逻辑的解耦合。
-
-**提升代码重用和系统模块化**：AOP 使得可以将横切关注点的代码逻辑统一管理，减少重复代码，提高了系统的可维护性和可扩展性。
+1. **模块化**：将跨领域关注点与业务逻辑分离，增强了代码的模块化。
+2. **可重用性**：切面可以应用于多个目标对象，增强了代码的可重用性。
+3. **可维护性**：减少了样板代码，使得业务逻辑更清晰，提高了代码的可维护性。
+4. **灵活性**：通过配置或注解，可以灵活地控制切面的应用范围和行为。
 
 ## AOP的核心概念
 
-1. **切面（Aspect）**：切面是AOP的核心概念之一，它代表了跨领域关注点的模块化。一个切面可以包含多个通知（advice），定义了在程序执行的特定点上应执行的行为。
-2. **连接点（Join Point）**：连接点是程序执行中的一个具体点，例如方法调用或异常抛出。Spring AOP支持方法级别的连接点。
-3. **通知（Advice）**：通知是切面中实际执行的代码。Spring AOP定义了多种类型的通知，包括前置通知（Before）、后置通知（After）、返回通知（AfterReturning）、异常通知（AfterThrowing）和环绕通知（Around）。
-4. **切入点（Pointcut）**：切入点定义了切面应用的位置。它通过表达式指定了连接点的集合，例如某个类的某些方法。
-5. **目标对象（Target Object）**：目标对象是实际业务逻辑所在的对象，切面通过代理对象应用到目标对象上。
-6. **代理（Proxy）**：代理是AOP框架创建的对象，用来实现切面和目标对象的连接。Spring AOP主要通过JDK动态代理和CGLIB代理实现。
-7. **织入（Weaving）**：织入是将切面应用到目标对象并创建代理对象的过程。织入可以在编译时、类加载时或运行时进行。Spring AOP采用的是运行时织入。
+<img src="https://telegraph-image-2ni.pages.dev/file/708c30e38f2d3237291f6.png" style="zoom:45%;" />
+
+
+
+1. **切面（Aspect）**：就像一个特殊的功能模块，负责某种特定的任务，例如日志记录或安全检查。
+2. **连接点（Join Point）**：程序执行的某个具体点，比如方法调用或异常抛出。
+3. **通知（Advice）**：切面中实际执行的代码，比如在方法执行前后进行日志记录。
+4. **切入点（Pointcut）**：定义切面应用的位置，通过表达式指定哪些方法需要应用切面。
+5. **目标对象（Target Object）**：实际执行业务逻辑的对象，例如我们要记录日志的业务类。
+6. **代理（Proxy）**：AOP 框架创建的对象，负责将切面逻辑应用到目标对象上。
+7. **织入（Weaving）**：将切面应用到目标对象并创建代理对象的过程。
+
+## AOP运行原理
+
+Spring AOP通过代理模式在运行时将切面（Aspect）应用到目标对象（Target Object）上。
+
+### 运行过程
+
+1.定义切面
+
+- **定义切面类和通知**：开发者编写切面类，切面类中包含多个通知（Advice）,通知定义了在目标方法执行前、执行后、返回后或抛出异常时要执行的逻辑。
+- **定义切入点（Pointcut）**：使用表达式（如`execution(* com.example.demo.UserService.getUser())`）定义切入点，指定哪些方法会被拦截。
+
+2.Spring容器初始化
+
+- **Spring配置解析**：Spring解析AOP相关的配置，生成Bean定义。可以使用注解（如`@Aspect`、`@Before`、`@After`）或XML配置。
+- **组件扫描**：Spring扫描配置中指定的包，找到切面类和目标对象，并将它们注册为Spring Bean。
+
+3.创建代理对象: Spring AOP使用ProxyFactory创建代理对象，代理对象可以是JDK动态代理（如果目标对象实现了接口）或CGLIB代理（如果目标对象没有实现接口）。
+
+- **JDK动态代理**：使用`java.lang.reflect.Proxy`创建代理对象，代理对象实现了目标对象的接口。
+- **CGLIB代理**：使用CGLIB库创建目标对象的子类代理，代理对象通过覆盖目标对象的方法来实现代理功能。
+
+4.方法拦截和通知执行
+
+- **方法调用拦截**：当客户端代码调用代理对象的方法时，代理对象会拦截这个方法调用。
+- 执行切面逻辑：
+  - **前置通知（Before Advice）**：在目标方法执行前，代理对象会先执行前置通知。
+  - **目标方法执行**：代理对象调用目标对象的方法。
+  - **后置通知（After Advice）**：在目标方法执行后，代理对象执行后置通知。
+  - **返回通知（AfterReturning Advice）**：在目标方法成功返回后，代理对象执行返回通知。
+  - **异常通知（AfterThrowing Advice）**：在目标方法抛出异常后，代理对象执行异常通知。
+  - **环绕通知（Around Advice）**：代理对象在执行目标方法前后，分别执行环绕通知的前后部分逻辑。
+
+5.织入（Weaving）：运行时织入AOP在运行时将切面逻辑应用到目标对象上，Spring通过代理对象在方法调用时动态地将切面逻辑织入目标对象的方法中。
+
+### 技术角度
+
+**代理模式**：
+
+- **JDK动态代理**：适用于目标对象实现了接口的情况，Spring会创建目标对象的代理实例，代理对象会拦截方法调用并将切面逻辑织入。
+- **CGLIB代理**：适用于目标对象没有实现接口的情况，Spring会创建目标对象的子类代理实例，通过覆盖目标对象的方法来织入切面逻辑。
+
+### 源码角度
+
+#### 启动过程
+
+1.配置解析： Spring解析配置文件，将AOP相关配置转换为Bean定义。在XML配置中，可以使用`<aop:config>`和`<aop:aspect>`等标签定义切面。
+
+```java
+<aop:config>
+    <aop:aspect ref="myAspect">
+        <aop:pointcut id="myPointcut" expression="execution(* com.example.service.*.*(..))"/>
+        <aop:before method="beforeMethod" pointcut-ref="myPointcut"/>
+    </aop:aspect>
+</aop:config>
+```
+
+2.创建代理：Spring在创建Bean实例时，如果该Bean配置了AOP，会通过`ProxyFactory`创建代理对象，核心类是`ProxyFactoryBean`。
+
+```java
+// AbstractAutoProxyCreator.java
+protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) {
+    if (bean instanceof AopInfrastructureBean) {
+        return bean;
+    }
+    if (shouldSkip(bean, beanName)) {
+        return bean;
+    }
+    Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
+    if (specificInterceptors != DO_NOT_PROXY) {
+        Object proxy = createProxy(bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
+        return proxy;
+    }
+    return bean;
+}
+```
+
+#### 代理对象的创建
+
+**JDK动态代理**：如果目标对象实现了接口，Spring会使用`java.lang.reflect.Proxy`类创建代理对象。代理类实现了目标对象的所有接口，并在调用方法时执行切面逻辑。
+
+```java
+// JdkDynamicAopProxy.java
+@Override
+public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    MethodInvocation invocation = new ReflectiveMethodInvocation(target, method, args, interceptors);
+    return invocation.proceed();
+}
+```
+
+**CGLIB代理**：如果目标对象没有实现接口，Spring会使用CGLIB库创建代理对象，生成目标对象的子类并覆盖方法。
+
+```java
+// CglibAopProxy.java
+protected Object createProxyClassAndInstance(Enhancer enhancer, Callback[] callbacks) {
+    enhancer.setCallbacks(callbacks);
+    return enhancer.create();
+}
+```
+
+#### 方法拦截与通知执行
+
+代理对象在方法调用时，会执行切面逻辑。Spring AOP通过`MethodInterceptor`接口实现方法拦截。
+
+**前置通知（Before Advice）**：
+
+```java
+// MethodBeforeAdviceInterceptor.java
+@Override
+public Object invoke(MethodInvocation mi) throws Throwable {
+    this.advice.before(mi.getMethod(), mi.getArguments(), mi.getThis());
+    return mi.proceed();
+}
+```
+
+后置通知（After Advice）:
+
+```java
+// AfterReturningAdviceInterceptor.java
+@Override
+public Object invoke(MethodInvocation mi) throws Throwable {
+    Object retVal = mi.proceed();
+    this.advice.afterReturning(retVal, mi.getMethod(), mi.getArguments(), mi.getThis());
+    return retVal;
+}
+```
+
+**环绕通知（Around Advice）**
+
+```java
+// AspectJAroundAdvice.java
+@Override
+public Object invoke(MethodInvocation mi) throws Throwable {
+    return aspectAdvice.invoke(adviceMethod, joinPoint, mi.getArguments());
+}
+```
 
 ## Spring AOP和AspectJ AOP的区别
 
@@ -834,78 +1068,179 @@ Spring AOP（面向切面编程）和AspectJ AOP（又称纯AspectJ AOP）都是
    - JDK动态代理是Java标准库的一部分，无需额外的依赖，但只能代理接口类型的目标对象。
    - CGLIB动态代理需要依赖于CGLIB库，使用时需要将CGLIB库引入项目中，但可以代理普通的Java类。
 
-## 示例代码
+## AOP示例代码
 
 ### 创建切面类
 
 ```java
-@Aspect
 @Component
+//@Aspect注解将LoggingAspect类标记为一个切面
+@Aspect
 public class LoggingAspect {
+    // 前置通知 - 在方法调用前执行
+    @Before("execution(* com.spring.learn.service.UserService.getUser())")
+    public void logBeforeGetUser(JoinPoint joinPoint) {
+        System.out.println("Before executing getUser() method");
+    }
 
-    @Before("execution(* com.example.service.*.*(..))")
-    public void logBeforeMethodExecution() {
-        System.out.println("A method in the service package is about to be executed.");
+    // 后置通知 - 在方法调用后执行
+    @After("execution(* com.spring.learn.service.UserService.getUser())")
+    public void logAfterGetUser(JoinPoint joinPoint) {
+        System.out.println("After executing getUser() method");
     }
 }
 ```
 
-`@Aspect`注解将`LoggingAspect`类标记为一个切面，`@Before`注解定义了一个前置通知，表示在执行`com.example.service`包中的任何方法之前都会执行`logBeforeMethodExecution`方法。
-
-### 配置Spring应用上下文
-
-使用注解配置类来启用AOP：
+### 启用AOP
 
 ```java
 @Configuration
-@ComponentScan(basePackages = "com.example")
+@ComponentScan(basePackages = "com.spring.learn")
+// 在这个配置类中@EnableAspectJAutoProxy注解启用了Spring的AOP支持。 
 @EnableAspectJAutoProxy
-public class AppConfig {
+public class App {
+
 }
 ```
-
-在这个配置类中，`@EnableAspectJAutoProxy`注解启用了Spring的AOP支持。 
 
 ### 创建目标对象
 
 ```java
 @Service
 public class UserService {
-
-    public void createUser() {
-        System.out.println("Creating a new user...");
+    //连接点就是这个方法
+    public void getUser() {
+        System.out.println("Executing getUser() method");
     }
 }
 ```
 
-### 测试AOP功能
 
-```java
-public class MainApp {
-
-    public static void main(String[] args) {
-        ApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-        UserService userService = context.getBean(UserService.class);
-        userService.createUser();
-    }
-}
-```
-
-运行这个主程序，你会看到以下输出：
-
-```css
-A method in the service package is about to be executed.
-Creating a new user...
-```
-
-## AOP的优势
-
-1. **模块化**：将跨领域关注点与业务逻辑分离，增强了代码的模块化。
-2. **可重用性**：切面可以应用于多个目标对象，增强了代码的可重用性。
-3. **可维护性**：减少了样板代码，使得业务逻辑更清晰，提高了代码的可维护性。
-4. **灵活性**：通过配置或注解，可以灵活地控制切面的应用范围和行为。
 
 # 事务
+
+## 什么是事务
+
+事务是一个完整的工作单元，要么全部执行，要么全部不执行。
+
+## 事务的特性
+
+包括ACID特性：原子性（Atomicity）、一致性（Consistency）、隔离性（Isolation）、持久性（Durability）。
+
+## 事务管理
+
+事务管理是在应用程序中处理和管理事务的过程，Spring提供了声明式和编程式两种事务管理方式。
+
+
+
+## 声明式事务
+
+### 什么是声明式事务
+
+声明式事务是指通过配置或注解的方式来声明和管理事务，而不是在代码中手动编写事务管理的逻辑。在spring框架中进行了声明式事务后可以在运行时自动开启、提交、回滚事务。
+
+### 声明式事务的原理
+
+声明式事务使用AOP（面向切面编程，Aspect-Oriented Programming）来实现。当一个方法被声明为事务性方法时，Spring在方法调用之前和之后自动插入事务管理逻辑。
+
+### 实现声明式事务的方式
+
+**1.配置类**
+
+```java
+@Configuration
+@ComponentScan("com.spring")
+//在配置类中启用事务管理
+@EnableTransactionManagement
+public class AppConfig {
+
+    @Bean
+    public DriverManagerDataSource dataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/test");
+        dataSource.setUsername("root");
+        dataSource.setPassword("password");
+        return dataSource;
+    }
+
+    @Bean
+    public PlatformTransactionManager transactionManager() {
+        return new DataSourceTransactionManager(dataSource());
+    }
+}
+```
+
+**2.业务类**
+
+```java
+@Service
+public class UserService {
+
+    @Transactional
+    public void createUser(User user) {
+        // 业务逻辑代码
+    }
+}
+```
+
+**3.事务回滚**
+
+Spring 事务管理默认情况下，会在遇到未被捕获的 `RuntimeException` 和 `Error` 时自动回滚事务。如果方法中抛出了这些类型的异常，Spring 会回滚事务，撤销在事务中进行的所有更改。
+
+```java
+@Service
+public class UserService {
+	//指定在捕获到哪些异常时回滚事务。
+    @Transactional(rollbackFor = {SQLException.class, CustomException.class})
+    public void createUser(User user) throws CustomException {
+        // 业务逻辑代码
+    }
+	//指定在捕获到哪些异常时不回滚事务
+    @Transactional(noRollbackFor = {RuntimeException.class})
+    public void updateUser(User user) {
+        // 业务逻辑代码
+    }
+}
+```
+
+**4.事务超时**
+
+事务超时用于限制事务的执行时间。如果事务在指定时间内没有完成，Spring 将自动回滚事务。可以通过 `@Transactional` 注解的 `timeout` 属性设置事务的超时时间，单位是秒。
+
+```java
+@Service
+public class UserService {
+
+    @Transactional(timeout = 5)
+    public void createUser(User user) {
+        // 业务逻辑代码，必须在5秒内完成，否则事务会被回滚
+    }
+}
+```
+
+**5.事务只读**
+
+如果一个事务只进行数据查询，不进行数据更新，可以通过 `@Transactional` 注解的 `readOnly` 属性将其设置为只读，提高性能。只读事务不涉及数据的更新操作，因此数据库可以优化查询操作。
+
+```java
+@Service
+public class UserService {
+
+    @Transactional(readOnly = true)
+    public User getUserById(Long id) {
+        // 只进行数据查询
+        return userRepository.findById(id).orElse(null);
+    }
+}
+```
+
+### 声明式事务的优点
+
+1. **简化代码**：简化了代码开发。
+2. **解耦**：事务管理逻辑与业务逻辑分离，代码更清晰易读。
+3. **可配置性强**：通过配置文件或注解，可以灵活地控制事务的传播行为、隔离级别和回滚规则等。
+4. **提高可维护性**：由于事务管理是集中配置的，更改事务管理策略时只需修改配置或注解，而不需要修改业务代码
 
 ## Spring事务传播机制
 
@@ -925,6 +1260,59 @@ Spring 事务传播机制用于定义当一个事务方法被另一个事务方�
 
 7. PROPAGATION_NESTED : 如果当前存在事务,则创建一个事务作为当前事务的嵌套事务来运行;如果当前没有事务,则相当于REQUIRED。
 
+## 事务的隔离级别
+
+`ISOLATION_DEFAULT`：这是默认值，表示使用底层数据库的默认隔离级别。
+
+`ISOLATION_READ_UNCOMMITTED`：允许读取尚未提交的数据变更，可能导致脏读、不可重复读、幻读。
+
+`ISOLATION_READ_COMMITTED`：对已提交数据的读取，可能导致不可重复读、幻读。
+
+`ISOLATION_REPEATABLE_READ`：对相同字段的多次读取结果都是一致的，可能导致幻读。
+
+`ISOLATION_SERIALIZABLE`：完全服从ACID的隔离级别，所有事务依次逐个执行。
+
+```java
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    // 使用默认隔离级别
+    @Transactional
+    public void createUser(User user) {
+        userRepository.save(user);
+    }
+
+    // 设置隔离级别为READ_UNCOMMITTED
+    @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+    public void readUncommitted() {
+        // 业务逻辑代码
+    }
+
+    // 设置隔离级别为READ_COMMITTED
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public void readCommitted() {
+        // 业务逻辑代码
+    }
+
+    // 设置隔离级别为REPEATABLE_READ
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void repeatableRead() {
+        // 业务逻辑代码
+    }
+
+    // 设置隔离级别为SERIALIZABLE
+    @Transactional(isolation = Isolation.SERIALIZABLE)
+    public void serializable() {
+        // 业务逻辑代码
+    }
+}
+```
+
+
+
 ## Spring事务什么时候会失效?
 
 1. **异常处理不当**
@@ -943,8 +1331,6 @@ Spring 事务传播机制用于定义当一个事务方法被另一个事务方�
 
 5. **事务注解使用不当** :如果事务注解 `@Transactional` 没有正确地应用在方法上,或者应用在了非 public 方法上,事务也可能失效。
 
-   
-
 ## Spring中的事务是如何实现的
 
 1. **AOP代理**：Spring利用AOP机制为被@Transactional注解或XML配置的方法创建代理对象。这些代理对象拦截方法调用，并在方法调用前后执行额外的逻辑，如开启和提交事务、回滚事务等。
@@ -953,103 +1339,44 @@ Spring 事务传播机制用于定义当一个事务方法被另一个事务方�
 4. **事务的开始和提交**：当调用一个被@Transactional注解或XML配置的方法时，Spring事务切面会首先尝试开启一个事务。如果当前没有事务存在，则创建一个新的事务；如果已经存在事务，则加入到当前事务中。在方法执行完成后，如果方法执行成功，Spring事务切面将提交事务；如果方法发生异常，则回滚事务。
 5. **事务的隔离级别和传播行为**：Spring允许在@Transactional注解中指定事务的隔离级别和传播行为。隔离级别定义了事务的并发控制策略，传播行为定义了事务的传播方式。这些设置可以影响事务的行为，如保证数据一致性、避免并发问题等。
 
-## 声明式事务
 
-### 什么是声明式事务
-
-声明式事务是指通过配置或注解的方式来声明和管理事务，而不是在代码中手动编写事务管理的逻辑。在spring框架中进行了声明式事务后可以在运行时自动开启、提交、回滚事务。
-
-### 声明式事务的原理
-
-声明式事务使用AOP（面向切面编程，Aspect-Oriented Programming）来实现。当一个方法被声明为事务性方法时，Spring在方法调用之前和之后自动插入事务管理逻辑。
-
-### 实现声明式事务的方式
-
-**1.使用XML配置**
-
-声明式事务通常通过XML配置文件来实现。以下是一个简单的示例：
-
-```xml
-<!-- 启用事务注解驱动 -->
-<tx:annotation-driven transaction-manager="transactionManager"/>
-```
-
-**2.使用注解**
-
-```java
-@Service
-public class UserService {
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Transactional
-    public void createUser(User user) {
-        userRepository.save(user);
-        // 其他业务逻辑
-    }
-}
-```
-
-### 声明式事务的优点
-
-1. **简化代码**：简化了代码开发。
-2. **解耦**：事务管理逻辑与业务逻辑分离，代码更清晰易读。
-3. **可配置性强**：通过配置文件或注解，可以灵活地控制事务的传播行为、隔离级别和回滚规则等。
-4. **提高可维护性**：由于事务管理是集中配置的，更改事务管理策略时只需修改配置或注解，而不需要修改业务代码
 
 
 
 # Spring注解
 
-1. 配置类相关注解
+| 注解类型             | 注解              | 说明                                               |
+| -------------------- | ----------------- | -------------------------------------------------- |
+| **配置类相关注解**   | `@Configuration`  | 标注一个类为配置类，相当于一个Spring XML配置文件。 |
+|                      | `@ComponentScan`  | 配置组件扫描的基准包。                             |
+|                      | `@Import`         | 导入其他配置类。                                   |
+|                      | `@PropertySource` | 指定属性源，如properties文件。                     |
+| **Bean相关注解**     | `@Component`      | 标注一个类为Spring组件。                           |
+|                      | `@Service`        | 标注一个类为服务层组件。                           |
+|                      | `@Repository`     | 标注一个类为数据访问组件，即DAO。                  |
+|                      | `@Controller`     | 标注一个类为Spring MVC控制器。                     |
+|                      | `@RestController` | 标注一个类为Spring MVC RESTful风格的控制器。       |
+|                      | `@Bean`           | 标注一个方法返回一个Bean对象。                     |
+| **依赖注入相关注解** | `@Autowired`      | 自动装配，可用于构造器、setter方法、属性或者参数。 |
+|                      | `@Qualifier`      | 与`@Autowired`一起使用，提供更细粒度的控制。       |
+|                      | `@Resource`       | 相当于`@Autowired`加`@Qualifier`，按名称装配。     |
+| **作用域相关注解**   | `@Scope`          | 指定Bean的作用域，如singleton、prototype等。       |
+| **生命周期相关注解** | `@PostConstruct`  | 标注一个方法为初始化方法。                         |
+|                      | `@PreDestroy`     | 标注一个方法为销毁方法。                           |
+| **AOP相关注解**      | `@Aspect`         | 标注一个类为切面。                                 |
+|                      | `@Pointcut`       | 定义切点表达式。                                   |
+|                      | `@Before`         | 前置通知。                                         |
+|                      | `@After`          | 后置通知。                                         |
+|                      | `@AfterReturning` | 返回通知。                                         |
+|                      | `@AfterThrowing`  | 异常通知。                                         |
+|                      | `@Around`         | 环绕通知。                                         |
+| **其他注解**         | `@Value`          | 注入属性值。                                       |
+|                      | `@Required`       | 标注setter方法必须在配置时设置值。                 |
+|                      | `@Lazy`           | 延迟加载。                                         |
+|                      | `@DependsOn`      | 定义依赖关系。                                     |
+|                      | `@Primary`        | 指定首选的Bean。                                   |
 
-- `@Configuration`: 标注一个类为配置类,相当于一个Spring XML配置文件。
-- `@ComponentScan`: 配置组件扫描的基准包。
-- `@Import`: 导入其他配置类。
-- `@PropertySource`: 指定属性源,如properties文件。
 
-2. Bean相关注解
-
-- `@Component`: 标注一个类为Spring组件。
-- `@Service`: 标注一个类为服务层组件。
-- `@Repository`: 标注一个类为数据访问组件,即DAO。
-- `@Controller`: 标注一个类为Spring MVC控制器。
-- `@RestController`: 标注一个类为Spring MVC RESTful风格的控制器。
-- `@Bean`: 标注一个方法返回一个Bean对象。
-
-3. 依赖注入相关注解
-
-- `@Autowired`: 自动装配,可用于构造器、setter方法、属性或者参数。
-- `@Qualifier`: 与`@Autowired`一起使用,提供更细粒度的控制。
-- `@Resource`: 相当于`@Autowired`加`@Qualifier`,按名称装配。
-
-4. 作用域相关注解
-
-- `@Scope`: 指定Bean的作用域,如singleton、prototype等。
-
-5. 生命周期相关注解
-
-- `@PostConstruct`: 标注一个方法为初始化方法。
-- `@PreDestroy`: 标注一个方法为销毁方法。
-
-6. AOP相关注解
-
-- `@Aspect`: 标注一个类为切面。
-- `@Pointcut`: 定义切点表达式。
-- `@Before`: 前置通知。
-- `@After`: 后置通知。
-- `@AfterReturning`: 返回通知。
-- `@AfterThrowing`: 异常通知。
-- `@Around`: 环绕通知。
-
-7. 其他注解
-
-- `@Value`: 注入属性值。
-- `@Required`: 标注setter方法必须在配置时设置值。
-- `@Lazy`: 延迟加载。
-- `@DependsOn`: 定义依赖关系。
-- `@Primary`: 指定首选的Bean。
 
 
 

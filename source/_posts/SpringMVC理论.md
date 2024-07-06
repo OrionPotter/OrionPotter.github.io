@@ -53,7 +53,7 @@ SpringMVC是Spring Framework的一部分，是一种基于Java的MVC（Model-Vie
 
 # 核心组件
 
-## SpringMVC的核心组件有哪些？
+## 核心组件
 
 1. **DispatcherServlet**：前端控制器（Front Controller），所有的 HTTP 请求都会先经过它。它负责将请求分发到合适的处理器（Controller）。
 
@@ -73,7 +73,7 @@ SpringMVC是Spring Framework的一部分，是一种基于Java的MVC（Model-Vie
 
 9. **Interceptor**：用于在请求处理的各个阶段执行额外逻辑的组件。它类似于过滤器，但更强大，可以在请求处理的前后执行操作。
 
-## SpringMVC的工作原理
+## 工作原理
 
 1.**客户端请求**
 
@@ -358,7 +358,7 @@ public class HelloController {
 
 # SpringMVC常见问题
 
-## 转发和重定向的区别
+## 转发和重定向
 
 ### 转发（Forward）
 
@@ -414,7 +414,7 @@ public class HelloController {
    }
    ```
 
-## 中文乱码如何解决
+## 中文乱码
 
 1. **配置SpringMVC**：在配置类或XML中添加字符编码过滤器。
 
@@ -444,7 +444,7 @@ public class HelloController {
    }
    ```
 
-## 如何进行异常处理
+## 异常处理
 
 1. **使用**`@ExceptionHandler`：
 
@@ -479,7 +479,7 @@ public class HelloController {
    }
    ```
 
-## 如何实现拦截器
+## 拦截器
 
 1. **创建拦截器**：
 
@@ -515,7 +515,7 @@ public class HelloController {
    }
    ```
 
-## SpringMVC前后台传递对象有哪些，区别是什么
+## 数据传递
 
 1. **Model**：
 
@@ -620,3 +620,70 @@ public class HelloController {
    - **特点**：适用于需要跨请求共享数据的场景，比如用户登录信息。
 
 每种对象传递方式都有其特定的使用场景和特点，Model和ModelAndView适用于返回视图的传统Web应用，@RequestBody和@ResponseBody则更适合RESTful API的开发。
+
+## 跨域问题
+
+### 什么是跨域请求
+
+跨域请求（Cross-Origin Request）指的是浏览器从一个域（域名、协议、端口）向另一个域发送的请求。由于安全原因，浏览器默认不允许从一个域向另一个域发起Ajax请求。这种限制被称为同源策略（Same-Origin Policy）。
+
+### 同源策略的限制
+
+同源策略是浏览器的一种安全机制，用于防止不同源的恶意网站读取本域的敏感数据。两个URL若具有相同的协议、域名和端口号，则被认为是同源的。否则，即使它们只是在端口号上有所不同，也会被认为是跨域的。
+
+### 跨域资源共享（CORS）
+
+跨域资源共享（CORS, Cross-Origin Resource Sharing）是一种机制，它使用额外的HTTP头来告诉浏览器允许Web应用运行在一个源上，可以访问另一个源的资源。CORS允许服务器控制哪些资源允许跨域访问，以及在访问时可以使用哪些HTTP方法。
+
+### @CrossOrigin注解
+
+Spring提供了`@CrossOrigin`注解来简化跨域请求的配置。`@CrossOrigin`注解可以应用在控制器类或方法上，用于启用CORS。
+
+```java
+@RestController
+@RequestMapping("/api")
+//该控制器中的所有请求都允许从http://example.com域进行跨域访问。
+@CrossOrigin(origins = "http://example.com")
+public class MyController {
+	//用于控制器方法上，仅允许对/greeting方法的跨域访问
+    @CrossOrigin(
+        origins = "http://example.com",
+        methods = {RequestMethod.GET, RequestMethod.POST},
+        allowedHeaders = {"header1", "header2"},
+        allowCredentials = "true",
+        maxAge = 3600)
+    @RequestMapping("/greeting")
+    public String greeting() {
+        return "Hello World";
+    }
+}
+```
+
+**origins**：指定允许的域，可以是多个域名的数组。
+
+**methods**：指定允许的HTTP方法，如GET、POST、PUT、DELETE等。
+
+**allowedHeaders**：指定允许的HTTP头。
+
+**allowCredentials**：是否允许发送Cookie。
+
+**maxAge**：指定浏览器在发起预检请求（pre-flight request）后，缓存预检结果的时间（以秒为单位）。
+
+全局CORS配置
+
+```java
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://example.com")
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedHeaders("header1", "header2")
+                .allowCredentials(true)
+                .maxAge(3600);
+    }
+}
+```
+
