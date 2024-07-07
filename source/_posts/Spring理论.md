@@ -278,19 +278,16 @@ protected Object doCreateBean(final String beanName, final RootBeanDefinition mb
 
 IOC控制反转是一种设计理念，具体的实现方式有两种，一种是依赖注入，一种是依赖查找，依赖查找就是硬编码，A类对象初始化的时候创建B对象，依赖注入是交由IOC容器进行管理的，A类不再去实例化B类对象，而是简单声明B，由IOC容器负责将B的实例提供给A
 
-#### IoC的实现原理/流程
+##### 注入方式
 
-1. **读取配置**：IOC容器读取XML配置文件或注解,获取Bean的定义信息。
-2. **创建Bean注册表**：根据Bean的定义信息为每个Bean创建一个BeanDefinition,并保存到一个ConcurrentHashMap注册表中，key为beanName,value为BeanDefinition对象。
-3. **按需实例化Bean**：第一次请求Bean时,通过反射机制根据BeanDefinition中的类名实例化Bean对象以及依赖的Bean，并放到一级缓存(单例池)中。
-4. **依赖注入**：Bean实例化后,根据BeanDefinition中的依赖信息,将依赖的Bean实例或者属性值通过set注入或者构造注入到目标Bean中。
-5. **返回Bean实例**：IOC容器返回应用程序所需的Bean实例。
++ set注入
++ 构造注入
 
-### Bean的循环依赖问题
+##### Bean的依赖注入存在循环依赖问题
 
 解决方案：提前暴露未完成的bean
 
-1.三级缓存机制
+**1.三级缓存机制**
 
 Spring IOC 容器内部维护了三级缓存:
 
@@ -298,7 +295,7 @@ Spring IOC 容器内部维护了三级缓存:
 2. **二级缓存(earlySingletonObjects)**: 用于缓存提前曝光的"半成品"Bean实例,用于解决循环依赖问题。
 3. **三级缓存(singletonFactories)**: 用于缓存Bean工厂,也是用于解决循环依赖问题的。
 
-2.解决循环依赖的过程
+**2.解决循环依赖的过程**
 
 当 A 依赖 B，B 又依赖 A 形成循环依赖时,Spring 的处理流程如下:
 
@@ -308,9 +305,13 @@ Spring IOC 容器内部维护了三级缓存:
 4. 有了 A 的"未完成"实例后,Spring 可以顺利完成 B 对象的创建,并将 B 放入一级缓存(单例池)中。
 5. 最后,Spring 再回过头来完成 A 对象的创建,并将其从二级缓存(earlySingletonObjects)移动到一级缓存(单例池)中。
 
-通过这种提前暴露"未完成"Bean实例的方式,Spring巧妙地解决了 Bean 之间的循环依赖问题。
+#### IoC的实现原理/流程
 
-
+1. **读取配置**：IOC容器读取XML配置文件或注解,获取Bean的定义信息。
+2. **创建Bean注册表**：根据Bean的定义信息为每个Bean创建一个BeanDefinition,并保存到一个ConcurrentHashMap注册表中，key为beanName,value为BeanDefinition对象。
+3. **按需实例化Bean**：第一次请求Bean时,通过反射机制根据BeanDefinition中的类名实例化Bean对象以及依赖的Bean，并放到一级缓存(单例池)中。
+4. **依赖注入**：Bean实例化后,根据BeanDefinition中的依赖信息,将依赖的Bean实例或者属性值通过set注入或者构造注入到目标Bean中。
+5. **返回Bean实例**：IOC容器返回应用程序所需的Bean实例。
 
 ## Beans模块
 
