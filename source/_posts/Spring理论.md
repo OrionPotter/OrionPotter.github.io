@@ -153,30 +153,14 @@ Object find(Collection<?> collection, Predicate<? super Object> predicate)
 
 #### 什么是Spring IOC 容器
 
-IoC容器是Spring框架用于管理应用程序中bean的生命周期的组件,它负责实例化、配置和组装 bean,并提供给应用程序使用。
+IoC容器是Spring框架用于管理应用程序中bean的生命周期的组件,它负责管理bean的生命周期、配置和组装 bean,并提供给应用程序使用。
 
 #### IOC的作用
 
 1. **管理bean的生命周期**：负责实例化bean、配置bean的属性和依赖关系、管理bean的作用域、销毁bean。
 2. **依赖注入**：通过构造函数、setter 方法或字段注入 bean 的依赖使得 bean 可以声明式地接收依赖,而不需要自己创建依赖。
-3. **解耦应用程序组件**：通过依赖注入,bean不需要知道自己的依赖是谁提供的提高了组件的可重用性和可测试性。
-4. **配置管理**：支持多种配置方式,如 XML、注解和 Java 配置提供了灵活的配置方式,适应不同的需求。
-5. **生命周期管理**：支持bean的生命周期回调方法可以在bean初始化和销毁时执行定制的逻辑。
 
-#### IoC的实现原理/流程
-
-1. **Bean定义的载入和解析**：Spring支持多种Bean定义的方式,如 XML、注解和 Java 配置类容器会将这些 Bean 定义信息加载到 BeanDefinition 对象中通过 BeanDefinitionReader 等组件完成 Bean 定义的解析和注册
-2. **Bean的实例化和依赖注入**：当应用程序请求获取 Bean 时,容器会负责实例化 Bean容器使用反射机制创建 Bean 实例,并通过 setter 方法或构造函数注入依赖容器会缓存已经创建的 Bean 实例,提高性能
-3. **Bean生命周期管理**：容器负责管理 Bean 的整个生命周期,包括初始化、依赖注入、销毁等容器提供了 BeanPostProcessor、InitializingBean 等扩展点,开发者可以自定义生命周期逻辑
-4. **依赖查找和注入**：容器提供了getBean()等方法供开发者查找和获取Bean实例依赖注入可以是手动配置,也可以是自动装配
-5. **容器的扩展机制**：Spring 提供了丰富的扩展机制,如 BeanFactoryPostProcessor、BeanPostProcessor 等开发者可以通过实现这些接口来扩展容器的功能,如添加自定义的 Bean 后处理逻辑
-6. **事件机制**：Spring 容器内部定义了一系列事件,如 ContextRefreshedEvent、RequestHandledEvent 等开发者可以注册事件监听器,在特定事件发生时执行自定义逻辑
-
-#### 什么是依赖注入？
-
-IOC控制反转是一种设计理念，具体的实现方式有两种，一种是依赖注入，一种是依赖查找，依赖查找就是硬编码，A类对象初始化的时候创建B对象，依赖注入是交由IOC容器进行管理的，A类不再去实例化B类对象，而是简单声明B，由IOC容器负责将B的实例提供给A
-
-### Bean的生命周期
+#### Bean的生命周期
 
 <img src="https://telegraph-image-2ni.pages.dev/file/205dcba19454277e044b4.png" style="zoom: 50%;" />
 
@@ -274,46 +258,47 @@ protected Object doCreateBean(final String beanName, final RootBeanDefinition mb
 }
 ```
 
+1. 实例化：Spring容器根据配置文件或注解元数据创建Bean的实例，如果是单例模式,容器只会创建一次，如果是多例模式,每次请求都会创建一个新的实例。
+
+2. 属性赋值：容器根据配置文件或注解中指定的属性值和依赖关系设置Bean的属性值，这个过程称为依赖注入。
+
+3. BeanNameAware和BeanFactoryAware接口：Aware接口,用于让Bean感知自身在Spring容器中的一些信息。
+
+4. BeanPostProcessor前置处理：如果实现了BeanPostProcessor接口,容器会在Bean的初始化方法被调用之前调用postProcessBeforeInitialization()方法执行自定义逻辑。
+
+5. InitializingBean和init-method：如果Bean实现了InitializingBean接口,容器会在属性注入完成后调用afterPropertiesSet()方法，如果在配置文件中指定了init-method,容器会调用指定的初始化方法。
+
+6. BeanPostProcessor后置处理：如果实现了BeanPostProcessor接口,容器会在Bean的初始化方法被调用之前调用postProcessAfterInitialization()方法执行自定义逻辑。
+
+7. 使用Bean：此时Bean已经准备就绪,可以被应用程序使用了。
+
+8. 销毁Bean：如果Bean实现了DisposableBean接口或者在配置中指定了destroy-method,则在容器关闭时执行相应的销毁方法。
+
+#### 什么是依赖注入？
+
+IOC控制反转是一种设计理念，具体的实现方式有两种，一种是依赖注入，一种是依赖查找，依赖查找就是硬编码，A类对象初始化的时候创建B对象，依赖注入是交由IOC容器进行管理的，A类不再去实例化B类对象，而是简单声明B，由IOC容器负责将B的实例提供给A
+
+#### IoC的实现原理/流程
+
+1. **读取配置**：IOC容器读取XML配置文件或注解,获取Bean的定义信息。
+2. **创建Bean注册表**：根据Bean的定义信息为每个Bean创建一个BeanDefinition,并保存到一个ConcurrentHashMap注册表中，key为beanName,value为BeanDefinition对象。
+3. **按需实例化Bean**：第一次请求Bean时,通过反射机制根据BeanDefinition中的类名实例化Bean对象以及依赖的Bean，并放到一级缓存(单例池)中。
+4. **依赖注入**：Bean实例化后,根据BeanDefinition中的依赖信息,将依赖的Bean实例或者属性值通过set注入或者构造注入到目标Bean中。
+5. **返回Bean实例**：IOC容器返回应用程序所需的Bean实例。
+
+### Bean的循环依赖问题
+
+解决方案：提前暴露未完成的bean
+
+Spring在创建bean时并不是等它完全完成,而是将创建中的bean提前曝光(加入到singletonFactories三级缓存),当下一个bean创建需要依赖此bean时,从三级缓存获取。这样就能解决循环依赖。
+
+1. 先创建A对象,并将其放入三级缓存
+2. A需要注入B,到缓存中查找B,没有,触发B的创建
+3. 创建B对象,并将其放入三级缓存
+4. B需要注入A,从缓存中找到未完成的A对象,完成注入
+5. 最后再对A的B属性进行填充,从缓存中拿到B对象
 
 
-1. Bean的实例化
-
-- Spring容器根据配置文件或注解元数据创建Bean的实例。
-- 如果是单例模式,容器只会创建一次。
-- 如果是多例模式,每次请求都会创建一个新的实例。
-
-2. 设置属性值和依赖关系
-
-- 容器根据配置文件或注解中指定的属性值和依赖关系设置Bean的属性值，这个过程称为依赖注入。
-
-3. BeanNameAware和BeanFactoryAware接口
-
-- 如果Bean实现了BeanNameAware接口,容器会将Bean的ID传递给setBeanName()方法。
-- 如果Bean实现了BeanFactoryAware接口,容器会将容器自身传递给setBeanFactory()方法。
-
-4. BeanPostProcessor前置处理
-
-- 容器会检查Bean是否实现了BeanPostProcessor接口。
-- 如果实现了,容器会在Bean的初始化方法被调用之前调用postProcessBeforeInitialization()方法。
-
-5. InitializingBean和init-method
-
-- 如果Bean实现了InitializingBean接口,容器会调用afterPropertiesSet()方法。
-- 如果在配置文件中指定了init-method,容器会调用指定的初始化方法。
-
-6. BeanPostProcessor后置处理
-
-- 容器会检查Bean是否实现了BeanPostProcessor接口。
-- 如果实现了,容器会在Bean的初始化方法被调用之后调用postProcessAfterInitialization()方法。
-
-7. 使用Bean
-
-- 此时Bean已经准备就绪,可以被应用程序使用了。
-
-8. 销毁Bean
-
-- 如果Bean实现了DisposableBean接口,容器会在Bean销毁的时候调用destroy()方法。
-- 如果在配置文件中指定了destroy-method,容器会调用指定的销毁方法。
 
 ## Beans模块
 
