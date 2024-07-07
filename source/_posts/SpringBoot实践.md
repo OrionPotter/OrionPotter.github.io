@@ -1,7 +1,7 @@
 ---
 title: SpringBoot实践
 tag:
-- SpringBoot
+- SpringBoot实践
 ---
 
 # 入门
