@@ -317,35 +317,6 @@ protected Object doCreateBean(final String beanName, final RootBeanDefinition mb
 
 ## Beans模块
 
-### BeanFactory接口
-
-- `XmlBeanFactory` 实现类
-
-```java
-ClassPathResource classPathResource = new ClassPathResource("applicationContext.xml");
-BeanFactory beanFactory = new XmlBeanFactory(classPathResource);
-```
-
-+ `DefaultListableBeanFactory` 实现类
-
-```java
-// 创建 DefaultListableBeanFactory 实例
-DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
-// 注册 Bean 定义
-BeanDefinitionRegistry registry = beanFactory;
-BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(MyBean.class);
-builder.addPropertyValue("message", "Hello, Spring!");
-registry.registerBeanDefinition("myBean", builder.getBeanDefinition());
-// 获取 Bean 实例
-MyBean bean = beanFactory.getBean(MyBean.class);
-System.out.println(bean.getMessage()); // 输出: "Hello, Spring!"
-// 自定义 Bean 后处理器
-beanFactory.addBeanPostProcessor(new MyBeanPostProcessor());
-// 再次获取 Bean 实例
-bean = (MyBean) beanFactory.getBean("myBean");
-System.out.println(bean.getMessage()); // 输出: "Hello, Spring! (Processed)"
-```
-
 ### 什么是Bean
 
 Spring Bean代指的就是那些被 IoC 容器所管理的对象。
@@ -394,7 +365,38 @@ public class App {
 }
 ```
 
-### Bean的作用域
+### 如何获取Bean
+
+BeanFactory接口提供的两个实现类：xmlBeanFactory、DefaultListableBeanFactory
+
+- `XmlBeanFactory` 实现类
+
+```java
+ClassPathResource classPathResource = new ClassPathResource("applicationContext.xml");
+BeanFactory beanFactory = new XmlBeanFactory(classPathResource);
+```
+
++ `DefaultListableBeanFactory` 实现类
+
+```java
+// 创建 DefaultListableBeanFactory 实例
+DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+// 注册 Bean 定义
+BeanDefinitionRegistry registry = beanFactory;
+BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(MyBean.class);
+builder.addPropertyValue("message", "Hello, Spring!");
+registry.registerBeanDefinition("myBean", builder.getBeanDefinition());
+// 获取 Bean 实例
+MyBean bean = beanFactory.getBean(MyBean.class);
+System.out.println(bean.getMessage()); // 输出: "Hello, Spring!"
+// 自定义 Bean 后处理器
+beanFactory.addBeanPostProcessor(new MyBeanPostProcessor());
+// 再次获取 Bean 实例
+bean = (MyBean) beanFactory.getBean("myBean");
+System.out.println(bean.getMessage()); // 输出: "Hello, Spring! (Processed)"
+```
+
+### 作用域
 
 | 作用域        | 描述                                    | 适用场景                                      |
 | ------------- | --------------------------------------- | --------------------------------------------- |
@@ -520,7 +522,7 @@ public class App {
 </bean>
 ```
 
-### BeanPostProcessor接口
+### 如何进行Bean的自定义逻辑
 
 `BeanPostProcessor`是Spring框架中用于对Spring管理的bean进行后处理的接口。它提供了一种机制，可以在 bean 实例化和依赖注入之后以及自定义初始化方法之前，对 bean 进行额外的处理。
 
