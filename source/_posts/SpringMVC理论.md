@@ -10,15 +10,17 @@ tag:
 
 MVC（Model-View-Controller，模型-视图-控制器）是一种软件架构模式，主要用于构建用户界面应用程序。它将应用程序分为三个核心部分：模型（Model）、视图（View）和控制器（Controller），从而实现关注点分离，使开发和维护更加简便和高效。
 
-### 模型（Model）
+### MVC组件
+
+模型（Model）
 
 模型是应用程序的核心部分，负责处理应用程序的业务逻辑和数据管理。它直接与数据库交互，执行CRUD操作（创建、读取、更新、删除）。模型中的数据通常是纯粹的业务逻辑，没有任何关于用户界面的知识。
 
-### 视图（View）
+视图（View）
 
 视图是用户界面部分，负责数据的展示。视图从模型获取数据并将其呈现给用户。视图是静态的，不包含业务逻辑，它只负责显示数据。视图的主要任务是渲染模型的数据到适当的格式，如HTML、JSON、XML等。
 
-### 控制器（Controller）
+控制器（Controller）
 
 控制器充当模型和视图之间的中介，处理用户输入并更新模型和视图。它接收用户输入，通过调用模型的方法来处理数据，并选择合适的视图来显示处理后的结果。控制器包含应用程序的流控制逻辑，是用户与应用程序交互的主要渠道。
 
@@ -30,7 +32,7 @@ MVC（Model-View-Controller，模型-视图-控制器）是一种软件架构模
 4. **控制器接收到模型返回的数据**，选择合适的视图来呈现这些数据。
 5. **视图将数据渲染**并显示给用户。
 
-## MVC设计模式优点
+### MVC设计模式优点
 
 - **关注点分离**：每个组件有明确的职责，使代码更易于理解和维护。
 - **可测试性**：模型、视图和控制器可以独立测试，提高代码质量。
@@ -41,7 +43,7 @@ MVC（Model-View-Controller，模型-视图-控制器）是一种软件架构模
 
 SpringMVC是Spring Framework的一部分，是一种基于Java的MVC（Model-View-Controller）框架，主要用于构建Web应用程序。它提供了一套强大的工具和功能，使开发者能够轻松创建和管理Web应用程序的各个组件。
 
-## SpringMVC的优点
+### 优点
 
 1. **与Spring生态系统的无缝集成**：SpringMVC与Spring框架的其他模块（如Spring Security、Spring Data等）紧密集成，提供一致的编程模型。
 2. **注解驱动**：大量使用注解（如`@Controller`、`@RequestMapping`、`@GetMapping`等）简化配置和开发。
@@ -213,150 +215,7 @@ public class HelloController {
 
 
 
-# 注解
-
-## 注解原理
-
-注解本质是一个继承了Annotation的特殊接口，其具体实现类是Java运行时生成的动态代理类。我们通过反射获取注解时，返回的是Java运行时生成的动态代理对象。通过代理对象调用自定义注解的方法，会最终调用AnnotationInvocationHandler的invoke方法。该方法会从memberValues这个Map中索引出对应的值。而memberValues的来源是Java常量池。
-
-## SpringMVC常用注解
-
-### 控制器相关注解
-
-- `@Controller`：标识一个类为SpringMVC控制器。
-
-  ```java
-  @Controller
-  public class MyController {
-      // ...
-  }
-  ```
-
-- `@RestController`：标识一个类为RESTful控制器，相当于同时使用了`@Controller`和`@ResponseBody`。
-
-  ```java
-  @RestController
-  public class MyRestController {
-      // ...
-  }
-  ```
-
-### 请求映射注解
-
-- `@RequestMapping`：映射HTTP请求到处理方法或类上。可以用在类和方法级别。
-
-  ```java
-  @Controller
-  @RequestMapping("/home")
-  public class HomeController {
-      @RequestMapping("/welcome")
-      public String welcome() {
-          return "welcome";
-      }
-  }
-  ```
-
-- `@GetMapping`：专门用于处理HTTP GET请求。
-
-  ```java
-  @GetMapping("/items")
-  public String getItems() {
-      // ...
-  }
-  ```
-
-- `@PostMapping`：专门用于处理HTTP POST请求。
-
-  ```java
-  @PostMapping("/items")
-  public String addItem() {
-      // ...
-  }
-  ```
-
-- `@PutMapping`：专门用于处理HTTP PUT请求。
-
-  ```java
-  @PutMapping("/items/{id}")
-  public String updateItem(@PathVariable("id") Long id) {
-      // ...
-  }
-  ```
-
-- `@DeleteMapping`：专门用于处理HTTP DELETE请求。
-
-  ```java
-  @DeleteMapping("/items/{id}")
-  public String deleteItem(@PathVariable("id") Long id) {
-      // ...
-  }
-  ```
-
-### 参数绑定注解
-
-- `@PathVariable`：用于绑定URL中的路径变量到方法参数。
-
-  ```java
-  @GetMapping("/items/{id}")
-  public String getItem(@PathVariable("id") Long id) {
-      // ...
-  }
-  ```
-
-- `@RequestParam`：用于绑定HTTP请求参数到方法参数。
-
-  ```java
-  @GetMapping("/search")
-  public String search(@RequestParam("q") String query) {
-      // ...
-  }
-  ```
-
-- `@RequestBody`：用于将HTTP请求体中的内容绑定到方法参数。
-
-  ```java
-  @PostMapping("/items")
-  public String createItem(@RequestBody Item item) {
-      // ...
-  }
-  ```
-
-### 返回值注解
-
-- `@ResponseBody`：用于将方法返回值直接写入HTTP响应体，常用于AJAX请求。
-
-  ```java
-  @GetMapping("/data")
-  @ResponseBody
-  public Data getData() {
-      return new Data();
-  }
-  ```
-
-### 表单处理和验证注解
-
-- `@ModelAttribute`：用于绑定请求参数到命令对象，并将该对象添加到模型中。
-
-  ```java
-  @PostMapping("/register")
-  public String register(@ModelAttribute User user) {
-      // ...
-  }
-  ```
-
-- `@Valid`：用于启用JSR-303/JSR-380校验。
-
-  ```java
-  @PostMapping("/register")
-  public String register(@Valid @ModelAttribute User user, BindingResult result) {
-      if (result.hasErrors()) {
-          return "registerForm";
-      }
-      // ...
-  }
-  ```
-
-# SpringMVC常见问题
+# 功能
 
 ## 转发和重定向
 
@@ -384,7 +243,7 @@ public class HelloController {
   response.sendRedirect("/targetPage");
   ```
 
-## SpringMVC和AJAX如何互相调用
+## 前后端调用
 
 1. **前端AJAX请求**：
 
@@ -443,6 +302,51 @@ public class HelloController {
        return ResponseEntity.ok("中文内容");
    }
    ```
+
+## 文件上传
+
+**`@RequestParam("file") MultipartFile file`**：使用 `@RequestParam` 注解获取上传的文件，`MultipartFile` 是 Spring 提供的文件上传类型，可以包含上传文件的内容。
+
+```java
+@Controller
+public class FileUploadController {
+
+    // 显示上传文件的表单页面
+    @GetMapping("/uploadForm")
+    public String uploadForm() {
+        return "uploadForm";
+    }
+
+    // 处理文件上传
+    @PostMapping("/upload")
+    public String uploadFile(@RequestParam("file") MultipartFile file,
+                             RedirectAttributes redirectAttributes) {
+
+        if (file.isEmpty()) {
+            redirectAttributes.addFlashAttribute("message", "请选择一个文件上传");
+            return "redirect:/uploadForm";
+        }
+
+        try {
+            // 保存文件到服务器本地，这里假设保存到 /tmp 目录下
+            String uploadDir = "/tmp/";
+            String filePath = uploadDir + file.getOriginalFilename();
+            File dest = new File(filePath);
+            file.transferTo(dest);
+
+            redirectAttributes.addFlashAttribute("message",
+                    "成功上传 '" + file.getOriginalFilename() + "'");
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("message",
+                    "上传 '" + file.getOriginalFilename() + "' 失败，请重试");
+        }
+
+        return "redirect:/uploadForm";
+    }
+}
+```
 
 ## 异常处理
 
@@ -686,4 +590,29 @@ public class WebConfig implements WebMvcConfigurer {
     }
 }
 ```
+
+# 注解
+
+| 类别           | 注解                | 描述                                                         |
+| -------------- | ------------------- | ------------------------------------------------------------ |
+| 控制器相关     | `@Controller`       | 标识一个类为 SpringMVC 控制器。                              |
+|                | `@RestController`   | 标识一个类为 RESTful 控制器，相当于同时使用了 `@Controller` 和 `@ResponseBody`。 |
+| 请求映射       | `@RequestMapping`   | 映射 HTTP 请求到处理方法或类上。可以在类或方法级别使用。     |
+|                | `@GetMapping`       | 处理 HTTP GET 请求。                                         |
+|                | `@PostMapping`      | 处理 HTTP POST 请求。                                        |
+|                | `@PutMapping`       | 处理 HTTP PUT 请求。                                         |
+|                | `@DeleteMapping`    | 处理 HTTP DELETE 请求。                                      |
+| 参数绑定       | `@PathVariable`     | 将 URI 模板变量绑定到方法参数上。                            |
+|                | `@RequestParam`     | 将 HTTP 请求参数绑定到方法参数上。                           |
+|                | `@RequestBody`      | 将 HTTP 请求体内容绑定到方法参数上。                         |
+| 返回值处理     | `@ResponseBody`     | 将方法返回值直接写入 HTTP 响应体，常用于 AJAX 请求。         |
+| 表单处理和验证 | `@ModelAttribute`   | 用于绑定请求参数到命令对象，并将该对象添加到模型中。         |
+|                | `@Valid`            | 启用 JSR-303/JSR-380 校验，通常与 `@ModelAttribute` 结合使用。 |
+| 异常处理       | `@ExceptionHandler` | 标识一个方法用于处理控制器中抛出的异常。                     |
+| 拦截器         | `@Interceptor`      | 标识一个类为拦截器，在处理请求前后执行预处理和后处理任务。   |
+| 页面跳转       | `@RequestMapping`   | 在控制器方法上使用，用于指定页面跳转或重定向的目标地址。     |
+| 参数校验       | `@Validated`        | 类级别注解，用于开启参数校验功能，配合方法参数上的校验注解使用。 |
+| 异步请求处理   | `@Async`            | 标识一个方法为异步处理方法，可以在方法返回一个 `Future` 或 `CompletionStage` 对象。 |
+| 跨域请求处理   | `@CrossOrigin`      | 标识一个控制器类或方法允许处理跨域请求。                     |
+| 数据绑定       | `@InitBinder`       | 用于自定义数据绑定初始化器，对请求参数进行格式化和验证，通常与 `WebDataBinder` 结合使用。 |
 
