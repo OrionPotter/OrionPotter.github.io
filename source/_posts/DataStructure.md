@@ -3,7 +3,6 @@ title: 数据结构和算法
 description: 学习数据结构和算法的一些基本知识
 tag:
 - 数据结构
-- Algorithm
 ---
 
 # 基础概念
