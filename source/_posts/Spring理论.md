@@ -76,21 +76,7 @@ spring依赖反射，反射影响性能
 **模板方法**：用来解决代码重复的问题。比如. RestTemplate, JmsTemplate, JpaTemplate。
 **观察者模式：**当一个对象的状态发生改变时，所有依赖于它的对象都会得到通知被制动更新，如Spring中listener的实现–ApplicationListener。
 
-## Spring事件
 
-**上下文更新事件（ContextRefreshedEvent）**：在调用ConfigurableApplicationContext 接口中的refresh()方法时被触发。
-
-**上下文开始事件（ContextStartedEvent）**：当容器调用ConfigurableApplicationContext的Start()方法开始/重新开始容器时触发该事件。
-
-**上下文停止事件（ContextStoppedEvent）**：当容器调用ConfigurableApplicationContext的Stop()方法停止容器时触发该事件。
-
-**上下文关闭事件（ContextClosedEvent）**：当ApplicationContext被关闭时触发该事件。容器被关闭时，其管理的所有单例Bean都被销毁。
-
-**请求处理事件（RequestHandledEvent**）：在Web应用中，当一个http请求（request）结束触发该事件。如果一个bean实现了ApplicationListener接口，当一个ApplicationEvent 被发布以后，bean会自动被通知。
-
-1. **扩展Spring的功能**：事件机制提供了一个机制，可以在Spring的生命周期中触发特定的操作，从而扩展Spring的功能。
-2. **实现自定义逻辑**：事件机制可以用于实现自定义的逻辑，例如在请求被处理时触发某个操作。
-3. **提高应用程序的灵活性**：事件机制可以提高应用程序的灵活性，允许在不同的阶段触发特定的操作。
 
 # 核心容器
 
@@ -266,13 +252,13 @@ protected Object doCreateBean(final String beanName, final RootBeanDefinition mb
 
 4. BeanPostProcessor前置处理：如果实现了BeanPostProcessor接口,容器会在Bean的初始化方法被调用之前调用postProcessBeforeInitialization()方法执行自定义逻辑。
 
-5. InitializingBean和init-method：如果Bean实现了InitializingBean接口,容器会在属性注入完成后调用afterPropertiesSet()方法，如果在配置文件中指定了init-method,容器会调用指定的初始化方法。
+5. InitializingBean和init-method：如果在配置文件中指定了init-method,容器会调用指定的初始化方法。如果Bean实现了InitializingBean接口,容器会在属性注入完成后调用afterPropertiesSet()方法，
 
 6. BeanPostProcessor后置处理：如果实现了BeanPostProcessor接口,容器会在Bean的初始化方法被调用之前调用postProcessAfterInitialization()方法执行自定义逻辑。
 
 7. 使用Bean：此时Bean已经准备就绪,可以被应用程序使用了。
 
-8. 销毁Bean：如果Bean实现了DisposableBean接口或者在配置中指定了destroy-method,则在容器关闭时执行相应的销毁方法。
+8. 销毁Bean：如果Bean实现了DisposableBean接口或者在配置中指定了destroy-method,则在容器关闭时执行相应的销毁方法，先执行自定义再执行接口的。
 
 #### 什么是依赖注入？
 
@@ -573,7 +559,9 @@ public class App {
 
 ## Context模块
 
-### ApplicationContext接口
+### 如何获取Bean
+
+#### ApplicationContext接口
 
 `ApplicationContext`它提供了许多功能来管理 Spring 应用中的 bean，它是 Spring IoC 容器的一种高级形式，继承了 `BeanFactory`，提供了更多的企业级功能。
 
@@ -590,7 +578,21 @@ ApplicationContext applicationContext1 = new FileSystemXmlApplicationContext("ap
 ApplicationContext applicationContext2 = new AnnotationConfigApplicationContext(App.class);
 ```
 
-### `ConfigurableApplicationContext`接口
+**BeanFactory 和 ApplicationContext有什么区别？**
+
+| 特点/功能      | BeanFactory                         | ApplicationContext                                       |
+| -------------- | ----------------------------------- | -------------------------------------------------------- |
+| **基本功能**   | 管理和获取 bean 实例                | 在 BeanFactory 功能基础上增强，提供更多企业级功能        |
+| **延迟初始化** | 是                                  | 是                                                       |
+| **提前初始化** | 否（按需初始化）                    | 是（预加载所有 singleton bean）                          |
+| **功能丰富性** | 较少，主要为 IoC 和 DI 提供基础支持 | 提供 AOP、事务管理、国际化、事件发布、资源管理等高级功能 |
+| **实现类**     | `DefaultListableBeanFactory`        | `ClassPathXmlApplicationContext`                         |
+| **使用场景**   | 资源受限环境或需要定制扩展时使用    | 大多数应用场景推荐使用，提供更多功能和便利               |
+| **性能**       | 较轻量级，启动时资源占用较少        | 启动时可能占用更多资源，但提高了应用响应速度             |
+
+
+
+#### `ConfigurableApplicationContext`接口
 
 `ConfigurableApplicationContext` 扩展了 `ApplicationContext` 接口，提供了额外的配置和生命周期管理方法。这使得 Spring 应用程序上下文可以更灵活地进行配置和管理。
 
@@ -652,7 +654,19 @@ public class CustomEventPublisher {
 }
 ```
 
-### 注解支持
+#### Spring事件
+
+**上下文更新事件（ContextRefreshedEvent）**：在调用ConfigurableApplicationContext 接口中的refresh()方法时被触发。
+
+**上下文开始事件（ContextStartedEvent）**：当容器调用ConfigurableApplicationContext的Start()方法开始/重新开始容器时触发该事件。
+
+**上下文停止事件（ContextStoppedEvent）**：当容器调用ConfigurableApplicationContext的Stop()方法停止容器时触发该事件。
+
+**上下文关闭事件（ContextClosedEvent）**：当ApplicationContext被关闭时触发该事件。容器被关闭时，其管理的所有单例Bean都被销毁。
+
+**请求处理事件（RequestHandledEvent**）：在Web应用中，当一个http请求（request）结束触发该事件。如果一个bean实现了ApplicationListener接口，当一个ApplicationEvent 被发布以后，bean会自动被通知。
+
+### 增强注解
 
 #### **开启注解配置**
 
@@ -719,18 +733,6 @@ public class MyService {
 
 `@Autowired` 是最常用的,可以结合 `@Qualifier` 来进一步限定注入对象。`@Resource` 则提供了另一种按名称注入的方式。
 
-### BeanFactory 和 ApplicationContext有什么区别？
-
-| 特点/功能      | BeanFactory                         | ApplicationContext                                       |
-| -------------- | ----------------------------------- | -------------------------------------------------------- |
-| **基本功能**   | 管理和获取 bean 实例                | 在 BeanFactory 功能基础上增强，提供更多企业级功能        |
-| **延迟初始化** | 是                                  | 是                                                       |
-| **提前初始化** | 否（按需初始化）                    | 是（预加载所有 singleton bean）                          |
-| **功能丰富性** | 较少，主要为 IoC 和 DI 提供基础支持 | 提供 AOP、事务管理、国际化、事件发布、资源管理等高级功能 |
-| **实现类**     | `DefaultListableBeanFactory`        | `ClassPathXmlApplicationContext`                         |
-| **使用场景**   | 资源受限环境或需要定制扩展时使用    | 大多数应用场景推荐使用，提供更多功能和便利               |
-| **性能**       | 较轻量级，启动时资源占用较少        | 启动时可能占用更多资源，但提高了应用响应速度             |
-
 
 
 ## SpEL模块
@@ -738,6 +740,18 @@ public class MyService {
 ### 什么是SpEL
 
 SpEL（Spring Expression Language）是Spring框架中的一种功能强大的表达式语言。它用于在运行时查询和操作对象图，类似于EL（Expression Language），但功能更为强大和灵活。SpEL的设计目的是提供一种通用的表达式求值引擎，可以在Spring应用程序的不同部分（例如配置、注解、XML）中使用。
+
+### `ExpressionParser` 接口
+
+`ExpressionParser` 接口是用于解析表达式的核心接口，而`SpelExpressionParser` 是其默认实现，用于解析 SpEL 表达式。
+
+```java
+ExpressionParser parser = new SpelExpressionParser();
+// Example SpEL expressions
+String expression = "'Hello World'.concat('!')";
+String result = parser.parseExpression(expression).getValue(String.class);
+System.out.println(result); // Output: Hello World!
+```
 
 ### 主要功能
 
@@ -755,19 +769,9 @@ SpEL（Spring Expression Language）是Spring框架中的一种功能强大的�
 
 + **模板表达式**：在配置文件和注解中动态配置属性和依赖关系。
 
-### `ExpressionParser` 接口
+### 示例
 
-`ExpressionParser` 接口是用于解析表达式的核心接口，而`SpelExpressionParser` 是其默认实现，用于解析 SpEL 表达式。
-
-```java
-ExpressionParser parser = new SpelExpressionParser();
-// Example SpEL expressions
-String expression = "'Hello World'.concat('!')";
-String result = parser.parseExpression(expression).getValue(String.class);
-System.out.println(result); // Output: Hello World!
-```
-
-### 对象图导航
+#### 对象图导航
 
 **访问对象属性和方法调用**
 
@@ -814,7 +818,7 @@ public class MyComponent {
 }    
 ```
 
-### 逻辑和数学运算
+#### 逻辑和数学运算
 
 **逻辑运算**
 
@@ -855,7 +859,7 @@ public class MyComponent {
 }
 ```
 
-### 模板表达式
+#### 模板表达式
 
 ```java
 @Component
@@ -919,7 +923,7 @@ Spring AOP通过代理模式在运行时将切面（Aspect）应用到目标对�
 4.方法拦截和通知执行
 
 - **方法调用拦截**：当客户端代码调用代理对象的方法时，代理对象会拦截这个方法调用。
-- 执行切面逻辑：
+- **执行切面逻辑**：
   - **前置通知（Before Advice）**：在目标方法执行前，代理对象会先执行前置通知。
   - **目标方法执行**：代理对象调用目标对象的方法。
   - **后置通知（After Advice）**：在目标方法执行后，代理对象执行后置通知。
@@ -1131,8 +1135,6 @@ public class UserService {
 
 事务管理是在应用程序中处理和管理事务的过程，Spring提供了声明式和编程式两种事务管理方式。
 
-
-
 ## 声明式事务
 
 ### 什么是声明式事务
@@ -1244,7 +1246,7 @@ public class UserService {
 
 ## Spring事务传播机制
 
-Spring 事务传播机制用于定义当一个事务方法被另一个事务方法调用时事务应该如何传播。
+Spring事务传播机制用于定义当一个事务方法被另一个事务方法调用时事务应该如何传播。
 
 1. PROPAGATION_REQUIRED (默认) : 如果当前存在事务,则加入该事务;如果当前没有事务,则创建一个新事务。
 
@@ -1311,8 +1313,6 @@ public class UserService {
 }
 ```
 
-
-
 ## Spring事务什么时候会失效?
 
 1. **异常处理不当**
@@ -1338,8 +1338,6 @@ public class UserService {
 3. **事务切面**：Spring利用AOP将事务逻辑织入到业务方法调用中，形成事务切面。通过AOP，Spring能够在方法调用前后执行事务管理器定义的事务操作，从而实现事务的管理和控制。
 4. **事务的开始和提交**：当调用一个被@Transactional注解或XML配置的方法时，Spring事务切面会首先尝试开启一个事务。如果当前没有事务存在，则创建一个新的事务；如果已经存在事务，则加入到当前事务中。在方法执行完成后，如果方法执行成功，Spring事务切面将提交事务；如果方法发生异常，则回滚事务。
 5. **事务的隔离级别和传播行为**：Spring允许在@Transactional注解中指定事务的隔离级别和传播行为。隔离级别定义了事务的并发控制策略，传播行为定义了事务的传播方式。这些设置可以影响事务的行为，如保证数据一致性、避免并发问题等。
-
-
 
 
 
