@@ -299,13 +299,154 @@ NULL值和NULL键问题：hashmap允许一个null键多个null值，hashtable不
 
 遍历方式：hashmap可以通过iterator和foreach遍历，hashtable只能通过iterator遍历。
 
+**HashMap**
+
+```java
+/**
+ * 默认初始容量 - 必须是2的幂。
+ */
+static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // 即 16
+
+/**
+ * 最大容量，如果构造函数中隐含指定了更高的值，则使用此值。
+ * 必须是2的幂且 <= 1<<30。
+ */
+static final int MAXIMUM_CAPACITY = 1 << 30;
+
+/**
+ * 负载因子，如果构造函数中未指定，则使用此值。
+ */
+static final float DEFAULT_LOAD_FACTOR = 0.75f;
+
+/**
+ * 当链表中节点数量达到一定阈值时，将链表转换为树形结构。
+ * 当向具有至少这么多节点的桶中添加元素时进行转换。
+ * 此值必须大于2，并且至少应为8，以便与树结构移除中关于缩小时转换回普通桶的假设相匹配。
+ */
+static final int TREEIFY_THRESHOLD = 8;
+
+/**
+ * 在调整大小操作期间，用于取消树化（拆分）桶的节点数量阈值。
+ * 应小于TREEIFY_THRESHOLD，并且最多为6，以便在删除操作下的缩小检测中匹配。
+ */
+static final int UNTREEIFY_THRESHOLD = 6;
+
+/**
+ * 允许进行树形化的最小表容量。
+ * （否则，如果桶中节点太多，则会调整表的大小。）
+ * 应至少为4 * TREEIFY_THRESHOLD，以避免调整大小和树形化阈值之间的冲突。
+ */
+static final int MIN_TREEIFY_CAPACITY = 64;
+
+public V put(K key, V value) {
+        return putVal(hash(key), key, value, false, true);
+}
+
+static final int hash(Object key) {
+        int h;
+        return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+    }
+
+final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
+                   boolean evict) {
+        Node<K,V>[] tab; Node<K,V> p; int n, i;
+        if ((tab = table) == null || (n = tab.length) == 0)
+            n = (tab = resize()).length;
+        if ((p = tab[i = (n - 1) & hash]) == null)
+            tab[i] = newNode(hash, key, value, null);
+        else {
+            Node<K,V> e; K k;
+            if (p.hash == hash &&
+                ((k = p.key) == key || (key != null && key.equals(k))))
+                e = p;
+            else if (p instanceof TreeNode)
+                e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+            else {
+                for (int binCount = 0; ; ++binCount) {
+                    if ((e = p.next) == null) {
+                        p.next = newNode(hash, key, value, null);
+                        if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                            treeifyBin(tab, hash);
+                        break;
+                    }
+                    if (e.hash == hash &&
+                        ((k = e.key) == key || (key != null && key.equals(k))))
+                        break;
+                    p = e;
+                }
+            }
+            if (e != null) { // existing mapping for key
+                V oldValue = e.value;
+                if (!onlyIfAbsent || oldValue == null)
+                    e.value = value;
+                afterNodeAccess(e);
+                return oldValue;
+            }
+        }
+        ++modCount;
+        if (++size > threshold)
+            resize();
+        afterNodeInsertion(evict);
+        return null;
+    }
+```
+
+**HashTable**
+
+```java
+	/**
+     * Constructs a new, empty hashtable with a default initial capacity (11)
+     * and load factor (0.75).
+     */
+    public Hashtable() {
+        this(11, 0.75f);
+    }
+
+public synchronized V put(K key, V value) {
+    // 确保值不为null
+    if (value == null) {
+        throw new NullPointerException();
+    }
+
+    // 确保键不已经在哈希表中存在。
+    Entry<?,?> tab[] = table;
+    // 如果key如果为null，调用这个方法会抛出空指针异常
+    int hash = key.hashCode();
+    int index = (hash & 0x7FFFFFFF) % tab.length;
+    @SuppressWarnings("unchecked")
+    Entry<K,V> entry = (Entry<K,V>)tab[index];
+    for(; entry != null ; entry = entry.next) {
+        // 如果找到相同的哈希值和键，则更新对应的值，并返回旧值。
+        if ((entry.hash == hash) && entry.key.equals(key)) {
+            V old = entry.value;
+            entry.value = value;
+            return old;
+        }
+    }
+
+    // 如果没有找到相同的哈希值和键，则将新的条目添加到指定索引位置。
+    addEntry(hash, key, value, index);
+    return null;
+}
+```
+
 ## HashMap和HashSet的关系
+
+```java
+// 这个变量在序列化时将被忽略
+private transient HashMap<E,Object> map;
+//用于在底层映射中将一个对象与虚拟值关联起来。
+private static final Object PRESENT = new Object();
+public boolean add(E e) {   
+    return map.put(e, PRESENT)==null;
+}
+```
 
 HashSet基于HashMap实现的，hashmap存储的key-value pair,而hashset只存储对象
 
 ## HashMap和TreeMap的关系
 
-HashMap和TreeMao都实现了AbstractMap,但是TreeMap实现了NavigableMap和SortedMap两个接口，NavigableMap接口可以实现对集合内的元素搜索的能力，SortedMap接口实现了对集合的键进行排序的能力。
+HashMap和TreeMap都实现了AbstractMap,但是TreeMap实现了NavigableMap和SortedMap两个接口，NavigableMap接口可以实现对集合内的元素搜索的能力，SortedMap接口实现了对集合的键进行排序的能力。
 
 ## HashSet如何检查重复
 
@@ -321,9 +462,11 @@ hashmap解决冲突用的链地址法，jdk 1.8之前用数组和链表的数据
 
 `hash(key) % array.length`
 
-1. 逻辑与计算索引快：当确定键值对应的桶的位置时，需要对哈希编码进行一次模运算，即hash(key) % array.length。当数组长度为2的幂时，这个运算可以用更快的位操作来完成，即hash(key) & (array.length - 1)，位操作的速度一般要快于除法和求余数运算。
+1. 快速计算索引
 
-2. 散列更均匀：数组长度为2的幂次模运算后的散列的更加均匀
+HashMap使用按位与(&)运算来代替取模(%)运算来计算元素在数组中的索引。当数组长度为2的幂次方时，(n-1) & hash 等价于 hash % n，其中n是数组长度。按位与(&)比取模(%)运算要快得多，所以使用2的幂次方长度的数组可以提高HashMap的存取效率。
+
+2. 均匀分布：当数组长度为2的幂次方时，不同的hash值发生碰撞的概率较小，这样可以使元素在哈希表中更均匀地散列。
 
 ## HashMap的遍历方式
 
@@ -369,15 +512,45 @@ public class HashMapIterator {
 
 ## 什么是concurrenthashmap
 
-jdk1.8之前concurrenthashmap由segment数组和hashentry数组和链表组成，将数据分为一段一段的就是segment，是对每个segment进行加锁保证线程安全，由于segment初始化之后就固定容量，所以concurrenthashmap最多支持16个并发线程。
+<img src="https://telegraph-image-2ni.pages.dev/file/902447ae9cd9350ae6f04.png" style="zoom:50%;" />
 
-jdk1.8中concurrenthashmap由Node数组和链表和红黑树组成，采用Node+cas+synchronized保证线程安全，锁粒度更细，`synchronized` 只锁定当前链表或红黑二叉树的首节点。
+ConcurrentHashMap的结构
+
+- JDK 1.8之前,ConcurrentHashMap由Segment数组和HashEntry数组(链表)组成
+- JDK 1.8之后,ConcurrentHashMap由Node数组和链表/红黑树组成
+
+ConcurrentHashMap的线程安全机制
+
+**JDK 1.8之前**: 将整个HashMap划分成多个Segment,每个Segment都有自己的锁，通过锁住Segment来保证线程安全,同一时刻最多只有一个线程能访问一个Segment，最大并发度为Segment的数量,默认为16
+
+**JDK 1.8之后**: 采用Node + CAS + synchronized的方式来保证线程安全，锁的粒度更细,synchronized只锁定当前链表或红黑树的首节点，摒弃了Segment分段锁,利用CAS和synchronized来保证并发更新的安全，并发性能得到了大幅提升
 
 **1.CAS是一种无锁算法，它通过比较当前值和预期值，如果相同则进行更新，不同则重新操作的方式，减小了对整个数据的锁定概率。这属于乐观锁的一种，尝试不通过加锁的方式达到线程安全，但在高并发情况下，可能导致大量的失败重试。**
 
 **2.ConcurrentHashMap不能由NUll值NULL键。**
 
+```java
+public V put(K key, V value) {
+     return putVal(key, value, false);
+    }
+final V putVal(K key, V value, boolean onlyIfAbsent) {
+    if (key == null || value == null) throw new NullPointerException();
+}
+```
+
+
+
 # 集合注意事项
+
+## fail-fast
+
+当多个线程对集合进行结构上的改变的操作时，有可能会产生 fail-fast 机制。
+
+原因：迭代器在遍历时直接访问集合中的内容，并且在遍历过程中使用一个 modCount 变量。集合在被遍历期间如果内容发生变化，就会改变modCount的值。每当迭代器使用hashNext()/next()遍历下一个元素之前，都会检测modCount变量是否为expectedmodCount值，是的话就返回遍历；否则抛出异常，终止遍历。
+解决办法：
+
+1. 在遍历过程中，所有涉及到改变modCount值得地方全部加上synchronized。
+2. 使用CopyOnWriteArrayList来替换ArrayList
 
 ## Collections工具类
 
