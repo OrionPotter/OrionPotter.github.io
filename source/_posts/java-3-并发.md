@@ -40,7 +40,7 @@ tag:
 
 # 线程的基本操作
 
-## 线程的生命周期
+## 线程的生命周期/状态
 
 **新建状态(New):** 线程对象被创建时的初始状态，还未调用`start()`方法启动线程。
 
@@ -54,7 +54,7 @@ tag:
 
 **终止 (Terminated):** 线程执行完毕或者因为未捕获的异常退出，进入终止状态。
 
-## 创建和启动线程
+## 线程的创建
 
 ### 继承Thread类
 
@@ -241,51 +241,25 @@ thread.notifyAll();//唤醒在当前对象上等待的所有线程。
 
 ## 线程安全问题
 
-### 竞态条件
+**1.竞态条件**
 
 竞态条件是指多个线程对共享数据进行操作时，由于操作的顺序不同，导致最终结果不一致的一种情况。
 
-**例如：**
-
-假设有一个银行账户，有两个线程要分别从该账户中提取 100 元。如果代码没有采取任何同步措施，那么就有可能出现以下情况：
-
-- 线程 1 首先检查账户余额为 1000 元，然后开始取款操作。
-- 在线程 1 取款操作的过程中，线程 2 也检查账户余额为 1000 元，并开始取款操作。
-- 最终，两个线程都成功取走了 100 元，导致账户余额变为 800 元，而不是预期的 900 元。
-
-### 死锁
+**2.死锁**
 
 死锁是指两个或多个线程相互等待资源，导致任何线程都无法继续执行的一种情况。
 
-**例如：**
+**解决方案：**
 
-假设有两个线程，线程 1 需要获取资源 A 和资源 B，线程 2 需要获取资源 B 和资源 A。如果代码没有采取任何同步措施，那么就有可能出现死锁：
++ **避免嵌套锁定**：尽量避免一个锁内再获取另一个锁。
 
-- 线程 1 先获取了资源 A，然后试图获取资源 B。
-- 线程 2 先获取了资源 B，然后试图获取资源 A。
-- 最终，两个线程都处于等待状态，无法继续执行。
++ **锁定顺序**：确保所有线程以相同的顺序获取锁。
 
-### 活锁
++ **使用超时**：使用 `tryLock` 方法尝试获取锁，并设置超时时间。
+
+**3.活锁**
 
 活锁是指两个或多个线程陷入循环等待，导致程序一直处于忙碌状态，但无法取得实际进展的一种情况。
-
-**例如：**
-
-假设有两个线程，线程 1 需要获取资源 A 和资源 B，线程 2 需要获取资源 B 和资源 A。如果代码没有采取任何同步措施，那么就有可能出现活锁：
-
-- 线程 1 先释放资源 A，然后试图获取资源 B。
-- 线程 2 先释放资源 B，然后试图获取资源 A。
-- 两个线程不断地释放和获取资源，但始终无法同时获取到所需的两个资源，导致程序一直处于忙碌状态。
-
-## 线程安全的设计原则
-
-+ 避免共享数据：如果可以，尽量避免多个线程共享数据。这样可以从根本上消除线程安全问题的可能性。
-
-+ 使用同步机制保护共享数据：如果必须共享数据，则必须使用合适的同步机制来保护共享数据。
-
-+ 使用不可变对象：如果可以，尽量使用不可变对象。不可变对象一旦创建就不能被修改，因此线程安全。
-
-+ 打破依赖关系：如果可以，尽量打破线程之间的依赖关系。这样可以减少线程之间同步的需求。
 
 ## 实现线程安全,需要满足以下条件:
 
@@ -490,54 +464,31 @@ public class Cache<K, V> {
 
 ### 原子类
 
-使用java.util.concurrent.atomic包下的原子类,如AtomicInteger。
++ AtomicInteger
++ AtomicLong
++ AtomicBoolean
++ AtomicRefrence
 
 ### volatile关键字
 
-保证变量的可见性,但不能保证原子性。
+保证变量的可见性和有序性,但不能保证原子性。
 
 ### 线程安全的集合类
 
-使用java.util.concurrent包下的线程安全集合类,如ConcurrentHashMap。
++ ConcurrentHashMap
++ CopyOnWiterArrayList
++ ConcurrentSkipListMap
 
-## 悲观锁和乐观锁
+### 线程安全工具类
 
-悲观锁：共享资源只能被一个线程独享受，有synchronized、ReentrantLock。
++ CountDownLatch
++ CyclicBarrier
++ Semaphore
++ exchanger
 
-乐观锁：共享资源不独享，只有在修改的时候会通过版本号、时间戳、cas算法验证数据是否被其他线程修改，有原子变量类、读写锁。
 
-### 避免死锁的方法
 
-1. **避免嵌套锁定**：尽量避免一个锁内再获取另一个锁。
-2. **锁定顺序**：确保所有线程以相同的顺序获取锁。
-3. **使用超时**：使用 `tryLock` 方法尝试获取锁，并设置超时时间。
 
-```java
-public class AvoidDeadlock {
-    private final ReentrantLock lock1 = new ReentrantLock();
-    private final ReentrantLock lock2 = new ReentrantLock();
-
-    public void method1() {
-        try {
-            if(lock1.tryLock(1, TimeUnit.SECONDS)) {
-                try {
-                    if(lock2.tryLock(1, TimeUnit.SECONDS)) {
-                        try {
-                            // 线程安全的代码
-                        } finally {
-                            lock2.unlock();
-                        }
-                    }
-                } finally {
-                    lock1.unlock();
-                }
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-}
-```
 
 # 线程池
 
@@ -615,10 +566,15 @@ public class CustomThreadPoolExample {
 - `corePoolSize` : 任务队列未达到队列容量时，最大可以同时运行的线程数量。
 - `maximumPoolSize` : 任务队列中存放的任务达到队列容量的时候，当前可以同时运行的线程数量变为最大线程数。
 - `workQueue`: 新任务来的时候会先判断当前运行的线程数量是否达到核心线程数，如果达到的话，新任务就会被存放在队列中。
-  - 容量为 `Integer.MAX_VALUE` 的 `LinkedBlockingQueue`（无界队列）：`FixedThreadPool` 和 `SingleThreadExector` 。`FixedThreadPool`最多只能创建核心线程数的线程（核心线程数和最大线程数相等），`SingleThreadExector`只能创建一个线程（核心线程数和最大线程数都是 1），二者的任务队列永远不会被放满。
-  - `SynchronousQueue`（同步队列）：`CachedThreadPool` 。`SynchronousQueue` 没有容量，不存储元素，目的是保证对于提交的任务，如果有空闲线程，则使用空闲线程来处理；否则新建一个线程来处理任务。也就是说，`CachedThreadPool` 的最大线程数是 `Integer.MAX_VALUE` ，可以理解为线程数是可以无限扩展的，可能会创建大量线程，从而导致 OOM。
-  - `DelayedWorkQueue`（延迟阻塞队列）：`ScheduledThreadPool` 和 `SingleThreadScheduledExecutor` 。`DelayedWorkQueue` 的内部元素并不是按照放入的时间排序，而是会按照延迟的时间长短对任务进行排序，内部采用的是“堆”的数据结构，可以保证每次出队的任务都是当前队列中执行时间最靠前的。`DelayedWorkQueue` 添加元素满了之后会自动扩容原来容量的 1/2，即永远不会阻塞，最大扩容可达 `Integer.MAX_VALUE`，所以最多只能创建核心线程数的线程。
-
+  - ArrayBlockingQueue：使用数组存储的阻塞队列，具有固定的容量。
+  - LinkedBlockingQueue：使用链表存储的阻塞队列，容量可变。
+  
+  - DelayQueue：支持延迟获取元素的阻塞队列，队列中的元素只有在其延迟期满时才能被取出。
+  
+  - PriorityBlockingQueue：基于优先级堆实现的无界阻塞队列，队列中的元素可以按照它们的自然顺序或通过提供的比较器进行排序。
+  
+  - ConcurrentLinkedQueue：基于链表的无界线程安全队列，适用于高吞吐量的队列操作。
+  
 - `keepAliveTime`:线程池中的线程数量大于 `corePoolSize` 的时候，如果这时没有新的任务提交，核心线程外的线程不会立即销毁，而是会等待，直到等待的时间超过了 `keepAliveTime`才会被回收销毁。
 - `unit` : `keepAliveTime` 参数的时间单位。
 - `threadFactory` :executor 创建新线程的时候会用到。
@@ -720,58 +676,24 @@ public void execute(Runnable command) {
 3. 如果向任务队列投放任务失败（任务队列已经满了），但是当前运行的线程数是小于最大线程数的，就新建一个线程来执行任务。
 4. 如果当前运行的线程数已经等同于最大线程数了，新建线程将会使当前运行的线程超出最大线程数，那么当前任务会被拒绝，拒绝策略会调用`RejectedExecutionHandler.rejectedExecution()`方法。
 
+# 锁
+
+## 悲观锁和乐观锁
+
+悲观锁：共享资源只能被一个线程独享受，有synchronized、ReentrantLock。
+
+乐观锁：共享资源不独享，只有在修改的时候会通过版本号、时间戳、cas算法验证数据是否被其他线程修改，有原子变量类、读写锁。
+
+## 锁机制
+
+1. **synchronized关键字**: 是Java中最基本的锁机制,可以修饰方法或代码块。获取synchronized修饰的对象或类的锁,同一时刻只有一个线程可以执行该段代码。
+2. **ReentrantLock**: 是一个可重入的互斥锁,与synchronized相比提供了更广泛的功能。可以手动获取和释放锁,支持公平锁和非公平锁。提供了Condition接口用于线程间协作。
+3. **ReadWriteLock**: 读写锁允许同时有多个读线程,但是写线程是互斥的。可以提高并发性能,适合读多写少的场景。
+4. **StampedLock**: 是Java 8引入的一种新的锁机制,在读写锁的基础上做了进一步优化。提供了乐观读锁,可以减少读线程的阻塞。
+5. **Atomic**: 基于CAS(Compare And Swap)操作实现的线程安全的变量。如AtomicInteger、AtomicBoolean等,适合对共享变量进行原子性操作。
+6. **LockSupport**: 是一个线程阻塞原语,可以阻塞和唤醒指定的线程。与Object的wait/notify机制相比更加底层和灵活。
+
 # 高级多线程技术
-
-## Future 和 Callable 接口
-
-- **Callable 接口**：`java.util.concurrent.Callable` 是一个泛型接口，类似于 `Runnable`，但是可以返回一个结果或抛出一个异常。它的 `call()` 方法可以在执行时返回结果。
-
-  ```java
-  public interface Callable<V> {
-      V call() throws Exception;
-  }
-  // 示例
-  public class MyCallable implements Callable<Integer> {
-      @Override
-      public Integer call() throws Exception {
-          // 模拟一些计算
-          int result = 0;
-          for (int i = 0; i < 10; i++) {
-              result += i;
-          }
-          return result;
-      }
-  }
-  ```
-
-- **Future 接口**：`java.util.concurrent.Future` 表示异步计算的结果。它提供了方法来检查计算是否完成、等待计算的完成以及获取计算的结果。
-
-  ```java
-  public interface Future<V> {
-      boolean cancel(boolean mayInterruptIfRunning);
-      boolean isCancelled();
-      boolean isDone();
-      V get() throws InterruptedException, ExecutionException;
-      V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException;
-  }
-  // 示例
-  public class FutureExample {
-      public static void main(String[] args) {
-          ExecutorService executor = Executors.newSingleThreadExecutor();
-          Callable<Integer> callable = new MyCallable();
-          Future<Integer> future = executor.submit(callable);
-  
-          try {
-              Integer result = future.get(); // 阻塞直到任务完成
-              System.out.println("计算结果: " + result);
-          } catch (InterruptedException | ExecutionException e) {
-              e.printStackTrace();
-          } finally {
-              executor.shutdown();
-          }
-      }
-  }
-  ```
 
 ## CompletableFuture接口
 
@@ -932,7 +854,7 @@ list.parallelStream().forEach(System.out::println);
 
 ### CountDownLatch
 
-**作用：** CountDownLatch是一个同步工具类,用于协调多个线程的并发活动。它允许一个或多个线程等待其他线程完成操作,在所有指定的线程完成任务之前,它会一直阻塞。
+**作用：** CountDownLatch是一个同步工具类,用于协调多个线程的并发活动，它允许一个或多个线程等待其他线程完成操作,在其他线程完成任务之前,当前会一直阻塞。
 
 **实现原理**:
 CountDownLatch内部维护了一个共享模式下的同步状态。初始化时设置为指定计数值,每调用一次countDown()方法,状态就减1。当状态减为0时,所有等待的线程会被唤醒。CountDownLatch利用AQS的state变量充当计数器,每个线程执行完成后将state减1,当state减为0时,主线程被唤醒。
@@ -986,7 +908,7 @@ public class CountDownLatchExample {
 
 ### CyclicBarrier
 
-**作用：**CyclicBarrier是一个同步辅助类,它允许一组线程互相等待,直到到达某个公共屏障点。与CountDownLatch不同的是,CyclicBarrier可以重复使用。
+**作用：**用于让一组线程互相等待，直到到达某个公共屏障点，然后这一组线程再同时执行。
 
 **实现原理**:
 CyclicBarrier内部维护了一个共享模式下的同步状态。每个线程调用await()方法时,内部会将count减1。当count减为0时,执行提供的Runnable任务,并重置count。
@@ -1038,7 +960,7 @@ public class CyclicBarrierExample {
 
 ### Semaphore
 
-**作用：** Semaphore是一个计数信号量,它允许多个线程在同一时间访问有限的资源。Semaphore可以用来实现资源池或者限流。
+**作用：** 控制多个线程对共享资源访问的数量
 
 **实现原理**:
 Semaphore内部维护了一个共享模式下的同步状态。初始化时设置为指定许可数量。每获取一个许可,状态就减1。当状态不足时,请求线程会被阻塞。释放许可时,状态加1,唤醒一个阻塞线程。Semaphore支持公平和非公平模式。
@@ -1369,135 +1291,6 @@ String value = skipListMap.get(2); // 获取键为2的值，返回"Two"
 
 **哈希冲突**：如果担心哈希冲突，那么ConcurrentSkipListMap 是更好的选择。
 
-# 线程通信解决方案
-
-
-
-## 生产者-消费者问题的解决方案
-
-生产者-消费者问题是一个经典的并发问题，涉及到一个共享的有限缓冲区，生产者向缓冲区存放数据，消费者从缓冲区取出数据。
-
-- **使用`wait()`和`notify()`方法实现**：
-
-  ```java
-  public class synchronizedExample {
-  
-          private static final int BUFFER_SIZE = 10; // Buffer size
-          private static final List<Integer> buffer = new ArrayList<>(BUFFER_SIZE); // Shared buffer
-          private static final Object lock = new Object(); // Synchronization lock
-  
-          public static void main(String[] args) {
-              Thread producerThread = new Thread(new Producer());
-              Thread consumerThread = new Thread(new Consumer());
-  
-              producerThread.start();
-              consumerThread.start();
-          }
-  
-          static class Producer implements Runnable {
-  
-              @Override
-              public void run() {
-                  while (true) {
-                      synchronized (lock) {
-                          try {
-                              // Wait if buffer is full
-                              while (buffer.size() == BUFFER_SIZE) {
-                                  lock.wait();
-                              }
-  
-                              // Produce an item and add it to the buffer
-                              int item = (int) (Math.random() * 100);
-                              buffer.add(item);
-                              System.out.println("Produced item: " + item);
-  
-                              // Notify consumer that item is available
-                              lock.notify();
-                          } catch (InterruptedException e) {
-                              e.printStackTrace();
-                          }
-                      }
-                  }
-              }
-          }
-  
-          static class Consumer implements Runnable {
-  
-              @Override
-              public void run() {
-                  while (true) {
-                      synchronized (lock) {
-                          try {
-                              // Wait if buffer is empty
-                              while (buffer.isEmpty()) {
-                                  lock.wait();
-                              }
-  
-                              // Consume an item from the buffer
-                              int item = buffer.remove(0);
-                              System.out.println("Consumed item: " + item);
-  
-                              // Notify producer that space is available
-                              lock.notify();
-                          } catch (InterruptedException e) {
-                              e.printStackTrace();
-                          }
-                      }
-                  }
-              }
-          }
-  }
-  ```
-
-- **使用`Condition`对象实现**：
-
-  ```java
-  public class ConditionExample {
-  
-      private final List<Integer> list;
-      private final int bufferSize;
-      private final Lock lock = new ReentrantLock();
-      Condition produce = lock.newCondition();
-      Condition consumer = lock.newCondition();
-  
-      public ConditionExample(int bufferSize) {
-          this.list = new ArrayList<>();
-          this.bufferSize = bufferSize;
-      }
-  
-      public void put(Integer item) throws Exception {
-          lock.lock();
-          try {
-              while (list.size() == bufferSize) {
-                  produce.await();
-              }
-              list.add(item);
-              consumer.signal();
-          } catch (Exception e) {
-              e.printStackTrace();
-          } finally {
-              lock.unlock();
-          }
-      }
-  
-      public Integer get() throws Exception {
-          lock.lock();
-          try {
-              while (list.isEmpty()) {
-                  consumer.await();
-              }
-              Integer item = list.remove(0);  // Assuming remove(0) returns the first element
-              produce.signal();
-              return item;
-          } catch (Exception e) {
-              e.printStackTrace();
-          } finally {
-              lock.unlock();
-          }
-      }
-  }
-  ```
-
 # 性能调优
 
 ## 调优技巧
@@ -1636,7 +1429,7 @@ JMM 的实现是基于happens-before原则的。happens-before 原则定义了�
 **原理**
 
 - **可见性**：当一个变量被声明为 `volatile` 时，所有线程对该变量的读写操作都直接从主内存中读取或写入，而不是从线程的本地缓存中读取或写入。
-- **有序性**：`volatile` 变量的读写操作不会被重排序，与 `volatile` 变量的读写操作之间存在内存屏障（Memory Barrier）。
+- **有序性**：使用`volatile`会在写操作后插入一个store屏障,在读操作前插入一个load屏障,从而禁止重排序。
 
 ## AQS
 
