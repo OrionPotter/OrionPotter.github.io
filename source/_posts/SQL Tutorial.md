@@ -2139,9 +2139,9 @@ SELECT first_name, last_name FROM employees WHERE employee_id = 1;
 - **页（page）**：InnoDB读取数据库是按页读取的，默认每个页的大小为16KB。
 - **行（row）**：数据库表中的记录按行存放，每行记录根据不同的行格式有不同的存储结构。
 
-### 锁
+## 锁
 
-#### 全局锁（Global Lock）
+### 全局锁（Global Lock）
 
 全局锁会锁定整个数据库实例，通常用于全库备份和维护操作。
 
@@ -2153,7 +2153,7 @@ FLUSH TABLES WITH READ LOCK;
 
 场景：全局锁适用于需要确保整个数据库在某一时刻数据一致性的操作，但会阻塞所有写操作，因此不适合长时间使用。
 
-#### 表级锁（Table-level Locks）
+### 表级锁（Table-level Locks）
 
 **表锁**：锁定整个表，适用于需要对整个表进行大规模操作的情况。
 
@@ -2169,7 +2169,7 @@ UNLOCK TABLES; -- 解锁
 
 场景：表级锁适用于需要对整个表进行大规模操作的情况，但会阻塞其他事务对该表的操作，因此不适合高并发环境。
 
-#### 页级锁（Page-level Locks）
+### 页级锁（Page-level Locks）
 
 页级锁锁定数据页，介于表级锁和行级锁之间，较少使用。MySQL的BDB存储引擎支持页级锁，但InnoDB和MyISAM不支持。
 
@@ -2177,7 +2177,7 @@ UNLOCK TABLES; -- 解锁
 
 场景：页级锁介于表级锁和行级锁之间，提供了较好的并发性和性能，但由于MySQL主流存储引擎不支持，实际应用较少。
 
-#### 行级锁（Row-level Locks）
+### 行级锁（Row-level Locks）
 
 行级锁是InnoDB的默认锁机制，适用于高并发的场景。
 
@@ -2197,15 +2197,148 @@ SELECT * FROM table_name WHERE condition FOR UPDATE;
 
 场景：行级锁提供了最高的并发性，适用于高并发环境。通过锁定特定的行而不是整个表或页，行级锁能够最大限度地减少锁冲突。
 
-#### 生产环境中的实际应用
+### 生产环境中的实际应用
 
 + 全局锁用于全库备份
 + 表级锁用于批量更新
 + 行级锁用于并发控制
 
-#### 查看锁信息
+### 查看锁信息
 
 ```sql
 SHOW ENGINE INNODB STATUS;
+```
+
+## 分库分表
+
+分库分表是为了应对单库单表在面对大数据量、高并发时的性能瓶颈和可扩展性问题，通过将数据拆分到多个数据库或多个表中来实现数据存储和访问的分散。
+
+### 设计方案
+
+**垂直分库**：按业务模块划分，将不同业务模块的数据存储到不同的数据库中。
+
+**水平分库**：将同一业务模块的数据按某种规则（如用户ID）拆分到多个数据库中。
+
+**垂直分表**：将一个表中不相关的列拆分到多个表中。
+
+**水平分表**：将一个表的数据按某种规则（如时间、ID）拆分到多个表中。
+
+### **实现原理** 
+
+分库分表的核心是通过合理的分区策略将数据分散到不同的数据库和表中，主要实现方式包括：
+
+- 使用中间件如ShardingSphere、MyCAT等，实现数据分片、路由和聚合查询。
+- 自定义分片策略，将数据按特定规则分配到不同的数据库和表中。
+
+### 配置代码
+
+```yaml
+sharding:
+  tables:
+    user:
+      actualDataNodes: ds_${0..1}.user_${0..1}
+      tableStrategy:
+        inline:
+          shardingColumn: user_id
+          algorithmExpression: user_${user_id % 2}
+      keyGenerator:
+        type: SNOWFLAKE
+        column: user_id
+  defaultDatabaseStrategy:
+    inline:
+      shardingColumn: user_id
+      algorithmExpression: ds_${user_id % 2}
+```
+
+## 主从复制
+
+主从复制（Master-Slave Replication）是指将主数据库的数据实时复制到从数据库，从数据库可以作为备份，也可以用于读写分离，提高读性能。
+
+<img src="https://telegraph-image-2ni.pages.dev/file/b78aebc06adebbd52b923.png" style="zoom:50%;" />
+
+
+
+### 设计方案
+
+**异步复制**：主数据库执行写操作后立即返回，从数据库异步复制数据。
+
+**同步复制**：主数据库在确认从数据库收到数据后再返回。
+
+**半同步复制**：介于异步和同步之间，主数据库等待至少一个从数据库确认数据收到。
+
+### **实现原理** 
+
+主数据库的变更通过二进制日志（binlog）记录，从数据库读取binlog并执行相同的操作。复制流程主要包括：
+
+1. 主数据库将变更写入binlog。
+2. 从数据库通过I/O线程读取主数据库的binlog并写入中继日志（relay log）。
+3. 从数据库通过SQL线程读取中继日志并执行相应操作。
+
+### 配置代码
+
+```sh
+-- 在主库上配置
+[mysqld]
+server-id=1
+log-bin=mysql-bin
+
+-- 在从库上配置
+[mysqld]
+server-id=2
+relay-log=relay-bin
+log-bin=mysql-bin
+
+-- 在从库上执行
+CHANGE MASTER TO
+MASTER_HOST='主库IP',
+MASTER_USER='复制用户',
+MASTER_PASSWORD='复制用户密码',
+MASTER_LOG_FILE='mysql-bin.000001',
+MASTER_LOG_POS= 4;
+
+START SLAVE;
+```
+
+## 备份与恢复
+
+数据库的备份与恢复是指定期对数据库进行备份，以便在数据丢失或损坏时可以恢复到备份时的状态。
+
+### 全量备份
+
+#### 设计方案
+
+**逻辑备份**：如使用mysqldump导出SQL脚本。
+
+#### 实现原理
+
+**逻辑备份**：通过导出数据库的SQL语句实现，可以导出表结构和数据。
+
+#### 配置代码
+
+```sh
+#备份
+mysqldump -u root -p database_name > backup.sql
+#恢复
+mysql -u root -p database_name < backup.sql
+```
+
+### 增量备份
+
+增量备份是对自上次全量或增量备份后发生变更的数据进行备份。增量备份可以减少备份时间和存储空间，适合大规模数据的备份策略。
+
+#### 实现原理
+
+**逻辑备份**：基于二进制日志（binlog）的增量备份通过备份binlog文件实现。
+
+#### 配置代码
+
+```sh
+#在 my.cnf 文件中添加以下配置：
+[mysqld]
+log-bin=mysql-bin
+# 备份命令
+mysqlbinlog mysql-bin.000001 > incremental_backup.sql
+# 恢复命令
+mysql -u root -p < incremental_backup.sql
 ```
 
