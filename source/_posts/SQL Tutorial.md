@@ -2131,7 +2131,9 @@ SELECT first_name, last_name FROM employees WHERE employee_id = 1;
 
 #### InnoDB存储结构
 
-- 段（segment）：表空间由各个段组成，段由多个区组成。
+<img src="https://telegraph-image-2ni.pages.dev/file/ed982a598d21a6236e396.png" style="zoom:33%;" />
+
+- **段**（segment）：表空间由各个段组成，段由多个区组成。
   - **索引段**：存放B+树的非叶子节点的区的集合。
   - **数据段**：存放B+树的叶子节点的区的集合。
   - **回滚段**：存放回滚数据的区的集合。
@@ -2300,7 +2302,7 @@ sharding:
 
 主从复制（Master-Slave Replication）是指将主数据库的数据实时复制到从数据库，从数据库可以作为备份，也可以用于读写分离，提高读性能。
 
-<img src="https://telegraph-image-2ni.pages.dev/file/b78aebc06adebbd52b923.png" style="zoom:50%;" />
+<img src="https://telegraph-image-2ni.pages.dev/file/b78aebc06adebbd52b923.png" style="zoom:40%;" />
 
 
 
