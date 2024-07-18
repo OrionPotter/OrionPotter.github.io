@@ -88,75 +88,63 @@ tag:
 
 ## 数组的操作
 
-- **初始化数组**
-
 ```java
-// 静态初始化
-int[] arr1 = {1, 2, 3, 4, 5};
+	public int[] initArray(){
+        return new int[]{1,2,3,4,5};
+    }
+    //查找
+    public int getElement(int[] arr,int i){
+        if(i>=0 && i< arr.length){
+            return arr[i];
+        }
+        throw new RuntimeException("array index exception");
+    }
+    //删除
+    public int[] removeElement(int[] arr, int element){
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < arr.length; i++) {
+            if(arr[i] != element){
+                list.add(arr[i]);
+            }
+        }
+        return list.stream().mapToInt(i -> i).toArray();
+    }
 
-// 动态初始化
-int[] arr2 = new int[5];
-arr2[0] = 1;
-arr2[1] = 2;
-```
+    //插入
+    public int[] addElement(int[] arr, int element){
+        List<Integer> list = new ArrayList<>();
+        for (int i = 0; i < arr.length; i++) {
+                list.add(arr[i]);
+        }
+        list.add(element);
+        return list.stream().mapToInt(i -> i).toArray();
+    }
 
+    //更新
+    public int[] updateElement(int[] arr, int index,int element){
+        if(index >= 0 && index < arr.length){
+            arr[index] = element;
+            return arr;
+        }
+        throw new RuntimeException("array index exception");
+    }
 
+    //遍历
+    public void iteratorElement(int[] arr){
+        for (int i = 0; i < arr.length; i++) {
+            System.out.println(arr[i]);
+        }
+    }
 
-- **查询操作**
-
-```java
-int element = arr1[2]; // 查询索引为2的元素
-```
-
-
-
-- **插入操作**
-
-```java
-//数组本身不能直接插入元素，只能通过创建新数组实现插入效果。
-int[] newArr = new int[arr1.length + 1];
-System.arraycopy(arr1, 0, newArr, 0, 2);
-newArr[2] = 99;
-System.arraycopy(arr1, 2, newArr, 3, arr1.length - 2);
-```
-
-
-
-- **删除操作**
-
-```java
-//数组本身不能直接删除元素，只能通过创建新数组实现删除效果。
-int[] newArr = new int[arr1.length - 1];
-System.arraycopy(arr1, 0, newArr, 0, 2);
-System.arraycopy(arr1, 3, newArr, 2, arr1.length - 3);
-```
-
-
-
-- **修改操作**
-
-```java
-arr1[2] = 99; // 修改索引为2的元素
-```
-
-
-
-- **遍历操作**
-
-```java
-for (int i = 0; i < arr1.length; i++) {
-    System.out.println(arr1[i]);
-}
-```
-
-
-
-- **数组扩容**
-
-```java
-//数组扩容本质上是创建一个更大的数组并复制原数组的内容。
-int[] newArr = new int[arr1.length * 2];
-System.arraycopy(arr1, 0, newArr, 0, arr1.length);
+    //数组扩容
+    public int[] resize(int[] arr,int size){
+        int newSize = arr.length + size;
+        int[] newArr = new int[newSize];
+        for (int i = 0; i < arr.length; i++) {
+            newArr[i] = arr[i];
+        }
+        return newArr;
+    }
 ```
 
 
