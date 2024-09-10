@@ -2,6 +2,8 @@
 title: Linux
 tag:
 - Linux
+categories:
+- system
 ---
 
 # 什么是linux

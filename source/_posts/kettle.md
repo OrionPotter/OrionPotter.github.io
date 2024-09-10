@@ -2,6 +2,8 @@
 title: Kettel
 tag: 
 - ETL
+categories:
+- kettle
 ---
 
 # 数据分析工具对比

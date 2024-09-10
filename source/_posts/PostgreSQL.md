@@ -1,6 +1,8 @@
 ---
 title: PostgreSQL 学习
 tag: 教程
+categories:
+- database
 ---
 
 

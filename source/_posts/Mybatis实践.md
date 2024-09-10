@@ -2,6 +2,8 @@
 title: mybatis实践
 tag:
 - mybatis
+categories:
+- orm
 ---
 
 # 什么是mybatis

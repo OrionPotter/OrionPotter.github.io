@@ -3,7 +3,7 @@ title: kafka实践
 tag:
 - mq
 categories:
-- mq
+- kafka
 ---
 
 # 基础知识

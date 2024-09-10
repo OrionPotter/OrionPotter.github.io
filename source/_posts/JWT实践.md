@@ -2,6 +2,8 @@
 title: 基于SpringBoot+SpringSecurity+JWT认证实践
 tag:
 - JWT
+categories:
+- authorization
 ---
 
 # 认证流程原理
