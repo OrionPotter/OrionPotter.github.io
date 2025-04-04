@@ -305,7 +305,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/Linux.html">
+    <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/PostgreSQL.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -324,7 +324,7 @@
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/post/Linux.html" itemprop="url">Linux</a></h2>
+                <a class="post-title-link" href="/post/PostgreSQL.html" itemprop="url">PostgreSQL 学习</a></h2>
         
 
         <div class="post-meta">
@@ -371,8 +371,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/system/" itemprop="url" rel="index">
-                    <span itemprop="name">system</span>
+                  <a href="/categories/database/" itemprop="url" rel="index">
+                    <span itemprop="name">database</span>
                   </a>
                 </span>
 
@@ -410,12 +410,17 @@
       
         
           
-          什么是linuxlinux是一个开源的操作系统。目前主流的发行版有，Debian(ubuntu)、Fedroa(redhat、centos)、SUSE(openSUSE)、其他版本
-linux系统启动流程Linux 系统的启动流程是一个多阶段的过程，从按下电源按钮开始，到最终用户可以登录并使用系统。
+          安装PostgreSQL安装依赖
+make &gt;&#x3D; 3.8.0
+推荐gcc最新版
+bzip、bzip2、tar、readline、readline-devel、zlib-devel
+Perl
+
+下载源代码https ://www.postgresql.org/download/ # 下
           ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/post/Linux.html#more" rel="contents">
+            <a class="btn" href="/post/PostgreSQL.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -918,148 +923,6 @@ REST架构的核心原则资源（Resource
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/Redis%E5%AE%9E%E8%B7%B5.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Orion Potter's 个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/post/Redis%E5%AE%9E%E8%B7%B5.html" itemprop="url">Redis实践</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2025-04-04T16:48:53+08:00">
-                2025-04-04
-              </time>
-            
-
-            
-              <span class="post-meta-divider">|</span>
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-check-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">更新于&#58;</span>
-              
-              <time title="更新于" itemprop="dateModified" datetime="2025-04-04T16:48:53+08:00">
-                2025-04-04
-              </time>
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          基础概念Redis介绍
-Redis（Remote Dictionary Server）是一个开源的内存数据结构存储系统，广泛用于缓存、消息队列、实时分析等场景。它支持多种数据结构，如字符串、哈希、列表、集合、有序集合、位图、HyperLogLog、地理空间和流。
-
-优点
-高性能：Redis将数据存储
-          ...
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/post/Redis%E5%AE%9E%E8%B7%B5.html#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/SpringBoot%E5%AE%9E%E8%B7%B5.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1152,6 +1015,148 @@ Redis（Remote Dictionary Server）是一个开源的内存数据结构存储系
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/post/SpringBoot%E5%AE%9E%E8%B7%B5.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/Redis%E5%AE%9E%E8%B7%B5.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Orion Potter's 个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/post/Redis%E5%AE%9E%E8%B7%B5.html" itemprop="url">Redis实践</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2025-04-04T16:48:53+08:00">
+                2025-04-04
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于&#58;</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2025-04-04T16:48:53+08:00">
+                2025-04-04
+              </time>
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          基础概念Redis介绍
+Redis（Remote Dictionary Server）是一个开源的内存数据结构存储系统，广泛用于缓存、消息队列、实时分析等场景。它支持多种数据结构，如字符串、哈希、列表、集合、有序集合、位图、HyperLogLog、地理空间和流。
+
+优点
+高性能：Redis将数据存储
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/post/Redis%E5%AE%9E%E8%B7%B5.html#more" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1748,7 +1753,7 @@ API 网关是一个管理、处理和路由API调用到后端服务的系统。�
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/">&lt;i class&#x3D;&quot;fa fa-angle-left&quot;&gt;&lt;&#x2F;i&gt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/6/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot;&gt;&lt;&#x2F;i&gt;</a>
+    <a class="extend prev" rel="prev" href="/page/4/">&lt;</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/6/">&gt;</a>
   </nav>
 
 
