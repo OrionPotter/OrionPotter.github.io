@@ -59,7 +59,7 @@ pagination_dir: page
 include: null
 exclude: null
 ignore: null
-theme: source/themes/next
+theme: next
 deploy:
   type: git
   repository: git@github.com:OrionPotter/OrionPotter.github.io.git
