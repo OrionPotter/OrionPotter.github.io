@@ -262,6 +262,16 @@
           </a>
         </li>
       
+        
+        <li class="menu-item menu-item-commonweal">
+          <a href="/404/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            公益404
+          </a>
+        </li>
+      
 
       
     </ul>
@@ -281,137 +291,6 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/Build%20tools.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Orion Potter's 个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/post/Build%20tools.html" itemprop="url">Build Tools</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2025-04-04T16:48:53+08:00">
-                2025-04-04
-              </time>
-            
-
-            
-              <span class="post-meta-divider">|</span>
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-check-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">更新于&#58;</span>
-              
-              <time title="更新于" itemprop="dateModified" datetime="2025-04-04T16:48:53+08:00">
-                2025-04-04
-              </time>
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="Maven"><a href="#Maven" class="headerlink" title="Maven"></a>Maven</h1><h1 id="Gradle"><a href="#Gradle" class="headerlink" title="Gradle"></a>Gradle</h1><h1 id="Ant"><a href="#Ant" class="headerlink" title="Ant"></a>Ant</h1>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
     
       
 
@@ -509,108 +388,157 @@
       
         
           
-            <h1 id="数据库复制和同步的基本概念"><a href="#数据库复制和同步的基本概念" class="headerlink" title="数据库复制和同步的基本概念"></a>数据库复制和同步的基本概念</h1><blockquote>
-<p>作用：实现了数据在多个数据库实例之间的保持一致和同步。应用程序能够获得高可用性、灾备性和读取负载均衡等好处。</p>
-</blockquote>
-<ol>
-<li>主从复制（Master-Slave Replication）：主从复制是最常见的数据库复制方法之一。在主从复制中，有一个主数据库（Master）和一个或多个从数据库（Slaves）。主数据库是数据的源头，它负责接收来自应用程序的写操作，并将这些写操作记录为称为日志（Log）的格式。从数据库则通过读取这些日志，将主数据库的写操作进行重演，以保持数据的一致性。</li>
-<li>数据一致性（Data Consistency）：数据一致性是指主数据库和从数据库之间的数据保持一致。当在主数据库上进行写操作时，主数据库会将这些操作的日志记录下来，并将其发送给从数据库。从数据库会按照相同的顺序重现这些操作，确保数据的一致性。一致性的实现可以通过各种机制，例如基于事务日志（Transaction Log）或二进制日志（Binary Log）。</li>
-<li>数据传输（Data Transfer）：数据传输是指将主数据库的数据从一个位置传输到另一个位置。在数据库复制和同步过程中，数据传输通常通过网络进行。主数据库将写操作记录为日志，并通过网络传输给从数据库，从数据库接收日志并执行相应的操作。</li>
-<li>增量复制（Incremental Replication）：增量复制是一种常见的复制方式，其中只有发生了更改的部分数据会被复制和同步。这种方式可以减少网络传输的数据量，并提高复制效率。增量复制通常使用日志来跟踪数据的更改，只传输和应用这些更改。</li>
-<li>数据延迟（Data Latency）：在数据库复制和同步中，主数据库和从数据库之间可能存在一定的延迟。这是因为数据在传输和应用过程中需要一定的时间。数据延迟可能会导致从数据库上的数据不是实时的，在某些情况下可能会有一定的时间窗口内的数据不一致。</li>
-</ol>
-<h1 id="canal作用及原理"><a href="#canal作用及原理" class="headerlink" title="canal作用及原理"></a>canal作用及原理</h1><p><img src="https://camo.githubusercontent.com/63881e271f889d4a424c55cea2f9c2065f63494fecac58432eac415f6e47e959/68747470733a2f2f696d672d626c6f672e6373646e696d672e636e2f32303139313130343130313733353934372e706e67"></p>
-<p>canal作用：根据Mysql数据库增量日志进行解析，提供增量数据的订阅和消费。</p>
-<p>canal原理：canal模拟Mysql slave交互协议，伪装成slave发送dump报文，主数据库master收到dump请求后，推送binary log给canal。</p>
-<h1 id="数据库准备"><a href="#数据库准备" class="headerlink" title="数据库准备"></a>数据库准备</h1><p>1.开启binlog,&#x2F;etc&#x2F;my.cnf 中配置如下</p>
-<pre class="line-numbers language-ini" data-language="ini"><code class="language-ini"><span class="token section"><span class="token punctuation">[</span><span class="token section-name selector">mysqld</span><span class="token punctuation">]</span></span>
-<span class="token key attr-name">server-id</span><span class="token punctuation">=</span><span class="token value attr-value">1</span>
-<span class="token key attr-name">log_bin</span><span class="token punctuation">=</span><span class="token value attr-value">mysql-bin</span>
-<span class="token key attr-name">binlog-format</span><span class="token punctuation">=</span><span class="token value attr-value">row</span>
-<span class="token key attr-name">bind-address</span><span class="token punctuation">=</span><span class="token value attr-value">0.0.0.0</span>
-<span class="token key attr-name">port</span><span class="token punctuation">=</span><span class="token value attr-value">3306</span>
-<span class="token key attr-name">basedir</span><span class="token punctuation">=</span><span class="token value attr-value">/usr/local/mysql</span>
-<span class="token key attr-name">datadir</span><span class="token punctuation">=</span><span class="token value attr-value">/data/mysql</span>
-<span class="token key attr-name">socket</span><span class="token punctuation">=</span><span class="token value attr-value">/tmp/mysql.sock</span>
-<span class="token key attr-name">log-error</span><span class="token punctuation">=</span><span class="token value attr-value">/data/mysql/mysql.err</span>
-<span class="token key attr-name">pid-file</span><span class="token punctuation">=</span><span class="token value attr-value">/data/mysql/mysql.pid</span>
-<span class="token comment">#character config</span>
-<span class="token key attr-name">character_set_server</span><span class="token punctuation">=</span><span class="token value attr-value">utf8mb4</span>
-<span class="token key attr-name">symbolic-links</span><span class="token punctuation">=</span><span class="token value attr-value">0</span>
-<span class="token key attr-name">explicit_defaults_for_timestamp</span><span class="token punctuation">=</span><span class="token value attr-value">true</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>2.授权 canal 链接 MySQL 账号具有作为 MySQL slave 的权限, 如果已有账户可直接 grant</p>
-<pre class="line-numbers language-sql" data-language="sql"><code class="language-sql"><span class="token keyword">CREATE</span> <span class="token keyword">USER</span> canal IDENTIFIED <span class="token keyword">BY</span> <span class="token string">'canal'</span><span class="token punctuation">;</span>  
-<span class="token keyword">GRANT</span> <span class="token keyword">SELECT</span><span class="token punctuation">,</span> <span class="token keyword">REPLICATION</span> SLAVE<span class="token punctuation">,</span> <span class="token keyword">REPLICATION</span> CLIENT <span class="token keyword">ON</span> <span class="token operator">*</span><span class="token punctuation">.</span><span class="token operator">*</span> <span class="token keyword">TO</span> <span class="token string">'canal'</span><span class="token variable">@'%'</span><span class="token punctuation">;</span>
-FLUSH <span class="token keyword">PRIVILEGES</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+          数据库复制和同步的基本概念
+作用：实现了数据在多个数据库实例之间的保持一致和同步。应用程序能够获得高可用性、灾备性和读取负载均衡等好处。
 
 
+主从复制（Master-Slave Replication）：主从复制是最常见的数据库复制方法之一。在主从复制中，有一个主数据库（Master）和一个或多个从
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/post/Canal.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
 
-<h1 id="安装Server"><a href="#安装Server" class="headerlink" title="安装Server"></a>安装Server</h1><blockquote>
-<p>下载：canal.deployer-1.1.6.tar.gz</p>
-</blockquote>
-<p>1.conf&#x2F;example&#x2F;instance.properties配置修改</p>
-<pre class="line-numbers language-properties" data-language="properties"><code class="language-properties"><span class="token comment">#position info，需要改成自己的数据库信息</span>
-<span class="token key attr-name">canal.instance.master.address</span> <span class="token punctuation">=</span> <span class="token value attr-value">127.0.0.1:3306 </span>
-<span class="token key attr-name">canal.instance.master.journal.name</span> <span class="token value attr-value">= </span>
-<span class="token key attr-name">canal.instance.master.position</span> <span class="token value attr-value">= </span>
-<span class="token key attr-name">canal.instance.master.timestamp</span> <span class="token value attr-value">= </span>
-<span class="token comment">#canal.instance.standby.address = </span>
-<span class="token comment">#canal.instance.standby.journal.name =</span>
-<span class="token comment">#canal.instance.standby.position = </span>
-<span class="token comment">#canal.instance.standby.timestamp = </span>
-<span class="token comment">#username/password，需要改成自己的数据库信息</span>
-<span class="token key attr-name">canal.instance.dbUsername</span> <span class="token punctuation">=</span> <span class="token value attr-value">canal  </span>
-<span class="token key attr-name">canal.instance.dbPassword</span> <span class="token punctuation">=</span> <span class="token value attr-value">canal</span>
-<span class="token key attr-name">canal.instance.defaultDatabaseName</span> <span class="token value attr-value">=</span>
-<span class="token key attr-name">canal.instance.connectionCharset</span> <span class="token punctuation">=</span> <span class="token value attr-value">UTF-8</span>
-<span class="token comment">#table regex</span>
-<span class="token key attr-name">canal.instance.filter.regex</span> <span class="token punctuation">=</span> <span class="token value attr-value">.\*\\\\..\*</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+    
 
-<p>2.启动</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sh</span> bin/startup.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+    
 
-<h1 id="安装RDB适配器"><a href="#安装RDB适配器" class="headerlink" title="安装RDB适配器"></a>安装RDB适配器</h1><blockquote>
-<p>下载：canal.adapter-1.1.7-SNAPSHOT.tar.gz</p>
-</blockquote>
-<p>1.修改启动器配置: application.yml, 这里以mysql目标库为例,将bootstrap.yml注释掉</p>
-<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup">srcDataSources:
-    defaultDS:
-      url: jdbc:mysql://192.168.67.24:3306/mytest?useUnicode=true
-      username: root
-      password: *******
-  canalAdapters:
-  - instance: example # canal instance Name or mq topic name
-    groups:
-    - groupId: g1
-      outerAdapters:
-      - name: rdb                                               # 指定为rdb类型同步
-        key: mysql1                                            # 指定adapter的唯一key, 与表映射配置中outerAdapterKey对应
-        properties:
-          jdbc.driverClassName: com.mysql.jdbc.Driver        # jdbc驱动名, 部分jdbc的jar包需要自行放致lib目录下
-          jdbc.url: jdbc:mysql://192.168.67.16:31185/mytest?useUnicode=true        # jdbc url
-          jdbc.username: dongzhimen                                 # jdbc username
-          jdbc.password: **********                                # jdbc password
-          druid.stat.enable: false                                           
-		  druid.stat.slowSqlMillis: 1000	<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+    
 
-<p>2.修改conf&#x2F;rdb&#x2F;mytest_user.yml文件</p>
-<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup">dataSourceKey: defaultDS
-destination: example
-outerAdapterKey: mysql1
-concurrent: true
-dbMapping:
-  mirrorDb: true
-  database: mytest<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+    <footer class="post-footer">
+      
 
-<blockquote>
-<p>其中dbMapping.database的值代表源库和目标库的schema名称，即两库的schema要一模一样</p>
-</blockquote>
-<p>3.启动</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">sh</span> startup.sh<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+      
 
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/Build%20tools.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Orion Potter's 个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/post/Build%20tools.html" itemprop="url">Build Tools</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2025-04-04T16:48:53+08:00">
+                2025-04-04
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于&#58;</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2025-04-04T16:48:53+08:00">
+                2025-04-04
+              </time>
+            
+          </span>
 
           
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          MavenGradleAnt
+          
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/post/Build%20tools.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -740,37 +668,158 @@ dbMapping:
       
         
           
-            <h1 id="数据系统的基石"><a href="#数据系统的基石" class="headerlink" title="数据系统的基石"></a>数据系统的基石</h1><h2 id="什么是数据密集型和计算密集型"><a href="#什么是数据密集型和计算密集型" class="headerlink" title="什么是数据密集型和计算密集型"></a>什么是数据密集型和计算密集型</h2><h3 id="数据密集型-Data-intensive"><a href="#数据密集型-Data-intensive" class="headerlink" title="数据密集型(Data-intensive)"></a>数据密集型(Data-intensive)</h3><p>数据密集型系统或应用通常涉及大量的数据输入、输出、处理和存储。典型的特点包括：</p>
-<ul>
-<li>需要处理的数据量非常大。</li>
-<li>强调数据的获取、存储、管理和分析。</li>
-<li>常常需要使用数据库、数据仓库、大数据技术如Hadoop或Spark。</li>
-<li>任务可能涉及网络传输、磁盘I&#x2F;O和数据缓存等。</li>
-<li>性能瓶颈可能出现在I&#x2F;O和网络带宽，而不是计算能力。</li>
-</ul>
-<p>数据密集型系统的例子包括社交网络服务、在线购物平台、大规模在线事务处理（OLTP）系统、搜索引擎和推荐系统等。</p>
-<h3 id="计算密集型-Compute-intensive"><a href="#计算密集型-Compute-intensive" class="headerlink" title="计算密集型(Compute-intensive)"></a>计算密集型(Compute-intensive)</h3><p>计算密集型任务或系统则是指需要消耗大量CPU资源进行计算的应用。它们的特点包括：</p>
-<ul>
-<li>需要大量的计算操作。</li>
-<li>花费的时间主要在进行数学计算，处理逻辑或进行数据转换等CPU密集型任务上。</li>
-<li>性能瓶颈往往在CPU计算能力上。</li>
-<li>任务通常需要高效的算法和优化以利用计算资源。</li>
-</ul>
-<p>计算密集型任务的例子包括科学计算、图像和视频编码、3D渲染、密码学分析、大规模模拟和数据挖掘等。</p>
-<blockquote>
-<p>数据密集型和计算密集型的最主要的区别在于它们对资源的需求差异，<strong>数据密集型的瓶颈是I&#x2F;O和网络带宽，而计算密集型的瓶颈是CPU的计算能力。</strong></p>
-</blockquote>
-<h2 id="可靠性，可扩展性，可维护性"><a href="#可靠性，可扩展性，可维护性" class="headerlink" title="可靠性，可扩展性，可维护性"></a>可靠性，可扩展性，可维护性</h2><h3 id="可靠性"><a href="#可靠性" class="headerlink" title="可靠性"></a>可靠性</h3><blockquote>
-<p>系统在<strong>困境（adversity）</strong>（硬件故障、软件故障、人为错误）中仍可正常工作（正确完成功能，并能达到期望的性能水准）</p>
-</blockquote>
-<h3 id="可扩展性"><a href="#可扩展性" class="headerlink" title="可扩展性"></a>可扩展性</h3><blockquote>
-<p>有合理的办法应对系统的增长（数据量、流量、复杂性）</p>
-</blockquote>
-<h3 id="可维护性"><a href="#可维护性" class="headerlink" title="可维护性"></a>可维护性</h3><blockquote>
-<p>系统在不同的生命周期，都能高效地在系统上工作（使系统保持现有行为，并适应新的应用场景）</p>
-</blockquote>
+          数据系统的基石什么是数据密集型和计算密集型数据密集型(Data-intensive)数据密集型系统或应用通常涉及大量的数据输入、输出、处理和存储。典型的特点包括：
+
+需要处理的数据量非常大。
+强调数据的获取、存储、管理和分析。
+常常需要使用数据库、数据仓库、大数据技术如Hadoop或Spark。
+任
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/post/DDIA%E7%AC%94%E8%AE%B0.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/FTP%E5%92%8CSFTP.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Orion Potter's 个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/post/FTP%E5%92%8CSFTP.html" itemprop="url">SFTP实践</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2025-04-04T16:48:53+08:00">
+                2025-04-04
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于&#58;</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2025-04-04T16:48:53+08:00">
+                2025-04-04
+              </time>
+            
+          </span>
 
           
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          SFTPSFTP介绍 sftp是Secure File Transfer Protocol的缩写，安全文件传送协议。可以为传输文件提供一种安全的网络的加密方法。SFTP 为 SSH的其中一部分，是一种传输档案至 Blogger 伺服器的安全方式。其实在SSH软件包中，已经包含了一个叫作SFTP(Se
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/post/FTP%E5%92%8CSFTP.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -953,471 +1002,6 @@ dbMapping:
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/Elasticsearch.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Orion Potter's 个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/post/Elasticsearch.html" itemprop="url">Elasticsearch</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2025-04-04T16:48:53+08:00">
-                2025-04-04
-              </time>
-            
-
-            
-              <span class="post-meta-divider">|</span>
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-check-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">更新于&#58;</span>
-              
-              <time title="更新于" itemprop="dateModified" datetime="2025-04-04T16:48:53+08:00">
-                2025-04-04
-              </time>
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="基础概念"><a href="#基础概念" class="headerlink" title="基础概念"></a>基础概念</h1><h2 id="什么是-Elasticsearch"><a href="#什么是-Elasticsearch" class="headerlink" title="什么是 Elasticsearch"></a>什么是 Elasticsearch</h2><p>Elasticsearch 是在 Apache Lucene 上构建的分布式、RESTful风格搜索和分析引擎，常用于日志分析、全文搜索、安全智能、业务分析和运维智能使用案例。</p>
-<h2 id="Elasticsearch的核心功能"><a href="#Elasticsearch的核心功能" class="headerlink" title="Elasticsearch的核心功能"></a>Elasticsearch的核心功能</h2><h2 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h2><p>Elasticsearch使用倒排索引来促进快速全文搜索，从而实现快速高效的数据访问。</p>
-<h3 id="倒排索引与正排索引区别"><a href="#倒排索引与正排索引区别" class="headerlink" title="倒排索引与正排索引区别"></a>倒排索引与正排索引区别</h3><ul>
-<li>概念概述</li>
-</ul>
-<p>正排索引，全称为正向索引，是根据文档或者信息的ID等顺序，将相应的内容存储到索引中。它主要用于快速检索某个文档或者信息的内容。而倒排索引，全称为反向索引，则是根据文档或者信息中的某个关键词来查找存储该关键词的文档或者信息ID。这种索引方式主要用于关键词搜索。</p>
-<ul>
-<li>数据结构</li>
-</ul>
-<p>正排索引的数据结构是B+树或者hash表，查询的时候只需要执行一次查找即可找到值，倒排索引的数据结构是倒排表，每次词对应一个倒排项，倒排项包含该词出现的文档编号，和词项在文中的位置信息。</p>
-<ul>
-<li>存储方式</li>
-</ul>
-<p>正排索引，需要存储每个文档的完整的信息，如果存在多个文档，还需要建立一个文档池，将每个文档存储在一起，并在正向索引表中指向文档池中的相应位置。倒排索引不需要存储文档内容，只需存储关键字及其出现的文档和位置信息，存储内容较小，可以存储在内存中，提高查询效率。</p>
-<ul>
-<li>搜索效率</li>
-</ul>
-<p>正排索引只需要查找一次就能找到相应的文档内容，倒排索引中，每个关键词可能对应多个文档，搜索速度方便不如正排索引。</p>
-<ul>
-<li>应用场景</li>
-</ul>
-<p>正排索引适用于单个文档查找、内容显示如图书馆或档案的管理系统采用正排索引，倒排索引主要用于文本搜索、信息检索如搜索引擎中关键字查询，搜索引擎用倒排索引才检索与关键词相关的页面。</p>
-<h2 id="安装与配置"><a href="#安装与配置" class="headerlink" title="安装与配置"></a>安装与配置</h2><h3 id="安装Elasticsearch"><a href="#安装Elasticsearch" class="headerlink" title="安装Elasticsearch"></a>安装Elasticsearch</h3><h3 id="配置文件解析（elasticsearch-yml）"><a href="#配置文件解析（elasticsearch-yml）" class="headerlink" title="配置文件解析（elasticsearch.yml）"></a>配置文件解析（elasticsearch.yml）</h3><h3 id="启动与验证"><a href="#启动与验证" class="headerlink" title="启动与验证"></a>启动与验证</h3><h1 id="工作流程"><a href="#工作流程" class="headerlink" title="工作流程"></a>工作流程</h1><h2 id="数据提取"><a href="#数据提取" class="headerlink" title="数据提取"></a>数据提取</h2><p>Elasticsearch 首先导入JSON 格式的数据，无论是直接输入还是通过 logstash 和 beats 等工具处理。</p>
-<h2 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h2><p>它对这些数据进行索引，创建一个倒排索引，通过将术语链接到文档中的位置来实现快速文本搜索。</p>
-<h2 id="分片和复制"><a href="#分片和复制" class="headerlink" title="分片和复制"></a>分片和复制</h2><p>系统通过分片在节点之间分发数据，并通过复制增强容错能力和可用性。</p>
-<h2 id="搜索"><a href="#搜索" class="headerlink" title="搜索"></a>搜索</h2><p>查询 DSL（Domain Specific Language 特定领域语言） 允许用户执行搜索，访问倒排索引以快速找到相关文档。</p>
-<h2 id="分析和汇总"><a href="#分析和汇总" class="headerlink" title="分析和汇总"></a>分析和汇总</h2><p>elasticsearch还可以进行数据分析和汇编，从而提供对趋势和模式的洞察。</p>
-<h2 id="结果检索"><a href="#结果检索" class="headerlink" title="结果检索"></a>结果检索</h2><p>几乎实时地检索并返回查询结果。</p>
-<img src="/images/Elasticsearch.drawio.svg" style="zoom:67%;">
-
-<h1 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h1><ul>
-<li>索引管理<ul>
-<li>创建索引</li>
-<li>删除索引</li>
-<li>查看索引状态</li>
-</ul>
-</li>
-<li>文档管理<ul>
-<li>增加文档</li>
-<li>获取文档</li>
-<li>更新文档</li>
-<li>删除文档</li>
-</ul>
-</li>
-<li>批量操作<ul>
-<li>批量插入</li>
-<li>批量更新</li>
-<li>批量删除</li>
-</ul>
-</li>
-</ul>
-<h1 id="查询与分析"><a href="#查询与分析" class="headerlink" title="查询与分析"></a>查询与分析</h1><ul>
-<li>查询DSL<ul>
-<li>查询DSL简介</li>
-<li>match查询</li>
-<li>term查询</li>
-<li>range查询</li>
-<li>bool查询</li>
-</ul>
-</li>
-<li>过滤<ul>
-<li>filter的使用</li>
-<li>聚合</li>
-<li>常见聚合操作（如sum, avg, min, max等）</li>
-</ul>
-</li>
-</ul>
-<h1 id="高级功能"><a href="#高级功能" class="headerlink" title="高级功能"></a>高级功能</h1><ul>
-<li>分片与副本<ul>
-<li>分片概念</li>
-<li>副本设置</li>
-<li>分片与副本管理</li>
-</ul>
-</li>
-<li>映射<ul>
-<li>什么是映射</li>
-<li>动态映射</li>
-<li>静态映射</li>
-</ul>
-</li>
-<li>分析器<ul>
-<li>内置分析器</li>
-<li>自定义分析器</li>
-<li>分词器的使用</li>
-</ul>
-</li>
-</ul>
-<h1 id="集群管理"><a href="#集群管理" class="headerlink" title="集群管理"></a>集群管理</h1><ul>
-<li>节点与集群<ul>
-<li>单节点配置</li>
-<li>多节点集群配置</li>
-<li>集群健康检查</li>
-</ul>
-</li>
-<li>数据备份与恢复<ul>
-<li>快照与恢复</li>
-<li>备份策略</li>
-</ul>
-</li>
-</ul>
-<h1 id="安全性"><a href="#安全性" class="headerlink" title="安全性"></a>安全性</h1><ul>
-<li>安全配置<ul>
-<li>用户认证</li>
-<li>角色与权限</li>
-</ul>
-</li>
-<li>HTTPS配置<ul>
-<li>安装证书</li>
-<li>配置HTTPS</li>
-</ul>
-</li>
-</ul>
-<h1 id="性能优化"><a href="#性能优化" class="headerlink" title="性能优化"></a>性能优化</h1><ul>
-<li>性能调优<ul>
-<li>JVM调优</li>
-<li>分片与副本优化</li>
-</ul>
-</li>
-<li>查询性能优化<ul>
-<li>缓存策略</li>
-<li>查询重写</li>
-</ul>
-</li>
-</ul>
-<h1 id="实战案例"><a href="#实战案例" class="headerlink" title="实战案例"></a>实战案例</h1><ul>
-<li>全文搜索实现<ul>
-<li>电商搜索引擎</li>
-<li>博客搜索功能</li>
-</ul>
-</li>
-<li>实时日志分析<ul>
-<li>Logstash与Elasticsearch结合</li>
-<li>Kibana数据展示</li>
-</ul>
-</li>
-</ul>
-<h1 id="扩展学习"><a href="#扩展学习" class="headerlink" title="扩展学习"></a>扩展学习</h1><ul>
-<li>Elasticsearch生态系统<ul>
-<li>Logstash</li>
-<li>Kibana</li>
-<li>Beats</li>
-</ul>
-</li>
-<li>实时数据流处理<ul>
-<li>Elasticsearch与Kafka</li>
-<li>Elasticsearch与Spark</li>
-</ul>
-</li>
-</ul>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/FTP%E5%92%8CSFTP.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Orion Potter's 个人博客">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h2 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/post/FTP%E5%92%8CSFTP.html" itemprop="url">SFTP实践</a></h2>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2025-04-04T16:48:53+08:00">
-                2025-04-04
-              </time>
-            
-
-            
-              <span class="post-meta-divider">|</span>
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-check-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">更新于&#58;</span>
-              
-              <time title="更新于" itemprop="dateModified" datetime="2025-04-04T16:48:53+08:00">
-                2025-04-04
-              </time>
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="SFTP"><a href="#SFTP" class="headerlink" title="SFTP"></a>SFTP</h1><h2 id="SFTP介绍"><a href="#SFTP介绍" class="headerlink" title="SFTP介绍"></a>SFTP介绍</h2><p> sftp是Secure File Transfer Protocol的缩写，安全文件传送协议。可以为传输文件提供一种安全的网络的加密方法。SFTP 为 SSH的其中一部分，是一种传输档案至 Blogger 伺服器的安全方式。其实在SSH软件包中，已经包含了一个叫作SFTP(Secure File Transfer Protocol)的安全文件信息传输子系统，SFTP本身没有单独的守护进程，它必须使用sshd守护进程（端口号默认是22）来完成相应的连接和答复操作，所以从某种意义上来说，SFTP并不像一个服务器程序，而更像是一个客户端程序。SFTP同样是使用加密传输认证信息和传输的数据，所以，使用SFTP是非常安全的。但是，由于这种传输方式使用了加密&#x2F;解密技术，所以传输效率比普通的FTP要低得多。</p>
-<h2 id="SFTP安装"><a href="#SFTP安装" class="headerlink" title="SFTP安装"></a>SFTP安装</h2><h3 id="检查openssh版本"><a href="#检查openssh版本" class="headerlink" title="检查openssh版本"></a>检查openssh版本</h3><blockquote>
-<p>使用系统自带的internal-sftp搭建sftp，因为需要用到chroot，所以openssh 版本不能低于4.8p1</p>
-</blockquote>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># ssh -V</span>
-OpenSSH_7.4p1, OpenSSL <span class="token number">1.0</span>.2k-fips  <span class="token number">26</span> Jan <span class="token number">2017</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<h3 id="创建用户组"><a href="#创建用户组" class="headerlink" title="创建用户组"></a>创建用户组</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># groupadd sftp</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<h3 id="添加用户到sftp用户组"><a href="#添加用户到sftp用户组" class="headerlink" title="添加用户到sftp用户组"></a>添加用户到sftp用户组</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># useradd -g sftp -s /sbin/nologin tom</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<h3 id="修改sftp用户的密码"><a href="#修改sftp用户的密码" class="headerlink" title="修改sftp用户的密码"></a>修改sftp用户的密码</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># passwd tom</span>
-更改用户 tom 的密码 。
-新的 密码：
-无效的密码： 密码少于 <span class="token number">8</span> 个字符
-重新输入新的 密码：
-passwd：所有的身份验证令牌已经成功更新。
-密码设置为: <span class="token function">cat</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="创建SFTP目录"><a href="#创建SFTP目录" class="headerlink" title="创建SFTP目录"></a>创建SFTP目录</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># mkdir -p /sftp/</span>
-<span class="token comment"># 创建该用户能用的目录</span>
-<span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># mkdir -p /sftp/tom</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="修改sshd-config的配置文件"><a href="#修改sshd-config的配置文件" class="headerlink" title="修改sshd_config的配置文件"></a>修改sshd_config的配置文件</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># vim /etc/ssh/sshd_config</span>
-<span class="token comment">#Subsystem      sftp    /usr/libexec/openssh/sftp-server 需要注释掉</span>
-<span class="token comment"># 添加以下配置</span>
-Subsystem <span class="token function">sftp</span> internal-sftp
-Match Group <span class="token function">sftp</span>
-ChrootDirectory /sftp/%u
-ForceCommand internal-sftp
-AllowTcpForwarding no
-X11Forwarding no<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="设定Chroot权限"><a href="#设定Chroot权限" class="headerlink" title="设定Chroot权限"></a>设定Chroot权限</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># chown root:sftp /sftp</span>
-<span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># chown root:sftp /sftp/tom</span>
-<span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># chmod 755 /sftp</span>
-<span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># chmod 755 /sftp/tom</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="设置用户对应的权限"><a href="#设置用户对应的权限" class="headerlink" title="设置用户对应的权限"></a>设置用户对应的权限</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># mkdir -p /sftp/tom/files</span>
-<span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># chown tom /sftp/tom/files</span>
-<span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># chmod 755 /sftp/tom/files</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="重启sshd"><a href="#重启sshd" class="headerlink" title="重启sshd"></a>重启sshd</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># systemctl restart sshd</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<h3 id="连接测试"><a href="#连接测试" class="headerlink" title="连接测试"></a>连接测试</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token punctuation">[</span>root@slave1 ~<span class="token punctuation">]</span><span class="token comment"># sftp tom@127.0.0.1</span>
-tom@127.0.0.1's password:
-Connected to <span class="token number">127.0</span>.0.1.
-sftp<span class="token operator">></span>
-sftp<span class="token operator">></span> <span class="token builtin class-name">exit</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-
-
-
-
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/Geoserver.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1501,86 +1085,22 @@ sftp<span class="token operator">></span> <span class="token builtin class-name"
       
         
           
-            <h2 id="离线安装GeoServer"><a href="#离线安装GeoServer" class="headerlink" title="离线安装GeoServer"></a>离线安装GeoServer</h2><blockquote>
-<p>前提：安装好java,配置好JAVA_HOME</p>
-</blockquote>
-<p>1.准备源码包</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">https://jaist.dl.sourceforge.net/project/geoserver/GeoServer/2.15.1/geoserver-2.15.1-bin.zip<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+          离线安装GeoServer
+前提：安装好java,配置好JAVA_HOME
 
-<p>2.解压</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">unzip</span> geoserver-2.15.1-bin.zip <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+1.准备源码包
+https://jaist.dl.sourceforge.net/project/geoserver/GeoServer/2.15.1/geoserver-2.15.1-bin.zip
 
-<p>3.修改端口</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">cd</span> geoserver-2.15.1
-<span class="token function">vi</span> start.ini 
-<span class="token assign-left variable">jetty.port</span><span class="token operator">=</span><span class="token number">8181</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<p>4.启动程序</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">cd</span> bin
-./startup.sh<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p>5.后台启动</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">nohup</span> /root/geoserver-2.15.1/bin/startup.sh <span class="token operator">&amp;</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<h2 id="geoserver跨域配置"><a href="#geoserver跨域配置" class="headerlink" title="geoserver跨域配置"></a>geoserver跨域配置</h2><p>1.查看对应的版本</p>
-<blockquote>
-<p>启动程序后，默认用户名&#x2F;密码登陆进去，F12抓取一下Response Header,Server里面有版本号</p>
-</blockquote>
-<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup">Cache-Control: no-cache, no-store
-Content-Length: 0
-Date: Mon, 23 May 2022 07:56:02 GMT
-Expires: Thu, 01 Jan 1970 00:00:00 GMT
-Location: http://180.76.187.95:8181/geoserver/web/?0
-Pragma: no-cache
-Server: Jetty(9.4.12.v20180830)
-Set-Cookie: JSESSIONID=node012k3zcl8cf6121wuziii0dzvt75.node0;Path=/geoserver
-X-Frame-Options: SAMEORIGIN<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>2.下载jar包</p>
-<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token comment">&lt;!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-server --></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>org.eclipse.jetty<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>jetty-server<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>9.4.12.v20180830<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>3.上传jar包</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">上传路径 /root/geoserver-2.15.1/webapps/geoserver/WEB-INF/lib<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>4.修改配置</p>
-<pre class="line-numbers language-web.xml" data-language="web.xml"><code class="language-web.xml">vim &#x2F;root&#x2F;geoserver-2.15.1&#x2F;webapps&#x2F;geoserver&#x2F;WEB-INF&#x2F;web.xml<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter</span><span class="token punctuation">></span></span>
-	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-name</span><span class="token punctuation">></span></span>CORS<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-name</span><span class="token punctuation">></span></span>
-	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-class</span><span class="token punctuation">></span></span>com.thetransactioncompany.cors.CORSFilter<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-class</span><span class="token punctuation">></span></span>
-	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>init-param</span><span class="token punctuation">></span></span>
-		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-name</span><span class="token punctuation">></span></span>cors.allowOrigin<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-name</span><span class="token punctuation">></span></span>
-		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-value</span><span class="token punctuation">></span></span>*<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-value</span><span class="token punctuation">></span></span>
-	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>init-param</span><span class="token punctuation">></span></span>
-	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>init-param</span><span class="token punctuation">></span></span>
-		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-name</span><span class="token punctuation">></span></span>cors.supportedMethods<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-name</span><span class="token punctuation">></span></span>
-		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-value</span><span class="token punctuation">></span></span>GET,POST,HEAD,PUT,DELETE<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-value</span><span class="token punctuation">></span></span>
-	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>init-param</span><span class="token punctuation">></span></span>
-	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>init-param</span><span class="token punctuation">></span></span>
-		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-name</span><span class="token punctuation">></span></span>cors.supportedHeaders<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-name</span><span class="token punctuation">></span></span>
-		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-value</span><span class="token punctuation">></span></span>Accept,Origin,X-Requested-With,Content-Type,Last-Modified<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-value</span><span class="token punctuation">></span></span>
-	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>init-param</span><span class="token punctuation">></span></span>
-	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>init-param</span><span class="token punctuation">></span></span>
-		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-name</span><span class="token punctuation">></span></span>cors.exposedHeaders<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-name</span><span class="token punctuation">></span></span>
-		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-value</span><span class="token punctuation">></span></span>Set-Cookie<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-value</span><span class="token punctuation">></span></span>
-	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>init-param</span><span class="token punctuation">></span></span>
-	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>init-param</span><span class="token punctuation">></span></span>
-		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-name</span><span class="token punctuation">></span></span>cors.supportsCredentials<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-name</span><span class="token punctuation">></span></span>
-		<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>param-value</span><span class="token punctuation">></span></span>true<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>param-value</span><span class="token punctuation">></span></span>
-	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>init-param</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-mapping</span><span class="token punctuation">></span></span>
-	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>filter-name</span><span class="token punctuation">></span></span>CORS<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-name</span><span class="token punctuation">></span></span>
-	<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>url-pattern</span><span class="token punctuation">></span></span>/*<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>url-pattern</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>filter-mapping</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-
-          
+2.解压
+unzi
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/post/Geoserver.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1627,7 +1147,7 @@ X-Frame-Options: SAMEORIGIN<span aria-hidden="true" class="line-numbers-rows"><s
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/Linux.html">
+    <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/Elasticsearch.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -1646,7 +1166,7 @@ X-Frame-Options: SAMEORIGIN<span aria-hidden="true" class="line-numbers-rows"><s
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/post/Linux.html" itemprop="url">Linux</a></h2>
+                <a class="post-title-link" href="/post/Elasticsearch.html" itemprop="url">Elasticsearch</a></h2>
         
 
         <div class="post-meta">
@@ -1681,27 +1201,144 @@ X-Frame-Options: SAMEORIGIN<span aria-hidden="true" class="line-numbers-rows"><s
           </span>
 
           
-            <span class="post-category" >
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+          基础概念什么是 ElasticsearchElasticsearch 是在 Apache Lucene 上构建的分布式、RESTful风格搜索和分析引擎，常用于日志分析、全文搜索、安全智能、业务分析和运维智能使用案例。
+Elasticsearch的核心功能工作原理Elasticsearch使用倒排索
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/post/Elasticsearch.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/GithubAction.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Orion Potter's 个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/post/GithubAction.html" itemprop="url">Github</a></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2025-04-04T16:48:53+08:00">
+                2025-04-04
+              </time>
+            
+
             
               <span class="post-meta-divider">|</span>
             
+
+            
               <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
+                <i class="fa fa-calendar-check-o"></i>
               </span>
               
-                <span class="post-meta-item-text">分类于</span>
+                <span class="post-meta-item-text">更新于&#58;</span>
               
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/system/" itemprop="url" rel="index">
-                    <span itemprop="name">system</span>
-                  </a>
-                </span>
+              <time title="更新于" itemprop="dateModified" datetime="2025-04-04T16:48:53+08:00">
+                2025-04-04
+              </time>
+            
+          </span>
 
-                
-                
-              
-            </span>
           
 
           
@@ -1732,265 +1369,21 @@ X-Frame-Options: SAMEORIGIN<span aria-hidden="true" class="line-numbers-rows"><s
       
         
           
-            <h1 id="什么是linux"><a href="#什么是linux" class="headerlink" title="什么是linux"></a>什么是linux</h1><p>linux是一个开源的操作系统。目前主流的发行版有，Debian(ubuntu)、Fedroa(redhat、centos)、SUSE(openSUSE)、其他版本</p>
-<h1 id="linux系统启动流程"><a href="#linux系统启动流程" class="headerlink" title="linux系统启动流程"></a>linux系统启动流程</h1><p>Linux 系统的启动流程是一个多阶段的过程，从按下电源按钮开始，到最终用户可以登录并使用系统。以下是详细的 Linux 系统启动流程：</p>
-<h2 id="BIOS-x2F-UEFI-阶段"><a href="#BIOS-x2F-UEFI-阶段" class="headerlink" title="BIOS&#x2F;UEFI 阶段"></a>BIOS&#x2F;UEFI 阶段</h2><ul>
-<li>**BIOS (Basic Input&#x2F;Output System) 或 UEFI (Unified Extensible Firmware Interface)**：在开机时，系统的 BIOS 或 UEFI 固件会执行一系列硬件初始化操作。这包括自检 (POST，Power-On Self Test)，检测和初始化硬件设备（如 CPU、内存、硬盘等），并查找启动设备。</li>
-<li><strong>启动设备选择</strong>：BIOS&#x2F;UEFI 查找并加载启动设备中的引导加载程序（Bootloader）。启动顺序通常可以在 BIOS&#x2F;UEFI 设置中配置。</li>
-</ul>
-<h2 id="引导加载程序阶段"><a href="#引导加载程序阶段" class="headerlink" title="引导加载程序阶段"></a>引导加载程序阶段</h2><ul>
-<li><strong>引导加载程序（Bootloader）</strong>：常见的引导加载程序有 GRUB（GRand Unified Bootloader）。引导加载程序的主要任务是将操作系统内核从启动设备（如硬盘）加载到内存中并执行。<ul>
-<li><strong>GRUB 阶段 1</strong>：位于磁盘的主引导记录（MBR）或 GPT 的 EFI 系统分区中。其作用是找到并加载 GRUB 阶段 2。</li>
-<li><strong>GRUB 阶段 2</strong>：显示一个引导菜单，允许用户选择要启动的操作系统或内核选项。根据用户的选择，GRUB 将加载相应的内核映像和初始内存盘（initramfs&#x2F;initrd）。</li>
-</ul>
-</li>
-</ul>
-<h2 id="内核阶段"><a href="#内核阶段" class="headerlink" title="内核阶段"></a>内核阶段</h2><ul>
-<li><strong>加载内核</strong>：引导加载程序将 Linux 内核（通常是 vmlinuz）加载到内存中，并将控制权移交给内核。</li>
-<li><strong>初始内存盘（initramfs&#x2F;initrd）</strong>：内核加载初始内存盘，它包含内核启动过程中所需的临时文件系统和驱动程序。</li>
-<li><strong>内核初始化</strong>：内核开始执行自身的初始化过程，包括：<ul>
-<li>设置硬件（如 CPU、内存、设备驱动程序）。</li>
-<li>挂载根文件系统。</li>
-<li>启动第一个用户空间进程 <code>init</code>。</li>
-</ul>
-</li>
-</ul>
-<h2 id="init-阶段"><a href="#init-阶段" class="headerlink" title="init 阶段"></a>init 阶段</h2><ul>
-<li><strong><code>init</code> 进程</strong>：传统的第一个用户空间进程是 <code>init</code>（PID 1），现代系统上通常由 <code>systemd</code> 替代。<code>init</code> 或 <code>systemd</code> 负责启动和管理系统的各个服务和进程。<ul>
-<li><strong>SysV init</strong>：基于 <code>/etc/inittab</code> 配置文件，按照运行级别（runlevels）启动系统服务和守护进程。</li>
-<li><strong>systemd</strong>：基于单元文件（unit files），按依赖关系启动服务。配置文件位于 <code>/etc/systemd/system/</code> 和 <code>/lib/systemd/system/</code>。</li>
-</ul>
-</li>
-</ul>
-<h2 id="启动用户空间服务"><a href="#启动用户空间服务" class="headerlink" title="启动用户空间服务"></a>启动用户空间服务</h2><ul>
-<li><strong>启动用户空间服务和守护进程</strong>：<code>init</code> 或 <code>systemd</code> 按照配置文件启动所有必要的系统服务和守护进程。例如，网络服务、数据库服务、Web 服务等。</li>
-</ul>
-<h2 id="启动终端或图形用户界面（GUI）"><a href="#启动终端或图形用户界面（GUI）" class="headerlink" title="启动终端或图形用户界面（GUI）"></a>启动终端或图形用户界面（GUI）</h2><ul>
-<li><strong>多用户模式</strong>：启动多个虚拟控制台（tty），用户可以通过这些控制台登录系统。</li>
-<li><strong>图形用户界面（GUI）</strong>：如果系统配置为启动图形界面，<code>init</code> 或 <code>systemd</code> 会启动显示管理器（如 <code>gdm</code>, <code>lightdm</code>, <code>sddm</code>），从而提供图形登录界面。</li>
-</ul>
-<h2 id="用户登录"><a href="#用户登录" class="headerlink" title="用户登录"></a>用户登录</h2><ul>
-<li><strong>登录提示</strong>：用户看到登录提示（TTY 终端）或图形登录界面（GUI），输入用户名和密码登录系统。</li>
-<li><strong>用户会话启动</strong>：登录成功后，启动用户会话，包括用户的 shell 或桌面环境。</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ol>
-<li><strong>BIOS&#x2F;UEFI 初始化</strong>：硬件自检和启动设备选择。</li>
-<li><strong>引导加载程序</strong>：加载和执行操作系统内核。</li>
-<li><strong>内核初始化</strong>：硬件初始化和挂载根文件系统。</li>
-<li><strong><code>init</code> 进程</strong>：启动系统服务和守护进程。</li>
-<li><strong>启动用户空间服务</strong>：启动多用户模式或图形用户界面。</li>
-<li><strong>用户登录</strong>：用户输入凭据登录系统，启动用户会话。</li>
-</ol>
-<h1 id="文件系统"><a href="#文件系统" class="headerlink" title="文件系统"></a>文件系统</h1><p>在 Linux 系统中，文件系统采用分层的目录结构，每个目录都有特定的用途。以下是 Linux 文件系统的主要路径及其用途的介绍：</p>
-<p>1.<code>/</code></p>
-<p>根目录是所有文件和目录的起点。所有其他目录都是根目录的子目录。</p>
-<p>2.<code>/bin</code></p>
-<p>存放系统中最基本的用户命令，例如 <code>ls</code>, <code>cp</code>, <code>mv</code>, <code>rm</code>, <code>cat</code>, <code>bash</code> 等。这些命令在单用户模式下也需要使用，因此存放在这里。</p>
-<ol start="3">
-<li><code>/sbin</code></li>
-</ol>
-<p>存放系统管理程序，只有超级用户（root）才能使用的命令，例如 <code>ifconfig</code>, <code>reboot</code>, <code>shutdown</code> 等。</p>
-<p>4.<code>/boot</code></p>
-<p>存放引导加载器（如 GRUB）和内核文件，包括内核映像和初始内存盘（initrd 或 initramfs）。</p>
-<ol start="5">
-<li><code>/dev</code></li>
-</ol>
-<p>存放设备文件，每个文件代表一个硬件设备，例如硬盘（<code>/dev/sda</code>），终端（<code>/dev/tty</code>），以及随机数生成器（<code>/dev/random</code>）。</p>
-<ol start="6">
-<li><code>/etc</code></li>
-</ol>
-<p>存放系统的全局配置文件和启动脚本。例如网络配置文件、用户账户信息文件、服务启动脚本等。常见的文件包括 <code>/etc/passwd</code>, <code>/etc/fstab</code>, <code>/etc/hosts</code> 等。</p>
-<ol start="7">
-<li><code>/home</code></li>
-</ol>
-<p>存放所有普通用户的主目录。每个用户都有一个子目录（如 <code>/home/username</code>），用于存放个人文件和配置。</p>
-<ol start="8">
-<li><code>/lib</code></li>
-</ol>
-<p>存放基本系统命令和程序所需的共享库文件和内核模块。包括 C 库（glibc）等。</p>
-<ol start="9">
-<li><code>/media</code></li>
-</ol>
-<p>挂载点目录，用于临时挂载可移动媒体设备（如 USB 闪存驱动器、CD&#x2F;DVD）。</p>
-<ol start="10">
-<li><code>/mnt</code></li>
-</ol>
-<p>挂载点目录，常用于临时挂载文件系统。管理员可以在此目录下创建子目录用于挂载额外的存储设备。</p>
-<ol start="11">
-<li><code>/opt</code></li>
-</ol>
-<p>存放可选的应用软件包。一般是第三方应用程序和插件安装在这里。</p>
-<ol start="12">
-<li><code>/proc</code></li>
-</ol>
-<p>虚拟文件系统，提供内核和进程信息。所有内容都在内存中生成，用于访问系统和进程的信息，例如 <code>/proc/cpuinfo</code>（CPU 信息）和 <code>/proc/meminfo</code>（内存信息）。</p>
-<ol start="13">
-<li><code>/root</code></li>
-</ol>
-<p>超级用户（root）的主目录。与普通用户的主目录不同，<code>/root</code> 是唯一的，并且不在 <code>/home</code> 目录下。</p>
-<ol start="14">
-<li><code>/run</code></li>
-</ol>
-<p>存放自系统启动以来的临时文件，例如进程 ID 文件（PID 文件）和套接字。这个目录是动态的，不需要重启后保存数据。</p>
-<ol start="15">
-<li><code>/srv</code></li>
-</ol>
-<p>存放一些特定服务的数据。<code>srv</code> 意为 “server”，通常用于存放网站数据或 FTP 服务器的数据。</p>
-<ol start="16">
-<li><code>/sys</code></li>
-</ol>
-<p>与 <code>/proc</code> 类似，是一个虚拟文件系统，用于显示和修改设备和内核的参数。提供系统硬件信息以及与硬件的交互界面。</p>
-<ol start="17">
-<li><code>/tmp</code></li>
-</ol>
-<p>存放临时文件。系统和应用程序在运行时可以在此目录下创建临时文件。通常这个目录会在系统重启时清空。</p>
-<ol start="18">
-<li><code>/usr</code></li>
-</ol>
-<p>包含用户级别的应用程序和文件。此目录通常包含二级目录，例如：</p>
-<ul>
-<li><code>/usr/bin</code>: 大多数用户命令，类似于 <code>/bin</code>，但包含更多应用程序。</li>
-<li><code>/usr/sbin</code>: 系统管理员的命令，类似于 <code>/sbin</code>。</li>
-<li><code>/usr/lib</code>: 库文件，类似于 <code>/lib</code>。</li>
-<li><code>/usr/local</code>: 手动安装的软件和自定义程序。子目录结构与 <code>/usr</code> 类似。</li>
-<li><code>/usr/share</code>: 存放共享的、架构无关的数据文件，如文档、帮助文件和配置文件模板。</li>
-</ul>
-<ol start="19">
-<li><code>/var</code></li>
-</ol>
-<p>存放可变数据文件，例如日志文件（<code>/var/log</code>）、临时电子邮件文件（<code>/var/mail</code>）、临时文件（<code>/var/tmp</code>）和缓存文件（<code>/var/cache</code>）。</p>
-<h1 id="定时任务"><a href="#定时任务" class="headerlink" title="定时任务"></a>定时任务</h1><p>在 Linux 系统中，定时任务通常是通过 <code>cron</code> 来设置的。<code>cron</code> 是一个基于时间的任务调度程序，使用 <code>crontab</code> 文件来定义任务调度规则。下面是如何设置定时任务以及每个符号的意义。</p>
-<h2 id="设置定时任务步骤"><a href="#设置定时任务步骤" class="headerlink" title="设置定时任务步骤"></a>设置定时任务步骤</h2><ol>
-<li><strong>编辑用户的 <code>crontab</code> 文件</strong>： 使用命令 <code>crontab -e</code> 进入编辑模式，开始编辑当前用户的 <code>crontab</code> 文件。</li>
-<li><strong>添加任务调度规则</strong>： 在 <code>crontab</code> 文件中，每一行代表一个任务，每行包含六个字段：前五个字段定义时间，第六个字段是要执行的命令。</li>
-</ol>
-<h2 id="字段符号及其意义"><a href="#字段符号及其意义" class="headerlink" title="字段符号及其意义"></a>字段符号及其意义</h2><p><code>crontab</code> 文件中的每行任务调度规则格式如下：</p>
-<pre class="line-numbers language-scss" data-language="scss"><code class="language-scss">* <span class="token operator">*</span> <span class="token operator">*</span> <span class="token operator">*</span> <span class="token operator">*</span> command
-<span class="token operator">-</span> <span class="token operator">-</span> <span class="token operator">-</span> <span class="token operator">-</span> <span class="token operator">-</span>
-| | | | |
-| | | | +----- 星期几 <span class="token punctuation">(</span>0 <span class="token operator">-</span> 7<span class="token punctuation">)</span> <span class="token punctuation">(</span>星期日为 0 或 7<span class="token punctuation">)</span>
-| | | +------- 月份 <span class="token punctuation">(</span>1 <span class="token operator">-</span> 12<span class="token punctuation">)</span>
-| | +--------- 每月的哪一天 <span class="token punctuation">(</span>1 <span class="token operator">-</span> 31<span class="token punctuation">)</span>
-| +----------- 小时 <span class="token punctuation">(</span>0 <span class="token operator">-</span> 23<span class="token punctuation">)</span>
-+------------- 分钟 <span class="token punctuation">(</span>0 <span class="token operator">-</span> 59<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+          git的通信协议ssh协议git clone git@github.com:BJPotter/BJPotter.github.io.git
 
-<h3 id="各个字段的详细解释"><a href="#各个字段的详细解释" class="headerlink" title="各个字段的详细解释"></a>各个字段的详细解释</h3><ol>
-<li>**分钟 (0 - 59)**：<ul>
-<li>表示任务在每小时的哪一分钟执行。</li>
-</ul>
-</li>
-<li>**小时 (0 - 23)**：<ul>
-<li>表示任务在一天中的哪个小时执行。</li>
-</ul>
-</li>
-<li>**每月的哪一天 (1 - 31)**：<ul>
-<li>表示任务在每月的哪一天执行。</li>
-</ul>
-</li>
-<li>**月份 (1 - 12)**：<ul>
-<li>表示任务在一年中的哪个月份执行。</li>
-</ul>
-</li>
-<li>**星期几 (0 - 7)**：<ul>
-<li>表示任务在每周的哪一天执行，0 和 7 都表示星期日。</li>
-</ul>
-</li>
-</ol>
-<h3 id="特殊符号"><a href="#特殊符号" class="headerlink" title="特殊符号"></a>特殊符号</h3><ul>
-<li><code>*</code>：星号表示任意时间。例如，如果分钟字段是 <code>*</code>，表示每分钟都会执行。</li>
-<li><code>,</code>：逗号分隔符可以用来指定多个值。例如，<code>1,15</code> 在分钟字段表示第 1 分钟和第 15 分钟。</li>
-<li><code>-</code>：连字符表示一个范围。例如，<code>1-5</code> 在小时字段表示从 1 点到 5 点。</li>
-<li><code>/</code>：斜杠表示步进值。例如，<code>*/5</code> 在分钟字段表示每 5 分钟执行一次。</li>
-</ul>
-<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><ol>
-<li><p><strong>每天下午 3:30 执行命令</strong>：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token number">30</span> <span class="token number">15</span> * * * /path/to/command<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-</li>
-<li><p><strong>每周一到周五早上 8:00 执行命令</strong>：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token number">0</span> <span class="token number">8</span> * * <span class="token number">1</span>-5 /path/to/command<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-</li>
-<li><p><strong>每 10 分钟执行一次命令</strong>：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">*/10 * * * * /path/to/command<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-</li>
-<li><p><strong>每个月的 1 号和 15 号早上 6:00 执行命令</strong>：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token number">0</span> <span class="token number">6</span> <span class="token number">1,15</span> * * /path/to/command<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-</li>
-<li><p><strong>每周日凌晨 2:00 执行命令</strong>：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token number">0</span> <span class="token number">2</span> * * <span class="token number">0</span> /path/to/command<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre></li>
-</ol>
-<h2 id="检查和管理定时任务"><a href="#检查和管理定时任务" class="headerlink" title="检查和管理定时任务"></a>检查和管理定时任务</h2><ul>
-<li><strong>查看当前用户的定时任务</strong>：使用命令 <code>crontab -l</code>。</li>
-<li><strong>删除当前用户的所有定时任务</strong>：使用命令 <code>crontab -r</code>。</li>
-</ul>
-<h1 id="清理内存"><a href="#清理内存" class="headerlink" title="清理内存"></a>清理内存</h1><h2 id="清理内存-1"><a href="#清理内存-1" class="headerlink" title="清理内存"></a>清理内存</h2><h3 id="释放缓存、目录项和-inode"><a href="#释放缓存、目录项和-inode" class="headerlink" title="释放缓存、目录项和 inode"></a>释放缓存、目录项和 inode</h3><p>Linux 内核会使用内存缓存文件系统数据、目录项和 inode，这些缓存可以通过以下命令来释放：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 同步文件系统缓冲区</span>
-<span class="token function">sync</span>
+https协议git clone https://github.com/BJPotter/BJPotter.github.io.git
 
-<span class="token comment"># 释放页面缓存</span>
-<span class="token builtin class-name">echo</span> <span class="token number">1</span> <span class="token operator">></span> /proc/sys/vm/drop_caches
 
-<span class="token comment"># 释放目录项和 inode</span>
-<span class="token builtin class-name">echo</span> <span class="token number">2</span> <span class="token operator">></span> /proc/sys/vm/drop_caches
 
-<span class="token comment"># 释放页面缓存、目录项和 inode</span>
-<span class="token builtin class-name">echo</span> <span class="token number">3</span> <span class="token operator">></span> /proc/sys/vm/drop_caches<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<p>可以将这些命令组合到一个脚本中执行，例如 <code>clear_memory.sh</code>：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token shebang important">#!/bin/bash</span>
-<span class="token function">sync</span>
-<span class="token builtin class-name">echo</span> <span class="token number">3</span> <span class="token operator">></span> /proc/sys/vm/drop_caches<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<p>给脚本添加执行权限并执行：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">chmod</span> +x clear_memory.sh
-./clear_memory.sh<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<h3 id="使用-htop-或-top-监控和终止高内存使用进程"><a href="#使用-htop-或-top-监控和终止高内存使用进程" class="headerlink" title="使用 htop 或 top 监控和终止高内存使用进程"></a>使用 <code>htop</code> 或 <code>top</code> 监控和终止高内存使用进程</h3><p>可以使用 <code>htop</code> 或 <code>top</code> 来查看系统中哪些进程占用了大量内存，然后手动终止不必要的进程。</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">htop</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<p>在 <code>htop</code> 中，按 <code>F6</code> 排序，选择 <code>MEM%</code> 来查看内存使用情况。</p>
-<h3 id="使用-swapoff-和-swapon-重置交换空间"><a href="#使用-swapoff-和-swapon-重置交换空间" class="headerlink" title="使用 swapoff 和 swapon 重置交换空间"></a>使用 <code>swapoff</code> 和 <code>swapon</code> 重置交换空间</h3><p>如果系统使用了交换空间，可以通过以下命令重置交换空间：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">swapoff <span class="token parameter variable">-a</span>
-<span class="token function">swapon</span> <span class="token parameter variable">-a</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p>这将释放所有交换空间并重新启用它。</p>
-<h2 id="释放磁盘空间"><a href="#释放磁盘空间" class="headerlink" title="释放磁盘空间"></a>释放磁盘空间</h2><h3 id="删除不必要的文件和目录"><a href="#删除不必要的文件和目录" class="headerlink" title="删除不必要的文件和目录"></a>删除不必要的文件和目录</h3><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">rm</span> <span class="token parameter variable">-rf</span> /path/to/unnecessary/file_or_directory<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-<h3 id="清理包缓存"><a href="#清理包缓存" class="headerlink" title="清理包缓存"></a>清理包缓存</h3><p>对于基于 Debian 的系统（如 Ubuntu），可以清理 <code>apt</code> 缓存：</p>
-<pre class="line-numbers language-none"><code class="language-none">sudo apt-get clean
-sudo apt-get autoremove<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<p>对于基于 Red Hat 的系统（如 CentOS），可以清理 <code>yum</code> 缓存：</p>
-<pre class="line-numbers language-none"><code class="language-none">sudo yum clean all
-sudo yum autoremove<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<h3 id="使用-du-和-df-检查磁盘使用情况"><a href="#使用-du-和-df-检查磁盘使用情况" class="headerlink" title="使用 du 和 df 检查磁盘使用情况"></a>使用 <code>du</code> 和 <code>df</code> 检查磁盘使用情况</h3><p>可以使用 <code>du</code> 和 <code>df</code> 命令来检查磁盘使用情况并确定哪些文件或目录占用了大量空间：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 显示磁盘使用情况</span>
-<span class="token function">df</span> <span class="token parameter variable">-h</span>
-<span class="token comment"># 显示当前目录及其子目录的磁盘使用情况</span>
-<span class="token function">du</span> <span class="token parameter variable">-h</span> --max-depth<span class="token operator">=</span><span class="token number">1</span> /path/to/check<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="查找并删除大文件"><a href="#查找并删除大文件" class="headerlink" title="查找并删除大文件"></a>查找并删除大文件</h3><p>可以使用 <code>find</code> 命令查找大文件并决定是否删除：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 查找大于 100MB 的文件</span>
-<span class="token function">find</span> / <span class="token parameter variable">-type</span> f <span class="token parameter variable">-size</span> +100M<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<h3 id="清理日志文件"><a href="#清理日志文件" class="headerlink" title="清理日志文件"></a>清理日志文件</h3><p>日志文件可能会占用大量磁盘空间，可以清理旧的日志文件或压缩日志文件：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 清空日志文件</span>
-<span class="token builtin class-name">echo</span> <span class="token string">""</span> <span class="token operator">></span> /var/log/syslog
-<span class="token builtin class-name">echo</span> <span class="token string">""</span> <span class="token operator">></span> /var/log/auth.log
-
-<span class="token comment"># 使用 logrotate 管理日志文件的轮转和压缩</span>
-<span class="token function">sudo</span> <span class="token function">logrotate</span> /etc/logrotate.conf<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="卸载不必要的包和依赖"><a href="#卸载不必要的包和依赖" class="headerlink" title="卸载不必要的包和依赖"></a>卸载不必要的包和依赖</h3><p>可以使用包管理器卸载不再需要的软件包和依赖：</p>
-<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 基于 Debian 系统</span>
-<span class="token function">sudo</span> <span class="token function">apt-get</span> remove <span class="token parameter variable">--purge</span> package_name
-<span class="token function">sudo</span> <span class="token function">apt-get</span> autoremove
-
-<span class="token comment"># 基于 Red Hat 系统</span>
-<span class="token function">sudo</span> yum remove package_name
-<span class="token function">sudo</span> yum autoremove<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-          
+gitHub C
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/post/GithubAction.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2142,489 +1535,20 @@ sudo yum autoremove<span aria-hidden="true" class="line-numbers-rows"><span></sp
       
         
           
-            <h1 id="认证流程原理"><a href="#认证流程原理" class="headerlink" title="认证流程原理"></a>认证流程原理</h1><h2 id="跨域认证的问题"><a href="#跨域认证的问题" class="headerlink" title="跨域认证的问题"></a>跨域认证的问题</h2><p>互联网服务离不开用户认证。一般流程是下面这样。</p>
-<blockquote>
-<p>1、用户向服务器发送用户名和密码。</p>
-<p>2、服务器验证通过后，在当前对话（session）里面保存相关数据，比如用户角色、登录时间等等。</p>
-<p>3、服务器向用户返回一个 session_id，写入用户的 Cookie。</p>
-<p>4、用户随后的每一次请求，都会通过 Cookie，将 session_id 传回服务器。</p>
-<p>5、服务器收到 session_id，找到前期保存的数据，由此得知用户的身份。</p>
-</blockquote>
-<p>这种模式的问题在于，扩展性（scaling）不好。单机当然没有问题，如果是服务器集群，或者是跨域的服务导向架构，就要求 session 数据共享，每台服务器都能够读取 session。</p>
-<p>举例来说，A 网站和 B 网站是同一家公司的关联服务。现在要求，用户只要在其中一个网站登录，再访问另一个网站就会自动登录，请问怎么实现？</p>
-<p>一种解决方案是 session 数据持久化，写入数据库或别的持久层。各种服务收到请求后，都向持久层请求数据。这种方案的优点是架构清晰，缺点是工程量比较大。另外，持久层万一挂了，就会单点失败。</p>
-<p>另一种方案是服务器索性不保存 session 数据了，所有数据都保存在客户端，每次请求都发回服务器。JWT 就是这种方案的一个代表。</p>
-<h2 id="JWT-JSON-Web-Token"><a href="#JWT-JSON-Web-Token" class="headerlink" title="JWT (JSON Web Token)"></a>JWT (JSON Web Token)</h2><p>JWT是一种用于在各方之间作为JSON对象安全传输信息的紧凑、URL安全的令牌。它由三部分组成：</p>
-<ul>
-<li><strong>Header</strong>：包含令牌类型（通常为JWT）和签名算法（例如HMAC SHA256）。</li>
-<li><strong>Payload</strong>：包含声明（claims），即传输的数据。常见的声明包括：用户ID、用户名、过期时间等。</li>
-<li><strong>Signature</strong>：用于验证令牌的真实性。它是由Header和Payload通过签名算法和密钥生成的。</li>
-</ul>
-<pre class="line-numbers language-typescript" data-language="typescript"><code class="language-typescript">Header<span class="token punctuation">.</span>Payload<span class="token punctuation">.</span>Signature<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+          认证流程原理跨域认证的问题互联网服务离不开用户认证。一般流程是下面这样。
 
-<h3 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h3><p>Header 部分是一个 JSON 对象，描述 JWT 的元数据，通常是下面的样子。</p>
-<blockquote>
-<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token punctuation">&#123;</span>
-  <span class="token string-property property">"alg"</span><span class="token operator">:</span> <span class="token string">"HS256"</span><span class="token punctuation">,</span>
-  <span class="token string-property property">"typ"</span><span class="token operator">:</span> <span class="token string">"JWT"</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-</blockquote>
-<p>上面代码中，<code>alg</code>属性表示签名的算法（algorithm），默认是 HMAC SHA256（写成 HS256）；<code>typ</code>属性表示这个令牌（token）的类型（type），JWT 令牌统一写为<code>JWT</code>。</p>
-<p>最后，将上面的 JSON 对象使用 Base64URL 算法（详见后文）转成字符串。</p>
-<h3 id="Payload"><a href="#Payload" class="headerlink" title="Payload"></a>Payload</h3><p>Payload 部分也是一个 JSON 对象，用来存放实际需要传递的数据。JWT 规定了7个官方字段，供选用。</p>
-<blockquote>
-<ul>
-<li>iss (issuer)：签发人</li>
-<li>exp (expiration time)：过期时间</li>
-<li>sub (subject)：主题</li>
-<li>aud (audience)：受众</li>
-<li>nbf (Not Before)：生效时间</li>
-<li>iat (Issued At)：签发时间</li>
-<li>jti (JWT ID)：编号</li>
-</ul>
-</blockquote>
-<p>除了官方字段，你还可以在这个部分定义私有字段，下面就是一个例子。</p>
-<blockquote>
-<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token punctuation">&#123;</span>
-  <span class="token string-property property">"sub"</span><span class="token operator">:</span> <span class="token string">"1234567890"</span><span class="token punctuation">,</span>
-  <span class="token string-property property">"name"</span><span class="token operator">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span>
-  <span class="token string-property property">"admin"</span><span class="token operator">:</span> <span class="token boolean">true</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-</blockquote>
-<p>注意，JWT 默认是不加密的，任何人都可以读到，所以不要把秘密信息放在这个部分。</p>
-<p>这个 JSON 对象也要使用 Base64URL 算法转成字符串。</p>
-<h3 id="Signature"><a href="#Signature" class="headerlink" title="Signature"></a>Signature</h3><p>Signature 部分是对前两部分的签名，防止数据篡改。</p>
-<p>首先，需要指定一个密钥（secret）。这个密钥只有服务器才知道，不能泄露给用户。然后，使用 Header 里面指定的签名算法（默认是 HMAC SHA256），按照下面的公式产生签名。</p>
-<blockquote>
-<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token constant">HMACSHA256</span><span class="token punctuation">(</span>
-  <span class="token function">base64UrlEncode</span><span class="token punctuation">(</span>header<span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">"."</span> <span class="token operator">+</span>
-  <span class="token function">base64UrlEncode</span><span class="token punctuation">(</span>payload<span class="token punctuation">)</span><span class="token punctuation">,</span>
-  secret<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-</blockquote>
-<p>算出签名以后，把 Header、Payload、Signature 三个部分拼成一个字符串，每个部分之间用”点”（<code>.</code>）分隔，就可以返回给用户。</p>
-<h2 id="JWT-的使用方式"><a href="#JWT-的使用方式" class="headerlink" title="JWT 的使用方式"></a>JWT 的使用方式</h2><p>客户端收到服务器返回的 JWT，可以储存在 Cookie 里面，也可以储存在 localStorage。</p>
-<p>此后，客户端每次与服务器通信，都要带上这个 JWT。你可以把它放在 Cookie 里面自动发送，但是这样不能跨域，所以更好的做法是放在 HTTP 请求的头信息<code>Authorization</code>字段里面。</p>
-<blockquote>
-<pre class="line-numbers language-javascript" data-language="javascript"><code class="language-javascript"><span class="token literal-property property">Authorization</span><span class="token operator">:</span> Bearer <span class="token operator">&lt;</span>token<span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-</blockquote>
-<p>另一种做法是，跨域的时候，JWT 就放在 POST 请求的数据体里面。</p>
-<h2 id="认证流程"><a href="#认证流程" class="headerlink" title="认证流程"></a>认证流程</h2><ol>
-<li><strong>用户登录</strong>：用户提交用户名和密码。</li>
-<li><strong>认证服务器验证</strong>：服务器验证用户信息，成功后生成JWT令牌。</li>
-<li><strong>返回令牌</strong>：服务器将JWT令牌返回给客户端。</li>
-<li><strong>客户端存储令牌</strong>：客户端存储令牌（通常在本地存储或Cookie中）。</li>
-<li><strong>请求资源</strong>：客户端在每次请求资源时，将JWT令牌放入HTTP请求头中。</li>
-<li><strong>服务器验证令牌</strong>：服务器验证JWT令牌的有效性，若有效则返回请求的资源。</li>
-</ol>
-<h1 id="编程步骤"><a href="#编程步骤" class="headerlink" title="编程步骤"></a>编程步骤</h1><h2 id="创建SpringBoot项目"><a href="#创建SpringBoot项目" class="headerlink" title="创建SpringBoot项目"></a>创建SpringBoot项目</h2><p>使用Spring Initializr创建一个Spring Boot项目，选择以下依赖：</p>
-<ul>
-<li>Spring Web</li>
-<li>Spring Security</li>
-<li>Spring Boot DevTools</li>
-<li>JWT (可以通过Maven或Gradle添加依赖)</li>
-</ul>
-<h2 id="添加JWT依赖"><a href="#添加JWT依赖" class="headerlink" title="添加JWT依赖"></a>添加JWT依赖</h2><p>在<code>pom.xml</code>中添加JWT依赖：</p>
-<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>dependency</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>io.jsonwebtoken<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>jjwt<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>version</span><span class="token punctuation">></span></span>0.9.1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>version</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>dependency</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="创建用户注册类"><a href="#创建用户注册类" class="headerlink" title="创建用户注册类"></a>创建用户注册类</h2><p>前期准备，创建一个用户注册类来进行用户注册，后续采用jwt登录涉及加密处理，前期注册的时候采用加密存进数据库。</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token comment">//控制器类</span>
-<span class="token annotation punctuation">@RestController</span>
-<span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"/auth"</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserController</span> <span class="token punctuation">&#123;</span>
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">private</span> <span class="token class-name">UserService</span> userService<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@PostMapping</span><span class="token punctuation">(</span><span class="token string">"/register"</span><span class="token punctuation">)</span>
-    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">registerUser</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestBody</span> <span class="token class-name">User</span> user<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        userService<span class="token punctuation">.</span><span class="token function">registerUser</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> <span class="token string">"User registered successfully"</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span>
-<span class="token comment">//接口类</span>
-<span class="token keyword">public</span> <span class="token keyword">interface</span> <span class="token class-name">UserService</span> <span class="token keyword">extends</span> <span class="token class-name">IService</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">User</span><span class="token punctuation">></span></span> <span class="token punctuation">&#123;</span>
-    <span class="token keyword">void</span> <span class="token function">registerUser</span><span class="token punctuation">(</span><span class="token class-name">User</span> user<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span>
-<span class="token comment">//实现类</span>
-<span class="token annotation punctuation">@Service</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserServiceImpl</span> <span class="token keyword">extends</span> <span class="token class-name">ServiceImpl</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">UserMapper</span><span class="token punctuation">,</span> <span class="token class-name">User</span><span class="token punctuation">></span></span> <span class="token keyword">implements</span> <span class="token class-name">UserService</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">private</span> <span class="token class-name">UserMapper</span> userMapper<span class="token punctuation">;</span>
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">private</span> <span class="token class-name">PasswordEncoder</span> passwordEncoder<span class="token punctuation">;</span>
-
-
-    <span class="token annotation punctuation">@Override</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">registerUser</span><span class="token punctuation">(</span><span class="token class-name">User</span> user<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token class-name">String</span> encodedPassword <span class="token operator">=</span> passwordEncoder<span class="token punctuation">.</span><span class="token function">encode</span><span class="token punctuation">(</span>user<span class="token punctuation">.</span><span class="token function">getPassword</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token comment">// 将用户名和加密后的密码存储到数据库中</span>
-        <span class="token class-name">User</span> passwdUser <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">User</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        passwdUser<span class="token punctuation">.</span><span class="token function">setUsername</span><span class="token punctuation">(</span>user<span class="token punctuation">.</span><span class="token function">getUsername</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        passwdUser<span class="token punctuation">.</span><span class="token function">setPassword</span><span class="token punctuation">(</span>encodedPassword<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        userMapper<span class="token punctuation">.</span><span class="token function">insert</span><span class="token punctuation">(</span>passwdUser<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span>
-
-<span class="token comment">//实体类</span>
-<span class="token annotation punctuation">@Data</span>
-<span class="token annotation punctuation">@TableName</span><span class="token punctuation">(</span>value <span class="token operator">=</span> <span class="token string">"user"</span><span class="token punctuation">)</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">User</span>  <span class="token punctuation">&#123;</span>
-    <span class="token keyword">private</span> <span class="token class-name">String</span> username<span class="token punctuation">;</span>
-    <span class="token keyword">private</span> <span class="token class-name">String</span> password<span class="token punctuation">;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="创建Security配置类"><a href="#创建Security配置类" class="headerlink" title="创建Security配置类"></a>创建Security配置类</h2><p>创建一个配置类来配置Spring Security：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Configuration</span>
-<span class="token annotation punctuation">@EnableWebSecurity</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SecurityConfig</span> <span class="token keyword">extends</span> <span class="token class-name">WebSecurityConfigurerAdapter</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">private</span> <span class="token class-name">JwtUserDetailsService</span> jwtUserDetailsService<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">private</span> <span class="token class-name">JwtUtils</span> jwtUtils<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">private</span> <span class="token class-name">UserDetailsService</span> userDetailsService<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Override</span>
-    <span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">configure</span><span class="token punctuation">(</span><span class="token class-name">HttpSecurity</span> http<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
-        http<span class="token punctuation">.</span><span class="token function">csrf</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">disable</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment">//禁用CSRF保护（对于无状态的REST API来说，CSRF保护通常是多余的）。</span>
-                <span class="token punctuation">.</span><span class="token function">sessionManagement</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">sessionCreationPolicy</span><span class="token punctuation">(</span><span class="token class-name">SessionCreationPolicy</span><span class="token punctuation">.</span><span class="token constant">STATELESS</span><span class="token punctuation">)</span> <span class="token comment">//配置会话管理策略为无状态（STATELESS）</span>
-                <span class="token punctuation">.</span><span class="token function">and</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-                <span class="token punctuation">.</span><span class="token function">authorizeRequests</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-                <span class="token punctuation">.</span><span class="token function">antMatchers</span><span class="token punctuation">(</span><span class="token string">"/auth/login"</span><span class="token punctuation">,</span> <span class="token string">"/auth/register"</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">permitAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token comment">// 允许匿名访问登录和注册路径</span>
-                <span class="token punctuation">.</span><span class="token function">anyRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">authenticated</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-                <span class="token punctuation">.</span><span class="token function">and</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-            	<span class="token comment">//注册JWT过滤器，确保在每次请求时验证JWT令牌</span>
-                <span class="token punctuation">.</span><span class="token function">addFilterBefore</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">JwtRequestFilter</span><span class="token punctuation">(</span>jwtUtils<span class="token punctuation">,</span> userDetailsService<span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token class-name">UsernamePasswordAuthenticationFilter</span><span class="token punctuation">.</span><span class="token keyword">class</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-    <span class="token punctuation">&#125;</span>
-
-    <span class="token annotation punctuation">@Override</span>
-    <span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">configure</span><span class="token punctuation">(</span><span class="token class-name">AuthenticationManagerBuilder</span> auth<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
-        auth<span class="token punctuation">.</span><span class="token function">userDetailsService</span><span class="token punctuation">(</span>jwtUserDetailsService<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">passwordEncoder</span><span class="token punctuation">(</span><span class="token function">passwordEncoder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-	
-    <span class="token comment">// 配置用户认证服务和密码编码器</span>
-    <span class="token annotation punctuation">@Bean</span>
-    <span class="token keyword">public</span> <span class="token class-name">PasswordEncoder</span> <span class="token function">passwordEncoder</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">BCryptPasswordEncoder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-
-    <span class="token annotation punctuation">@Bean</span>
-    <span class="token annotation punctuation">@Override</span>
-    <span class="token keyword">public</span> <span class="token class-name">AuthenticationManager</span> <span class="token function">authenticationManagerBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
-        <span class="token keyword">return</span> <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">authenticationManagerBean</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="创建JWT工具类"><a href="#创建JWT工具类" class="headerlink" title="创建JWT工具类"></a>创建JWT工具类</h2><p>创建一个JWT工具类，用于生成和验证JWT令牌：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Component</span>
-<span class="token annotation punctuation">@Slf4j</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">JwtUtils</span> <span class="token punctuation">&#123;</span>
-    <span class="token annotation punctuation">@Value</span><span class="token punctuation">(</span><span class="token string">"$&#123;jwt.secret&#125;"</span><span class="token punctuation">)</span>
-    <span class="token keyword">private</span> <span class="token class-name">String</span> secret<span class="token punctuation">;</span>
-    <span class="token annotation punctuation">@Value</span><span class="token punctuation">(</span><span class="token string">"$&#123;jwt.expiration&#125;"</span><span class="token punctuation">)</span>
-    <span class="token keyword">private</span> <span class="token class-name">Long</span> expiration<span class="token punctuation">;</span>
-
-
-    <span class="token comment">// 生成JWT令牌</span>
-    <span class="token annotation punctuation">@CacheResult</span><span class="token punctuation">(</span>cacheKey <span class="token operator">=</span> <span class="token string">"#this.getCacheKey(#username)"</span><span class="token punctuation">,</span>expireTime <span class="token operator">=</span> <span class="token number">1000</span> <span class="token operator">*</span> <span class="token number">60</span> <span class="token operator">*</span> <span class="token number">60</span> <span class="token operator">*</span> <span class="token number">10</span><span class="token punctuation">)</span>
-    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">generateToken</span><span class="token punctuation">(</span><span class="token class-name">String</span> username<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token class-name">String</span> token <span class="token operator">=</span> <span class="token class-name">Jwts</span><span class="token punctuation">.</span><span class="token function">builder</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-                <span class="token punctuation">.</span><span class="token function">setSubject</span><span class="token punctuation">(</span>username<span class="token punctuation">)</span>
-                <span class="token punctuation">.</span><span class="token function">setIssuedAt</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-                <span class="token punctuation">.</span><span class="token function">setExpiration</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token class-name">System</span><span class="token punctuation">.</span><span class="token function">currentTimeMillis</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token number">1000</span> <span class="token operator">*</span> <span class="token number">60</span> <span class="token operator">*</span> <span class="token number">60</span> <span class="token operator">*</span> <span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-                <span class="token punctuation">.</span><span class="token function">signWith</span><span class="token punctuation">(</span><span class="token class-name">SignatureAlgorithm</span><span class="token punctuation">.</span><span class="token constant">HS256</span><span class="token punctuation">,</span> secret<span class="token punctuation">)</span>
-                <span class="token punctuation">.</span><span class="token function">compact</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> token<span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-
-    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">getCacheKey</span><span class="token punctuation">(</span><span class="token class-name">String</span> username<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        <span class="token keyword">return</span> <span class="token string">"token:"</span><span class="token operator">+</span>username<span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-
-    <span class="token comment">// 提取声明（claims）</span>
-    <span class="token keyword">public</span> <span class="token class-name">Claims</span> <span class="token function">extractClaims</span><span class="token punctuation">(</span><span class="token class-name">String</span> token<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
-            log<span class="token punctuation">.</span><span class="token function">info</span><span class="token punctuation">(</span><span class="token string">"Extracting claims from Token: &#123;&#125;"</span><span class="token punctuation">,</span> token<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 输出接收到的令牌</span>
-            <span class="token keyword">return</span> <span class="token class-name">Jwts</span><span class="token punctuation">.</span><span class="token function">parser</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
-                    <span class="token punctuation">.</span><span class="token function">setSigningKey</span><span class="token punctuation">(</span>secret<span class="token punctuation">)</span>
-                    <span class="token punctuation">.</span><span class="token function">parseClaimsJws</span><span class="token punctuation">(</span>token<span class="token punctuation">)</span>
-                    <span class="token punctuation">.</span><span class="token function">getBody</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">SignatureException</span> e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-            log<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">"Invalid JWT signature: &#123;&#125;"</span><span class="token punctuation">,</span> e<span class="token punctuation">.</span><span class="token function">getMessage</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">Exception</span> e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-            log<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">"Error extracting claims: &#123;&#125;"</span><span class="token punctuation">,</span> e<span class="token punctuation">.</span><span class="token function">getMessage</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">return</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span>
-    <span class="token punctuation">&#125;</span>
-
-    <span class="token comment">// 验证JWT令牌</span>
-    <span class="token keyword">public</span> <span class="token keyword">boolean</span> <span class="token function">validateToken</span><span class="token punctuation">(</span><span class="token class-name">String</span> token<span class="token punctuation">,</span> <span class="token class-name">String</span> username<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token class-name">Claims</span> claims <span class="token operator">=</span> <span class="token function">extractClaims</span><span class="token punctuation">(</span>token<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>claims <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-            <span class="token keyword">return</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span>
-        <span class="token class-name">String</span> tokenUsername <span class="token operator">=</span> claims<span class="token punctuation">.</span><span class="token function">getSubject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">boolean</span> isTokenExpired <span class="token operator">=</span> claims<span class="token punctuation">.</span><span class="token function">getExpiration</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">before</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Date</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">boolean</span> isValid <span class="token operator">=</span> username<span class="token punctuation">.</span><span class="token function">equals</span><span class="token punctuation">(</span>tokenUsername<span class="token punctuation">)</span> <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span>isTokenExpired<span class="token punctuation">;</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>isValid<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-            log<span class="token punctuation">.</span><span class="token function">warn</span><span class="token punctuation">(</span><span class="token string">"Token validation failed. Username: &#123;&#125;, Token Username: &#123;&#125;, Is Token Expired: &#123;&#125;"</span><span class="token punctuation">,</span> username<span class="token punctuation">,</span> tokenUsername<span class="token punctuation">,</span> isTokenExpired<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span>
-        <span class="token keyword">return</span> isValid<span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="创建用户认证服务"><a href="#创建用户认证服务" class="headerlink" title="创建用户认证服务"></a>创建用户认证服务</h2><p>创建一个用户认证服务，用于加载用户信息：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@Service</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">JwtUserDetailsService</span> <span class="token keyword">implements</span> <span class="token class-name">UserDetailsService</span> <span class="token punctuation">&#123;</span>
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token class-name">UserService</span> userService<span class="token punctuation">;</span>
-
-    <span class="token comment">// 根据用户名加载用户</span>
-    <span class="token annotation punctuation">@Override</span>
-    <span class="token keyword">public</span> <span class="token class-name">UserDetails</span> <span class="token function">loadUserByUsername</span><span class="token punctuation">(</span><span class="token class-name">String</span> username<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">UsernameNotFoundException</span> <span class="token punctuation">&#123;</span>
-        <span class="token class-name">LambdaQueryWrapper</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">User</span><span class="token punctuation">></span></span> lambdaQueryWrapper <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">LambdaQueryWrapper</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token class-name">LambdaQueryWrapper</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">User</span><span class="token punctuation">></span></span> queryWrapper <span class="token operator">=</span> lambdaQueryWrapper
-                <span class="token punctuation">.</span><span class="token function">eq</span><span class="token punctuation">(</span><span class="token class-name">User</span><span class="token operator">::</span><span class="token function">getUsername</span><span class="token punctuation">,</span> username<span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        <span class="token class-name">User</span> user <span class="token operator">=</span> userService<span class="token punctuation">.</span><span class="token function">getOne</span><span class="token punctuation">(</span>queryWrapper<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>user <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">UsernameNotFoundException</span><span class="token punctuation">(</span><span class="token string">"User not found"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span>
-        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">JwtUserDetails</span><span class="token punctuation">(</span>user<span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// user是你自定义的UserDetails实现类</span>
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="创建认证控制器"><a href="#创建认证控制器" class="headerlink" title="创建认证控制器"></a>创建认证控制器</h2><p>创建一个控制器来处理用户登录和生成JWT令牌：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token annotation punctuation">@RestController</span>
-<span class="token annotation punctuation">@RequestMapping</span><span class="token punctuation">(</span><span class="token string">"/auth"</span><span class="token punctuation">)</span>
-<span class="token annotation punctuation">@Slf4j</span>
-<span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">LoginController</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">private</span> <span class="token class-name">AuthenticationManager</span> authenticationManager<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">private</span> <span class="token class-name">JwtUtils</span> jwtUtils<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">private</span> <span class="token class-name">JwtUserDetailsService</span> jwtUserDetailsService<span class="token punctuation">;</span>
-
-    <span class="token comment">// 处理用户登录请求</span>
-    <span class="token annotation punctuation">@PostMapping</span><span class="token punctuation">(</span><span class="token string">"/login"</span><span class="token punctuation">)</span>
-    <span class="token keyword">public</span> <span class="token class-name">String</span> <span class="token function">createToken</span><span class="token punctuation">(</span><span class="token annotation punctuation">@RequestBody</span> <span class="token class-name">User</span> authRequest<span class="token punctuation">)</span> <span class="token keyword">throws</span> <span class="token class-name">Exception</span> <span class="token punctuation">&#123;</span>
-        <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
-            <span class="token comment">// 进行用户认证</span>
-            <span class="token class-name">Authentication</span> authentication <span class="token operator">=</span> authenticationManager<span class="token punctuation">.</span><span class="token function">authenticate</span><span class="token punctuation">(</span>
-                    <span class="token keyword">new</span> <span class="token class-name">UsernamePasswordAuthenticationToken</span><span class="token punctuation">(</span>authRequest<span class="token punctuation">.</span><span class="token function">getUsername</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> authRequest<span class="token punctuation">.</span><span class="token function">getPassword</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-            <span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">AuthenticationException</span> e<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-            <span class="token keyword">throw</span> <span class="token keyword">new</span> <span class="token class-name">Exception</span><span class="token punctuation">(</span><span class="token string">"Invalid username or password"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span>
-        <span class="token comment">// 生成JWT令牌</span>
-        <span class="token keyword">final</span> <span class="token class-name">UserDetails</span> userDetails <span class="token operator">=</span> jwtUserDetailsService<span class="token punctuation">.</span><span class="token function">loadUserByUsername</span><span class="token punctuation">(</span>authRequest<span class="token punctuation">.</span><span class="token function">getUsername</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">return</span> jwtUtils<span class="token punctuation">.</span><span class="token function">generateToken</span><span class="token punctuation">(</span>userDetails<span class="token punctuation">.</span><span class="token function">getUsername</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="创建JWT过滤器"><a href="#创建JWT过滤器" class="headerlink" title="创建JWT过滤器"></a>创建JWT过滤器</h2><p>创建一个JWT过滤器，用于在每次请求时验证JWT令牌：</p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">JwtRequestFilter</span> <span class="token keyword">extends</span> <span class="token class-name">OncePerRequestFilter</span> <span class="token punctuation">&#123;</span>
-
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">private</span> <span class="token class-name">UserDetailsService</span> userDetailsService<span class="token punctuation">;</span>
-
-    <span class="token annotation punctuation">@Autowired</span>
-    <span class="token keyword">private</span> <span class="token class-name">JwtUtils</span> jwtUtil<span class="token punctuation">;</span>
-
-    <span class="token keyword">public</span> <span class="token class-name">JwtRequestFilter</span><span class="token punctuation">(</span><span class="token class-name">JwtUtils</span> jwtUtil<span class="token punctuation">,</span><span class="token class-name">UserDetailsService</span> userDetailsService<span class="token punctuation">)</span><span class="token punctuation">&#123;</span>
-        <span class="token keyword">this</span><span class="token punctuation">.</span>userDetailsService <span class="token operator">=</span> userDetailsService<span class="token punctuation">;</span>
-        <span class="token keyword">this</span><span class="token punctuation">.</span>jwtUtil <span class="token operator">=</span> jwtUtil<span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-
-    <span class="token annotation punctuation">@Override</span>
-    <span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">doFilterInternal</span><span class="token punctuation">(</span><span class="token class-name">HttpServletRequest</span> request<span class="token punctuation">,</span> <span class="token class-name">HttpServletResponse</span> response<span class="token punctuation">,</span> <span class="token class-name">FilterChain</span> chain<span class="token punctuation">)</span>
-            <span class="token keyword">throws</span> <span class="token class-name">ServletException</span><span class="token punctuation">,</span> <span class="token class-name">IOException</span> <span class="token punctuation">&#123;</span>
-
-        <span class="token keyword">final</span> <span class="token class-name">String</span> authorizationHeader <span class="token operator">=</span> request<span class="token punctuation">.</span><span class="token function">getHeader</span><span class="token punctuation">(</span><span class="token string">"Authorization"</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-
-        <span class="token class-name">String</span> username <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
-        <span class="token class-name">String</span> jwt <span class="token operator">=</span> <span class="token keyword">null</span><span class="token punctuation">;</span>
-
-        <span class="token comment">// 从请求头中获取JWT令牌</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>authorizationHeader <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">&amp;&amp;</span> authorizationHeader<span class="token punctuation">.</span><span class="token function">startsWith</span><span class="token punctuation">(</span><span class="token string">"Bearer "</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-            jwt <span class="token operator">=</span> authorizationHeader<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span><span class="token number">7</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-            username <span class="token operator">=</span> jwtUtil<span class="token punctuation">.</span><span class="token function">extractClaims</span><span class="token punctuation">(</span>jwt<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getSubject</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token punctuation">&#125;</span>
-
-        <span class="token comment">// 验证令牌并设置认证信息</span>
-        <span class="token keyword">if</span> <span class="token punctuation">(</span>username <span class="token operator">!=</span> <span class="token keyword">null</span> <span class="token operator">&amp;&amp;</span> <span class="token class-name">SecurityContextHolder</span><span class="token punctuation">.</span><span class="token function">getContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">getAuthentication</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token keyword">null</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-            <span class="token class-name">UserDetails</span> userDetails <span class="token operator">=</span> <span class="token keyword">this</span><span class="token punctuation">.</span>userDetailsService<span class="token punctuation">.</span><span class="token function">loadUserByUsername</span><span class="token punctuation">(</span>username<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token keyword">if</span> <span class="token punctuation">(</span>jwtUtil<span class="token punctuation">.</span><span class="token function">validateToken</span><span class="token punctuation">(</span>jwt<span class="token punctuation">,</span> userDetails<span class="token punctuation">.</span><span class="token function">getUsername</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-                <span class="token class-name">UsernamePasswordAuthenticationToken</span> usernamePasswordAuthenticationToken <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">UsernamePasswordAuthenticationToken</span><span class="token punctuation">(</span>
-                        userDetails<span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">,</span> userDetails<span class="token punctuation">.</span><span class="token function">getAuthorities</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                usernamePasswordAuthenticationToken
-                        <span class="token punctuation">.</span><span class="token function">setDetails</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">WebAuthenticationDetailsSource</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">buildDetails</span><span class="token punctuation">(</span>request<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-                <span class="token class-name">SecurityContextHolder</span><span class="token punctuation">.</span><span class="token function">getContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">setAuthentication</span><span class="token punctuation">(</span>usernamePasswordAuthenticationToken<span class="token punctuation">)</span><span class="token punctuation">;</span>
-            <span class="token punctuation">&#125;</span>
-        <span class="token punctuation">&#125;</span>
-        chain<span class="token punctuation">.</span><span class="token function">doFilter</span><span class="token punctuation">(</span>request<span class="token punctuation">,</span> response<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h1 id="执行流程"><a href="#执行流程" class="headerlink" title="执行流程"></a>执行流程</h1><h2 id="注册阶段"><a href="#注册阶段" class="headerlink" title="注册阶段"></a>注册阶段</h2><ol>
-<li><strong>用户发送注册请求</strong>：通过客户端（如浏览器或Postman）发送一个json格式的user对象的POST请求到<code>/regester</code>接口。</li>
-<li><strong>调用UserService的注册方法</strong>：将需要注册的user对象传入registerUser方法中，将密码使用PasswordEncoder加密后和用户名存到数据库。</li>
-</ol>
-<h2 id="认证阶段"><a href="#认证阶段" class="headerlink" title="认证阶段"></a>认证阶段</h2><ol>
-<li><strong>用户登录请求</strong>：通过客户端（如浏览器或Postman）发送一个json格式的user对象的POST请求到<code>/login</code>接口</li>
-<li><strong>创建认证请求对象</strong>：使用 <code>UsernamePasswordAuthenticationToken</code> 创建一个包含用户名和密码的认证请求对象。</li>
-<li><strong>调用 <code>AuthenticationManager</code> 的 <code>authenticate</code> 方法</strong>：<code>AuthenticationManager</code> 调用内部配置的 <code>AuthenticationProvider</code> 进行认证。</li>
-<li><strong><code>DaoAuthenticationProvider</code> 进行用户认证</strong>：</li>
-</ol>
-<ul>
-<li>使用 <code>UserDetailsService</code> 加载用户信息。</li>
-<li>使用 <code>PasswordEncoder</code> 验证密码。</li>
-</ul>
-<ol start="5">
-<li><strong>返回认证结果</strong>：</li>
-</ol>
-<ul>
-<li>如果认证成功，返回一个填充了用户详细信息和权限的 <code>Authentication</code> 对象。</li>
-<li>如果认证失败，抛出 <code>AuthenticationException</code>。</li>
-</ul>
-<h2 id="生成JWT令牌阶段"><a href="#生成JWT令牌阶段" class="headerlink" title="生成JWT令牌阶段"></a>生成JWT令牌阶段</h2><ol>
-<li><strong>调用 <code>loadUserByUsername</code> 方法</strong>：</li>
-</ol>
-<ul>
-<li><code>jwtUserDetailsService</code> 是一个实现了 <code>UserDetailsService</code> 接口的服务类。</li>
-<li><code>loadUserByUsername</code> 方法用于根据用户名加载用户详细信息。</li>
-</ul>
-<ol start="2">
-<li><p><strong>查询用户信息</strong>：在 <code>loadUserByUsername</code> 方法中，通常会查询数据库或其他存储系统，以获取用户信息。</p>
-</li>
-<li><p><strong>返回 <code>UserDetails</code> 对象</strong>：查询到用户信息后，创建并返回一个实现了 <code>UserDetails</code> 接口的对象，通常是一个自定义的用户详细信息类（例如 <code>JwtUserDetails</code>）</p>
-</li>
-<li><p><strong>调用 <code>generateToken</code> 方法</strong>：</p>
-</li>
-</ol>
-<ul>
-<li><code>jwtUtils</code> 是一个用于生成和验证 JWT 令牌的工具类。</li>
-<li><code>generateToken</code> 方法用于生成一个包含用户名和其他信息的 JWT 令牌。</li>
-</ul>
-<ol start="5">
-<li><strong>创建 JWT 令牌</strong>：</li>
-</ol>
-<ul>
-<li>在 <code>generateToken</code> 方法中，使用 JWT 库（例如 <code>jjwt</code>）创建一个 JWT 令牌。</li>
-<li>令牌中通常包含用户名、签发时间、过期时间等信息，并使用指定的密钥进行签名。</li>
-</ul>
-<ol start="6">
-<li><strong>返回 JWT 令牌</strong>：生成的 JWT 令牌以字符串形式返回。</li>
-</ol>
-<h2 id="受保护的控制器类"><a href="#受保护的控制器类" class="headerlink" title="受保护的控制器类"></a>受保护的控制器类</h2><p>以testController为例，来看受保护的请求，如何进行JWT验证的执行流程</p>
-<ol>
-<li><strong>请求到达</strong> <code>DispatcherServlet</code>：所有请求首先到达 Spring 的 <code>DispatcherServlet</code>。</li>
-<li><strong>进入过滤器链</strong>：请求通过 Spring Security 配置的过滤器链。</li>
-<li><strong>通过每个过滤器</strong>：</li>
-</ol>
-<ul>
-<li><code>SecurityContextPersistenceFilter</code>：从存储中加载 <code>SecurityContext</code> 并将其存储在 <code>SecurityContextHolder</code> 中，以便在请求处理过程中使用。</li>
-<li><code>JwtRequestFilter</code>（自定义过滤器）：从请求头中提取 JWT 令牌，并验证其有效性。如果令牌有效，将认证信息存储到 <code>SecurityContextHolder</code> 中。</li>
-<li><code>ExceptionTranslationFilter</code>：处理认证和授权过程中抛出的异常，将其转换为适当的 HTTP 响应。</li>
-<li><code>FilterSecurityInterceptor</code>：进行访问控制决策，检查当前用户是否有权限访问请求的资源。</li>
-</ul>
-<ol start="4">
-<li><strong>处理器映射</strong>：<code>DispatcherServlet</code> 使用 <code>HandlerMapping</code> 查找与请求路径对应的处理器方法。</li>
-<li><strong>调用处理器方法</strong>：<code>DispatcherServlet</code> 调用找到的处理器方法。</li>
-<li><strong>返回响应</strong>：处理器方法执行并返回响应，<code>DispatcherServlet</code> 将响应返回给客户端。</li>
-</ol>
-<h1 id="涉及类介绍"><a href="#涉及类介绍" class="headerlink" title="涉及类介绍"></a>涉及类介绍</h1><h2 id="UsernamePasswordAuthenticationToken"><a href="#UsernamePasswordAuthenticationToken" class="headerlink" title="UsernamePasswordAuthenticationToken"></a><code>UsernamePasswordAuthenticationToken</code></h2><p><strong>作用：</strong></p>
-<ol>
-<li><strong>存储用户认证信息</strong>：<ul>
-<li><code>UsernamePasswordAuthenticationToken</code> 对象包含了用户的认证信息，例如用户名（principal）和密码（credentials）。</li>
-</ul>
-</li>
-<li><strong>传递认证请求</strong>：<ul>
-<li>在用户登录时，<code>UsernamePasswordAuthenticationToken</code> 对象通常用于创建认证请求对象，并传递给 <code>AuthenticationManager</code> 进行认证。</li>
-</ul>
-</li>
-<li><strong>表示认证状态</strong>：<ul>
-<li><code>UsernamePasswordAuthenticationToken</code> 对象还可以表示认证状态，通过 <code>setAuthenticated</code> 方法设置为已认证或未认证。</li>
-</ul>
-</li>
-</ol>
-<p><strong>构造函数：</strong></p>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token class-name">UsernamePasswordAuthenticationToken</span><span class="token punctuation">(</span><span class="token class-name">Object</span> principal<span class="token punctuation">,</span> <span class="token class-name">Object</span> credentials<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-    <span class="token keyword">super</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token class-name">Collection</span><span class="token punctuation">)</span><span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment">// 调用父类的构造函数，传入 null 表示没有权限信息</span>
-    <span class="token keyword">this</span><span class="token punctuation">.</span>principal <span class="token operator">=</span> principal<span class="token punctuation">;</span> <span class="token comment">// 设置用户主体,就是用户名</span>
-    <span class="token keyword">this</span><span class="token punctuation">.</span>credentials <span class="token operator">=</span> credentials<span class="token punctuation">;</span> <span class="token comment">// 设置用户凭据，就是密码</span>
-    <span class="token keyword">this</span><span class="token punctuation">.</span><span class="token function">setAuthenticated</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">;</span><span class="token comment">// 设置认证状态为未认证</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="SecurityContextPersistenceFilter"><a href="#SecurityContextPersistenceFilter" class="headerlink" title="SecurityContextPersistenceFilter"></a><code>SecurityContextPersistenceFilter</code></h2><p><strong>作用</strong>：</p>
-<ul>
-<li>从存储中加载 <code>SecurityContext</code> 并将其存储在 <code>SecurityContextHolder</code> 中，以便在请求处理过程中使用。</li>
-<li>在请求结束时，将 <code>SecurityContext</code> 的状态保存到存储中。</li>
-</ul>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">doFilter</span><span class="token punctuation">(</span><span class="token class-name">ServletRequest</span> req<span class="token punctuation">,</span> <span class="token class-name">ServletResponse</span> res<span class="token punctuation">,</span> <span class="token class-name">FilterChain</span> chain<span class="token punctuation">)</span>
-        <span class="token keyword">throws</span> <span class="token class-name">IOException</span><span class="token punctuation">,</span> <span class="token class-name">ServletException</span> <span class="token punctuation">&#123;</span>
-    <span class="token class-name">HttpServletRequest</span> request <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">HttpServletRequest</span><span class="token punctuation">)</span> req<span class="token punctuation">;</span>
-    <span class="token class-name">HttpServletResponse</span> response <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">HttpServletResponse</span><span class="token punctuation">)</span> res<span class="token punctuation">;</span>
-    <span class="token class-name">SecurityContext</span> contextBeforeChainExecution <span class="token operator">=</span> repo<span class="token punctuation">.</span><span class="token function">loadContext</span><span class="token punctuation">(</span>holder<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
-        <span class="token class-name">SecurityContextHolder</span><span class="token punctuation">.</span><span class="token function">setContext</span><span class="token punctuation">(</span>contextBeforeChainExecution<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        chain<span class="token punctuation">.</span><span class="token function">doFilter</span><span class="token punctuation">(</span>request<span class="token punctuation">,</span> response<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span> <span class="token keyword">finally</span> <span class="token punctuation">&#123;</span>
-        <span class="token class-name">SecurityContext</span> contextAfterChainExecution <span class="token operator">=</span> <span class="token class-name">SecurityContextHolder</span><span class="token punctuation">.</span><span class="token function">getContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token class-name">SecurityContextHolder</span><span class="token punctuation">.</span><span class="token function">clearContext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-        repo<span class="token punctuation">.</span><span class="token function">saveContext</span><span class="token punctuation">(</span>contextAfterChainExecution<span class="token punctuation">,</span> request<span class="token punctuation">,</span> response<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="ExceptionTranslationFilter"><a href="#ExceptionTranslationFilter" class="headerlink" title="ExceptionTranslationFilter"></a><code>ExceptionTranslationFilter</code></h2><p><strong>作用</strong>：</p>
-<ul>
-<li>处理认证和授权过程中抛出的异常，将其转换为适当的 HTTP 响应。</li>
-</ul>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">doFilter</span><span class="token punctuation">(</span><span class="token class-name">ServletRequest</span> req<span class="token punctuation">,</span> <span class="token class-name">ServletResponse</span> res<span class="token punctuation">,</span> <span class="token class-name">FilterChain</span> chain<span class="token punctuation">)</span>
-        <span class="token keyword">throws</span> <span class="token class-name">IOException</span><span class="token punctuation">,</span> <span class="token class-name">ServletException</span> <span class="token punctuation">&#123;</span>
-    <span class="token class-name">HttpServletRequest</span> request <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">HttpServletRequest</span><span class="token punctuation">)</span> req<span class="token punctuation">;</span>
-    <span class="token class-name">HttpServletResponse</span> response <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token class-name">HttpServletResponse</span><span class="token punctuation">)</span> res<span class="token punctuation">;</span>
-    <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
-        chain<span class="token punctuation">.</span><span class="token function">doFilter</span><span class="token punctuation">(</span>request<span class="token punctuation">,</span> response<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">AuthenticationException</span> ex<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token function">sendStartAuthentication</span><span class="token punctuation">(</span>request<span class="token punctuation">,</span> response<span class="token punctuation">,</span> chain<span class="token punctuation">,</span> ex<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span><span class="token class-name">AccessDeniedException</span> ex<span class="token punctuation">)</span> <span class="token punctuation">&#123;</span>
-        <span class="token function">handleAccessDeniedException</span><span class="token punctuation">(</span>request<span class="token punctuation">,</span> response<span class="token punctuation">,</span> chain<span class="token punctuation">,</span> ex<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="FilterSecurityInterceptor"><a href="#FilterSecurityInterceptor" class="headerlink" title="FilterSecurityInterceptor"></a><code>FilterSecurityInterceptor</code></h2><p><strong>作用</strong>：</p>
-<ul>
-<li>进行访问控制决策，检查当前用户是否有权限访问请求的资源。</li>
-</ul>
-<pre class="line-numbers language-java" data-language="java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">doFilter</span><span class="token punctuation">(</span><span class="token class-name">ServletRequest</span> request<span class="token punctuation">,</span> <span class="token class-name">ServletResponse</span> response<span class="token punctuation">,</span> <span class="token class-name">FilterChain</span> chain<span class="token punctuation">)</span>
-        <span class="token keyword">throws</span> <span class="token class-name">IOException</span><span class="token punctuation">,</span> <span class="token class-name">ServletException</span> <span class="token punctuation">&#123;</span>
-    <span class="token class-name">FilterInvocation</span> fi <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">FilterInvocation</span><span class="token punctuation">(</span>request<span class="token punctuation">,</span> response<span class="token punctuation">,</span> chain<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token class-name">InterceptorStatusToken</span> token <span class="token operator">=</span> <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">beforeInvocation</span><span class="token punctuation">(</span>fi<span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token keyword">try</span> <span class="token punctuation">&#123;</span>
-        fi<span class="token punctuation">.</span><span class="token function">getChain</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">doFilter</span><span class="token punctuation">(</span>fi<span class="token punctuation">.</span><span class="token function">getRequest</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> fi<span class="token punctuation">.</span><span class="token function">getResponse</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span> <span class="token keyword">finally</span> <span class="token punctuation">&#123;</span>
-        <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">finallyInvocation</span><span class="token punctuation">(</span>token<span class="token punctuation">)</span><span class="token punctuation">;</span>
-        <span class="token keyword">super</span><span class="token punctuation">.</span><span class="token function">afterInvocation</span><span class="token punctuation">(</span>token<span class="token punctuation">,</span> <span class="token keyword">null</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-    <span class="token punctuation">&#125;</span>
-<span class="token punctuation">&#125;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-
-          
+1、用户向服务器发送用户名和密码。
+2、服务器验证通过后，在当前对话（session）里面保存相关数据，比如用户角色、登录时间等等。
+3、服务器向用户返回一个 session_id，写入用户的 Cookie。
+4、用户随后的
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/post/JWT%E5%AE%9E%E8%B7%B5.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -2671,7 +1595,7 @@ sudo yum autoremove<span aria-hidden="true" class="line-numbers-rows"><span></sp
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/GithubAction.html">
+    <link itemprop="mainEntityOfPage" href="https://blog.orionpotter.space/post/PostgreSQL.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="">
@@ -2690,7 +1614,7 @@ sudo yum autoremove<span aria-hidden="true" class="line-numbers-rows"><span></sp
         
           <h2 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/post/GithubAction.html" itemprop="url">Github</a></h2>
+                <a class="post-title-link" href="/post/PostgreSQL.html" itemprop="url">PostgreSQL 学习</a></h2>
         
 
         <div class="post-meta">
@@ -2725,6 +1649,28 @@ sudo yum autoremove<span aria-hidden="true" class="line-numbers-rows"><span></sp
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/database/" itemprop="url" rel="index">
+                    <span itemprop="name">database</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -2754,160 +1700,21 @@ sudo yum autoremove<span aria-hidden="true" class="line-numbers-rows"><span></sp
       
         
           
-            <h1 id="git的通信协议"><a href="#git的通信协议" class="headerlink" title="git的通信协议"></a>git的通信协议</h1><h2 id="ssh协议"><a href="#ssh协议" class="headerlink" title="ssh协议"></a>ssh协议</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">git</span> clone git@github.com:BJPotter/BJPotter.github.io.git<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+          安装PostgreSQL安装依赖
+make &gt;&#x3D; 3.8.0
+推荐gcc最新版
+bzip、bzip2、tar、readline、readline-devel、zlib-devel
+Perl
 
-<h2 id="https协议"><a href="#https协议" class="headerlink" title="https协议"></a>https协议</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">git</span> clone https://github.com/BJPotter/BJPotter.github.io.git<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-
-
-<h2 id="gitHub-Cli协议"><a href="#gitHub-Cli协议" class="headerlink" title="gitHub Cli协议"></a>gitHub Cli协议</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">gh repo clone BJPotter/BJPotter.github.io<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
-
-
-
-<h1 id="gitHub配置SSH-Key"><a href="#gitHub配置SSH-Key" class="headerlink" title="gitHub配置SSH Key"></a>gitHub配置SSH Key</h1><h2 id="设置git的用户名和邮箱"><a href="#设置git的用户名和邮箱" class="headerlink" title="设置git的用户名和邮箱"></a>设置git的用户名和邮箱</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 在Git客户端执行</span>
-<span class="token function">git</span> config <span class="token parameter variable">--global</span> user.name <span class="token string">"这里输入你在GitHub的账户名"</span>
-<span class="token function">git</span> config <span class="token parameter variable">--global</span> user.email <span class="token string">"这里输入你在GitHub的注册邮箱名"</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="生成SSH-Key"><a href="#生成SSH-Key" class="headerlink" title="生成SSH Key"></a>生成<strong>SSH Key</strong></h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">cd</span> ~/.ssh
-ssh-keygen <span class="token parameter variable">-t</span> rsa <span class="token parameter variable">-C</span> <span class="token string">"这里输入你在 GitHub 的注册邮箱"</span>
-<span class="token function">cat</span> id_rsa.pub<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
-
-<h2 id="gitHub配置公钥"><a href="#gitHub配置公钥" class="headerlink" title="gitHub配置公钥"></a>gitHub配置公钥</h2><blockquote>
-<p>在github中点击头像，依次点击Settings &gt; SSH and GPG Keys &gt; New SSH Key</p>
-<p>把客户端的公钥复制到里面，并给title起一个名字保存即可</p>
-</blockquote>
-<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">ssh</span> <span class="token parameter variable">-T</span> git@github.com
-<span class="token comment"># 返回 You've successfully authenticated则成功 </span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<h1 id="https免密配置"><a href="#https免密配置" class="headerlink" title="https免密配置"></a>https免密配置</h1><pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 输入一次账号密码后第二次就会记住账号密码。</span>
-<span class="token function">git</span> config <span class="token parameter variable">--global</span> credential.helper store<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-
-
-<h1 id="Actions"><a href="#Actions" class="headerlink" title="Actions"></a>Actions</h1><h2 id="什么是Actions"><a href="#什么是Actions" class="headerlink" title="什么是Actions"></a>什么是Actions</h2><blockquote>
-<p>github action是一种持续集成和持续交付的（CI&#x2F;CD）平台，可用于自动执行生成、测试和部署管道。在github创建的仓库中，Actions是可以自定义的一些列的操作，如：提交代码后触发自动化编译打包和部署到远程服务器上，官方所说的定义是：在仓库中自动化、自定义操作执行软件开发工作流程，目前有很多现成的Actions可以直接拿来使用，也可以进行自定义创建到自己工作流程中。</p>
-</blockquote>
-<h2 id="Actions可以做什么"><a href="#Actions可以做什么" class="headerlink" title="Actions可以做什么"></a>Actions可以做什么</h2><blockquote>
-<p>Actions通常用来两个方面</p>
-<ol>
-<li>自动化ci&#x2F;cd,触发事件后自动化编译打包部署。</li>
-<li>自动添加标签，当有人提issues的时候可以自动化的添加标签</li>
-</ol>
-</blockquote>
-<h2 id="Actions组件"><a href="#Actions组件" class="headerlink" title="Actions组件"></a>Actions组件</h2><blockquote>
-<p>可以把Github Actions 工作流程配置为在存储库发生事件触发。</p>
-<p>example: 拉取请求或者推送请求的时候触发工作流程[工作流程理解为jobs]</p>
-<p>一个工作流程包含一个作业或者多个作业，这些作业可以按照顺序执行，也可以并发执行，每个作业都会在自己虚拟机中进行，或者在容器中进行，这个运行的进程可以理解为运行了一个runner,每个作业可能会有多个步骤，这个步骤运行自定义的脚本或者运行操作。</p>
-</blockquote>
-<img src="/images/action.png" style="zoom:50%;">
-
-<h3 id="Workflows（工作流）"><a href="#Workflows（工作流）" class="headerlink" title="Workflows（工作流）"></a><strong>Workflows（工作流）</strong></h3><blockquote>
-<p>工作流是一个可配置的自动化的程序。创建一个工作流，你需要定义一个 YAML 文件，当你的仓库触发某个事件的时候，工作流就会运行，当然也可以手动触发，或者定义一个时间表。</p>
-</blockquote>
-<h3 id="事件（Events）"><a href="#事件（Events）" class="headerlink" title="事件（Events）"></a><strong>事件（Events）</strong></h3><blockquote>
-<p>事件是指仓库触发运行工作流的具体的行为，比如创建一个 pull request，新建一个 issue、或者推送一个 commit。你也可以使用时间表触发一个工作流，或者通过请求一个 REST API，再或者手动触发。</p>
-</blockquote>
-<h3 id="任务（Jobs）"><a href="#任务（Jobs）" class="headerlink" title="任务（Jobs）"></a><strong>任务（Jobs）</strong></h3><blockquote>
-<p>任务是在同一个运行器上执行的一组步骤（steps）。一个步骤（steps）要么是一个shell 脚本（script）要么是一个动作（action）。步骤会顺序执行，并彼此独立。因为每一个步骤都在同一个运行器上被执行，所以你可以从一个步骤（step）传递数据到另一个步骤（step）。</p>
-</blockquote>
-<h3 id="动作（Actions）"><a href="#动作（Actions）" class="headerlink" title="动作（Actions）"></a><strong>动作（Actions）</strong></h3><blockquote>
-<p>动作是 GitHub Actions 平台的一个自定义的应用，它会执行一个复杂但是需要频繁重复的作业。使用动作可以减少重复代码。比如一个 action 可以实现从 GitHub 拉取你的 git 仓库，为你的构建环境创建合适的工具链等。</p>
-</blockquote>
-<h3 id="运行器（Runners）"><a href="#运行器（Runners）" class="headerlink" title="运行器（Runners）"></a><strong>运行器（Runners）</strong></h3><blockquote>
-<p>一个运行器是一个可以运行工作流的服务。每一个运行器一次只运行一个单独的任务。GitHub 提供 Ubuntu Linux，Microsoft Windows 和 macOS 运行器，每一个工作流都运行在一个独立新建的虚拟机中。</p>
-</blockquote>
-<h2 id="工作流参数"><a href="#工作流参数" class="headerlink" title="工作流参数"></a><strong>工作流参数</strong></h2><p>工作流程是一个可配置的自动化过程，它将运行一个或多个作业。 工作流程由签入到存储库的 YAML 文件定义，并在存储库中的事件触发时运行，也可以手动触发，或按定义的时间表触发。文件位于仓库的根目录下的<code>.github/workflows</code></p>
-<h3 id="触发工作流程"><a href="#触发工作流程" class="headerlink" title="触发工作流程"></a>触发工作流程</h3><ol>
-<li><p>工作流程存储库发生事件</p>
-<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token comment"># 单个事件触发</span>
-<span class="token key atrule">on</span><span class="token punctuation">:</span> push
-<span class="token comment"># 多个事件触发</span>
-<span class="token key atrule">on</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>push<span class="token punctuation">,</span> fork<span class="token punctuation">]</span>
-<span class="token comment"># 限定master分支发生push事件触发</span>
-<span class="token key atrule">on</span><span class="token punctuation">:</span>
-  <span class="token key atrule">push</span><span class="token punctuation">:</span>
-    <span class="token key atrule">branches</span><span class="token punctuation">:</span>    
-      <span class="token punctuation">-</span> master<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-</li>
-<li><p>预定时间</p>
-<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token comment"># 示例在每天 5:30 和 17:30 UTC 触发工作流程</span>
-<span class="token key atrule">on</span><span class="token punctuation">:</span>
-  <span class="token key atrule">schedule</span><span class="token punctuation">:</span>
-    <span class="token punctuation">-</span> <span class="token key atrule">cron</span><span class="token punctuation">:</span>  <span class="token string">'30 5,17 * * *'</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre></li>
-</ol>
-<h3 id="使用作业"><a href="#使用作业" class="headerlink" title="使用作业"></a>使用作业</h3><ol>
-<li>创建jobs</li>
-</ol>
-<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token comment"># workflow主体是jobs字段，表示要执行的一项或者多项任务jobs.&lt;job_id>.name job_id：名称自定义 name：任务的说明</span>
-<span class="token key atrule">jobs</span><span class="token punctuation">:</span>
-  <span class="token comment">#作业id</span>
-  <span class="token key atrule">my_first_job</span><span class="token punctuation">:</span>
-  	<span class="token comment">#作业名称</span>
-    <span class="token key atrule">name</span><span class="token punctuation">:</span> My first job
-  <span class="token key atrule">my_second_job</span><span class="token punctuation">:</span>
-    <span class="token key atrule">name</span><span class="token punctuation">:</span> My second job
-<span class="token comment"># jobs.&lt;job_id>.needs needs字段指定当前任务的依赖关系，即运行顺序，这个 workflow 的运行顺序依次为：job1、job2、job3</span>
-<span class="token key atrule">jobs</span><span class="token punctuation">:</span>
-  <span class="token key atrule">job1</span><span class="token punctuation">:</span>
-  <span class="token key atrule">job2</span><span class="token punctuation">:</span>
-    <span class="token key atrule">needs</span><span class="token punctuation">:</span> job1
-  <span class="token key atrule">job3</span><span class="token punctuation">:</span>
-    <span class="token key atrule">needs</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>job1<span class="token punctuation">,</span> job2<span class="token punctuation">]</span>    <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<ol start="2">
-<li>选择运行器</li>
-</ol>
-<pre class="line-numbers language-yaml" data-language="yaml"><code class="language-yaml"><span class="token comment"># jobs.&lt;job_id>.runs-on runs-on字段指定运行所需要的虚拟机环境。它是必填字段，目前可以使用的虚拟机如下</span>
-<span class="token key atrule">runs-on</span><span class="token punctuation">:</span> ubuntu<span class="token punctuation">-</span>latest<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-
-<img src="/images/runner.png" style="zoom:50%;">
-
-<blockquote>
-<p>以上是常见的运行器，就是用哪个虚拟机</p>
-</blockquote>
-<ol start="3">
-<li>运行步骤</li>
-</ol>
-<pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"># jobs.<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>job_id</span><span class="token punctuation">></span></span>.steps
-# steps字段指定每个 Job 的运行步骤，可以包含一个或多个步骤。每个步骤都可以指定以下三个字段。
-# 步骤名称。
-jobs.<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>job_id</span><span class="token punctuation">></span></span>.steps.name
-# 该步骤运行的命令或者 action
-jobs.<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>job_id</span><span class="token punctuation">></span></span>.steps.run
-# 该步骤所需的环境变量
-jobs.<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>job_id</span><span class="token punctuation">></span></span>.steps.env<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-<h3 id="maven打jar包示例"><a href="#maven打jar包示例" class="headerlink" title="maven打jar包示例"></a>maven打jar包示例</h3><pre class="line-numbers language-markup" data-language="markup"><code class="language-markup"># .github/workflows/maven.yml 
-name: Java CI with Maven
-on:
-  push:
-    branches: [ "master" ]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 8
-      uses: actions/setup-java@v3
-      with:
-        java-version: '8'
-        distribution: 'temurin'
-        cache: maven
-    - name: Build with Maven
-      run: mvn -B clean package
-    # Optional: Uploads the JAR file as an artifact
-    - name: Upload JAR
-      uses: actions/upload-artifact@v2
-      with:
-        name: DataHub
-        path: target/*.jar<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-
-
-
-
-
-
-          
+下载源代码https ://www.postgresql.org/download/ # 下
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/post/PostgreSQL.html#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -3068,7 +1875,7 @@ jobs:
       <div class="footer-inner">
         <div class="copyright">&copy; 2019 &mdash; <span itemprop="copyrightYear">2025</span>
   <span class="with-love">
-    <i class="fa fa-user"></i>
+    <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Orion Potter</span>
 
@@ -3076,15 +1883,9 @@ jobs:
 </div>
 
 
-  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
 
 
 
-  <span class="post-meta-divider">|</span>
-
-
-
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
 
 
 
@@ -3131,6 +1932,8 @@ jobs:
   
 
 
+  
+
 
 
 
@@ -3169,6 +1972,11 @@ jobs:
   
   
     <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
   
 
 

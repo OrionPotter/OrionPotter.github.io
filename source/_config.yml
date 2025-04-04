@@ -48,17 +48,17 @@ footer:
   since: 2019
 
   # Icon between year and copyright info.
-  icon: user
+  icon: heart
 
   # If not defined, will be used `author` from Hexo main config.
   copyright:
   # -------------------------------------------------------------
   # Hexo link (Powered by Hexo).
-  powered: true
+  powered: false
 
   theme:
     # Theme & scheme info link (Theme - NexT.scheme).
-    enable: true
+    enable: false
     # Version info of NexT after scheme info (vX.X.X).
     version: true
   # -------------------------------------------------------------
@@ -99,7 +99,7 @@ menu:
   archives: /archives/|| archive
   #schedule: /schedule/ || calendar
   sitemap: /sitemap.xml|| sitemap
-  #commonweal: /404/ || heartbeat
+  commonweal: /404/|| heartbeat
 
 # Enable/Disable menu icons.
 menu_icons:
@@ -216,7 +216,7 @@ excerpt_description: true
 # Automatically Excerpt. Not recommend.
 # Please use <!-- more --> in the post to control excerpt accurately.
 auto_excerpt:
-  enable: false
+  enable: true
   length: 150
 
 # Post meta display settings
@@ -695,7 +695,7 @@ pace: false
 pace_theme: pace-theme-minimal
 
 # Canvas-nest
-canvas_nest: false
+canvas_nest: true
 
 # three_waves
 three_waves: false
