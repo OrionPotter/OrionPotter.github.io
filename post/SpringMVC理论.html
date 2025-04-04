@@ -438,7 +438,7 @@
 </ol>
 <h2 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h2><p>1.<strong>客户端请求</strong></p>
 <p>客户端发送一个 HTTP 请求到服务器，例如：</p>
-<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">GET</span> <span class="token request-target url">/hello</span> <span class="token http-version property">HTTP/1.1</span></span>
+<pre class="line-numbers language-http" data-language="http"><code class="language-http"><span class="token request-line"><span class="token method property">GET</span> <span class="token request-target url"><span class="token path"><span class="token path-separator">/</span>hello</span></span> <span class="token http-version property">HTTP/1.1</span></span>
 <span class="token header"><span class="token header-name keyword">Host</span><span class="token punctuation">:</span> <span class="token header-value">localhost:8080</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 
 <p>2.<strong>请求到达</strong> <code>DispatcherServlet</code></p>
