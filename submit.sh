@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 hexo clean
 hexo g
 hexo d
