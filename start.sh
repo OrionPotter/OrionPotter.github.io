@@ -4,3 +4,4 @@ cp -a source/_config.yml themes/next/
 cp -a source/template/OrionPotter.ico themes/next/source/images/
 cp -a source/template/pagination.swig themes/next/layout/_partials/
 npm install hexo-generator-sitemap --save
+npm i --save hexo-wordcount

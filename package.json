@@ -26,8 +26,10 @@
     "hexo-renderer-stylus": "^2.0.0",
     "hexo-renderer-swig": "^2.0.0",
     "hexo-server": "^3.0.0",
+    "hexo-symbols-count-time": "^0.7.1",
     "hexo-theme-aurora": "^1.5.5",
     "hexo-theme-landscape": "^0.0.3",
+    "hexo-wordcount": "^6.0.1",
     "mime-db": "^1.54.0",
     "mime-types": "^3.0.1"
   }

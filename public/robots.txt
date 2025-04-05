@@ -10,5 +10,6 @@ Disallow: /fonts/
 Disallow: /vendors/
 Disallow: /fancybox/
 
-Sitemap: https://blog.orionpotter.space/sitemap.xml
+Sitemap: https://orionpotter.space/sitemap.xml
+Sitemap: https://orionpotter.space/baidusitemap.xml
 
