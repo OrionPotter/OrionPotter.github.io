@@ -2,14 +2,14 @@
 User-agent: *
 Allow: /
 Allow: /archives/
+Allow: /categories/
+Allow: /tags/
 
 Disallow: /vendors/
 Disallow: /js/
 Disallow: /css/
 Disallow: /fonts/
-Disallow: /vendors/
 Disallow: /fancybox/
 
-Sitemap: https://orionpotter.icu/sitemap.xml
-Sitemap: https://orionpotter.icu/baidusitemap.xml
-
+Sitemap: https://orionpotter.space/sitemap.xml
+Sitemap: https://orionpotter.space/baidusitemap.xml
