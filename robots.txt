@@ -11,5 +11,5 @@ Disallow: /css/
 Disallow: /fonts/
 Disallow: /fancybox/
 
-Sitemap: https://orionpotter.space/sitemap.xml
-Sitemap: https://orionpotter.space/baidusitemap.xml
+Sitemap: https://orionpotter.icu/sitemap.xml
+Sitemap: https://orionpotter.icu/baidusitemap.xml
