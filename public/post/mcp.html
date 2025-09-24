@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/OrionPotter.ico?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/OrionPotter.ico?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="OrionPotter,博客,java,系统设计,web" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="后端开发必备：20个常用 MCP Server 工具推荐在 AI 辅助开发逐渐普及的今天，MCP（Model Context Protocol） 正在成为后端开发者的新利器。它的作用是为大模型提供统一的接口，让模型能够调用各种“Server 工具”，进而和真实的系统、数据库、文件、浏览器等环境交互。对后端工程师来说，MCP 让我们能用 AI 更高效地操控开发环境、调试系统和管理资源。 本文将为大家">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Orion Potter&#39;s 个人博客">
+<meta property="og:url" content="https://orionpotter.icu/post/mcp.html">
+<meta property="og:site_name" content="Orion Potter&#39;s 个人博客">
+<meta property="og:description" content="后端开发必备：20个常用 MCP Server 工具推荐在 AI 辅助开发逐渐普及的今天，MCP（Model Context Protocol） 正在成为后端开发者的新利器。它的作用是为大模型提供统一的接口，让模型能够调用各种“Server 工具”，进而和真实的系统、数据库、文件、浏览器等环境交互。对后端工程师来说，MCP 让我们能用 AI 更高效地操控开发环境、调试系统和管理资源。 本文将为大家">
+<meta property="og:locale">
+<meta property="article:published_time" content="2025-09-24T12:36:57.579Z">
+<meta property="article:modified_time" content="2025-09-24T12:38:30.372Z">
+<meta property="article:author" content="Orion Potter">
+<meta name="twitter:card" content="summary">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://orionpotter.icu/post/mcp.html"/>
+
+
+
+
+
+  <title> | Orion Potter's 个人博客</title>
+  
+
+
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Orion Potter's 个人博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <h1 class="site-subtitle" itemprop="description">持续学习,持续进步</h1>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-folder"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-sitemap">
+          <a href="/sitemap.xml" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-sitemap"></i> <br />
+            
+            站点地图
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://orionpotter.icu/post/mcp.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Orion Potter's 个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline"></h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2025-09-24T20:36:57+08:00">
+                2025-09-24
+              </time>
+            
+
+            
+              <span class="post-meta-divider">|</span>
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-check-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">更新于&#58;</span>
+              
+              <time title="更新于" itemprop="dateModified" datetime="2025-09-24T20:38:30+08:00">
+                2025-09-24
+              </time>
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  1.1k
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  4
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="后端开发必备：20个常用-MCP-Server-工具推荐"><a href="#后端开发必备：20个常用-MCP-Server-工具推荐" class="headerlink" title="后端开发必备：20个常用 MCP Server 工具推荐"></a>后端开发必备：20个常用 MCP Server 工具推荐</h1><p>在 AI 辅助开发逐渐普及的今天，<strong>MCP（Model Context Protocol）</strong> 正在成为后端开发者的新利器。它的作用是为大模型提供统一的接口，让模型能够调用各种“Server 工具”，进而和真实的系统、数据库、文件、浏览器等环境交互。对后端工程师来说，MCP 让我们能用 AI 更高效地操控开发环境、调试系统和管理资源。</p>
+<p>本文将为大家推荐 <strong>20 个常用 MCP Server 工具</strong>，涵盖文件系统、数据库、浏览器、运维、上下文管理等方面，帮助后端工程师快速提升效率。</p>
+<hr>
+<h2 id="🚀-常用-MCP-Server-工具推荐"><a href="#🚀-常用-MCP-Server-工具推荐" class="headerlink" title="🚀 常用 MCP Server 工具推荐"></a>🚀 常用 MCP Server 工具推荐</h2><h3 id="1-Filesystem-Server"><a href="#1-Filesystem-Server" class="headerlink" title="1. Filesystem Server"></a>1. Filesystem Server</h3><ul>
+<li><strong>作用</strong>：访问和操作本地文件系统。</li>
+<li><strong>使用场景</strong>：读取配置文件、日志分析、批量生成代码文件。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/filesystem">filesystem MCP</a></li>
+</ul>
+<h3 id="2-Browser-Server"><a href="#2-Browser-Server" class="headerlink" title="2. Browser Server"></a>2. Browser Server</h3><ul>
+<li><strong>作用</strong>：提供浏览器环境访问能力。</li>
+<li><strong>使用场景</strong>：自动化测试、爬取网页数据、验证前端渲染。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/browser">browser MCP</a></li>
+</ul>
+<h3 id="3-SQLite-Server"><a href="#3-SQLite-Server" class="headerlink" title="3. SQLite Server"></a>3. SQLite Server</h3><ul>
+<li><strong>作用</strong>：访问本地 SQLite 数据库。</li>
+<li><strong>使用场景</strong>：本地测试数据存取、轻量级数据库操作。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/sqlite">sqlite MCP</a></li>
+</ul>
+<h3 id="4-Postgres-Server"><a href="#4-Postgres-Server" class="headerlink" title="4. Postgres Server"></a>4. Postgres Server</h3><ul>
+<li><strong>作用</strong>：操作 PostgreSQL 数据库。</li>
+<li><strong>使用场景</strong>：调试查询语句、管理后端数据库。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/postgres">postgres MCP</a></li>
+</ul>
+<h3 id="5-MySQL-Server"><a href="#5-MySQL-Server" class="headerlink" title="5. MySQL Server"></a>5. MySQL Server</h3><ul>
+<li><strong>作用</strong>：支持 MySQL 数据库操作。</li>
+<li><strong>使用场景</strong>：后端开发常见的关系型数据库维护。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/mysql">mysql MCP</a></li>
+</ul>
+<h3 id="6-OpenAPI-Server"><a href="#6-OpenAPI-Server" class="headerlink" title="6. OpenAPI Server"></a>6. OpenAPI Server</h3><ul>
+<li><strong>作用</strong>：调用基于 OpenAPI 的 REST 接口。</li>
+<li><strong>使用场景</strong>：快速集成第三方 API 调用。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/openapi">openapi MCP</a></li>
+</ul>
+<h3 id="7-Shell-Server"><a href="#7-Shell-Server" class="headerlink" title="7. Shell Server"></a>7. Shell Server</h3><ul>
+<li><strong>作用</strong>：执行系统 Shell 命令。</li>
+<li><strong>使用场景</strong>：自动化部署、运维脚本、命令行调试。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/shell">shell MCP</a></li>
+</ul>
+<h3 id="8-Git-Server"><a href="#8-Git-Server" class="headerlink" title="8. Git Server"></a>8. Git Server</h3><ul>
+<li><strong>作用</strong>：提供 Git 仓库操作能力。</li>
+<li><strong>使用场景</strong>：代码版本管理、自动化提交、分支合并。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/git">git MCP</a></li>
+</ul>
+<h3 id="9-Context-Server"><a href="#9-Context-Server" class="headerlink" title="9. Context Server"></a>9. Context Server</h3><ul>
+<li><strong>作用</strong>：扩展模型上下文记忆能力。</li>
+<li><strong>使用场景</strong>：长对话开发、代码审查保持上下文。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/context">context MCP</a></li>
+</ul>
+<h3 id="10-Redis-Server"><a href="#10-Redis-Server" class="headerlink" title="10. Redis Server"></a>10. Redis Server</h3><ul>
+<li><strong>作用</strong>：操作 Redis 内存数据库。</li>
+<li><strong>使用场景</strong>：缓存调试、队列管理、会话存储。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/redis">redis MCP</a></li>
+</ul>
+<h3 id="11-MongoDB-Server"><a href="#11-MongoDB-Server" class="headerlink" title="11. MongoDB Server"></a>11. MongoDB Server</h3><ul>
+<li><strong>作用</strong>：支持 MongoDB 操作。</li>
+<li><strong>使用场景</strong>：非关系型数据存取、日志存档。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/mongodb">mongodb MCP</a></li>
+</ul>
+<h3 id="12-Kubernetes-Server"><a href="#12-Kubernetes-Server" class="headerlink" title="12. Kubernetes Server"></a>12. Kubernetes Server</h3><ul>
+<li><strong>作用</strong>：与 K8s API 交互。</li>
+<li><strong>使用场景</strong>：部署容器、查看 Pod 状态、伸缩服务。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/kubernetes">kubernetes MCP</a></li>
+</ul>
+<h3 id="13-Docker-Server"><a href="#13-Docker-Server" class="headerlink" title="13. Docker Server"></a>13. Docker Server</h3><ul>
+<li><strong>作用</strong>：管理 Docker 容器。</li>
+<li><strong>使用场景</strong>：快速构建和运行容器化应用。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/docker">docker MCP</a></li>
+</ul>
+<h3 id="14-HTTP-Server"><a href="#14-HTTP-Server" class="headerlink" title="14. HTTP Server"></a>14. HTTP Server</h3><ul>
+<li><strong>作用</strong>：提供 HTTP 请求能力。</li>
+<li><strong>使用场景</strong>：测试 API 接口、调试网络请求。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/http">http MCP</a></li>
+</ul>
+<h3 id="15-Logging-Server"><a href="#15-Logging-Server" class="headerlink" title="15. Logging Server"></a>15. Logging Server</h3><ul>
+<li><strong>作用</strong>：集中管理日志输出。</li>
+<li><strong>使用场景</strong>：收集运行日志、调试错误追踪。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/logging">logging MCP</a></li>
+</ul>
+<h3 id="16-Prompt-Storage-Server"><a href="#16-Prompt-Storage-Server" class="headerlink" title="16. Prompt Storage Server"></a>16. Prompt Storage Server</h3><ul>
+<li><strong>作用</strong>：存储和管理常用提示词。</li>
+<li><strong>使用场景</strong>：复用开发调试 prompt，团队共享提示词库。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/prompt-storage">prompt-storage MCP</a></li>
+</ul>
+<h3 id="17-Markdown-Server"><a href="#17-Markdown-Server" class="headerlink" title="17. Markdown Server"></a>17. Markdown Server</h3><ul>
+<li><strong>作用</strong>：渲染和处理 Markdown 文件。</li>
+<li><strong>使用场景</strong>：生成文档、博客内容管理。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/markdown">markdown MCP</a></li>
+</ul>
+<h3 id="18-Excel-Server"><a href="#18-Excel-Server" class="headerlink" title="18. Excel Server"></a>18. Excel Server</h3><ul>
+<li><strong>作用</strong>：读写 Excel 文件。</li>
+<li><strong>使用场景</strong>：导出报表、处理业务数据。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/excel">excel MCP</a></li>
+</ul>
+<h3 id="19-Email-Server"><a href="#19-Email-Server" class="headerlink" title="19. Email Server"></a>19. Email Server</h3><ul>
+<li><strong>作用</strong>：发送和接收邮件。</li>
+<li><strong>使用场景</strong>：构建通知系统、报警邮件推送。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/email">email MCP</a></li>
+</ul>
+<h3 id="20-Jira-Server"><a href="#20-Jira-Server" class="headerlink" title="20. Jira Server"></a>20. Jira Server</h3><ul>
+<li><strong>作用</strong>：对接 Jira 项目管理系统。</li>
+<li><strong>使用场景</strong>：任务追踪、团队协作。</li>
+<li><strong>GitHub</strong>：<a target="_blank" rel="noopener" href="https://github.com/modelcontextprotocol/servers/tree/main/jira">jira MCP</a></li>
+</ul>
+<hr>
+<h2 id="🔍-总结与最佳实践"><a href="#🔍-总结与最佳实践" class="headerlink" title="🔍 总结与最佳实践"></a>🔍 总结与最佳实践</h2><p>从文件管理、数据库到容器编排，再到项目管理和 API 调用，这些 <strong>MCP Server 工具</strong> 几乎覆盖了后端开发的全流程。合理组合使用，可以让 AI 成为我们真正的「开发助手」。例如：</p>
+<ul>
+<li>用 <strong>Filesystem + Git Server</strong> 管理代码与版本。</li>
+<li>用 <strong>Postgres&#x2F;MySQL + Redis</strong> 处理核心数据。</li>
+<li>用 <strong>Kubernetes + Docker</strong> 部署上线。</li>
+<li>用 <strong>Logging + Email&#x2F;Jira</strong> 做监控与协作。</li>
+</ul>
+<p>MCP 不仅仅是一个接口协议，而是让后端工程师能够真正「把 AI 接入开发环境」的桥梁。建议大家在自己的项目中逐步引入，形成一套高效的开发工具链。</p>
+<p>👉 以上就是我整理的 <strong>MCP 工具推荐清单</strong>，希望能给正在探索 AI + 后端开发的朋友们一些启发。你可以从简单的 Filesystem 或 Shell Server 开始，逐步扩展到数据库和运维工具，最终打造自己的 <strong>MCP 工具最佳实践</strong>。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+      <div>
+        <ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者：</strong>
+    Orion Potter
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://orionpotter.icu/post/mcp.html" title="">https://orionpotter.icu/post/mcp.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>
+    本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/" rel="external nofollow" target="_blank">CC BY-NC-SA 3.0</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+
+      </div>
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/post/kettle.html" rel="next" title="Kettel">
+                <i class="fa fa-chevron-left"></i> Kettel
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name"></p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/%7C%7C%20archive">
+              
+                  <span class="site-state-item-count">53</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">38</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/OrionPotter" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://twitter.com/imlzgg" target="_blank" title="Twitter">
+                      
+                        <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91%E5%BF%85%E5%A4%87%EF%BC%9A20%E4%B8%AA%E5%B8%B8%E7%94%A8-MCP-Server-%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90"><span class="nav-number">1.</span> <span class="nav-text">后端开发必备：20个常用 MCP Server 工具推荐</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%9A%80-%E5%B8%B8%E7%94%A8-MCP-Server-%E5%B7%A5%E5%85%B7%E6%8E%A8%E8%8D%90"><span class="nav-number">1.1.</span> <span class="nav-text">🚀 常用 MCP Server 工具推荐</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Filesystem-Server"><span class="nav-number">1.1.1.</span> <span class="nav-text">1. Filesystem Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Browser-Server"><span class="nav-number">1.1.2.</span> <span class="nav-text">2. Browser Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-SQLite-Server"><span class="nav-number">1.1.3.</span> <span class="nav-text">3. SQLite Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Postgres-Server"><span class="nav-number">1.1.4.</span> <span class="nav-text">4. Postgres Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-MySQL-Server"><span class="nav-number">1.1.5.</span> <span class="nav-text">5. MySQL Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-OpenAPI-Server"><span class="nav-number">1.1.6.</span> <span class="nav-text">6. OpenAPI Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-Shell-Server"><span class="nav-number">1.1.7.</span> <span class="nav-text">7. Shell Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-Git-Server"><span class="nav-number">1.1.8.</span> <span class="nav-text">8. Git Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-Context-Server"><span class="nav-number">1.1.9.</span> <span class="nav-text">9. Context Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-Redis-Server"><span class="nav-number">1.1.10.</span> <span class="nav-text">10. Redis Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-MongoDB-Server"><span class="nav-number">1.1.11.</span> <span class="nav-text">11. MongoDB Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-Kubernetes-Server"><span class="nav-number">1.1.12.</span> <span class="nav-text">12. Kubernetes Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-Docker-Server"><span class="nav-number">1.1.13.</span> <span class="nav-text">13. Docker Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-HTTP-Server"><span class="nav-number">1.1.14.</span> <span class="nav-text">14. HTTP Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-Logging-Server"><span class="nav-number">1.1.15.</span> <span class="nav-text">15. Logging Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#16-Prompt-Storage-Server"><span class="nav-number">1.1.16.</span> <span class="nav-text">16. Prompt Storage Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#17-Markdown-Server"><span class="nav-number">1.1.17.</span> <span class="nav-text">17. Markdown Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#18-Excel-Server"><span class="nav-number">1.1.18.</span> <span class="nav-text">18. Excel Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#19-Email-Server"><span class="nav-number">1.1.19.</span> <span class="nav-text">19. Email Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#20-Jira-Server"><span class="nav-number">1.1.20.</span> <span class="nav-text">20. Jira Server</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%94%8D-%E6%80%BB%E7%BB%93%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">1.2.</span> <span class="nav-text">🔍 总结与最佳实践</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2019 &mdash; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Orion Potter</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+      <span class="post-meta-item-text">Site words total count&#58;</span>
+    
+    <span title="Site words total count">226.6k</span>
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
